@@ -18,6 +18,7 @@
 python3 ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py            # schema + 4 錯誤 / 2 警告 lint
 python3 ${CLAUDE_PLUGIN_ROOT}/scripts/verify.py <venue-id>   # 重抓、斷言、比對 hash
 python3 ${CLAUDE_PLUGIN_ROOT}/scripts/venue_topic_scan.py --venue <venue-id> --term "<主題>"   # 期刊實際刊了什麼（OpenAlex 標題掃描）
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/sample_review_times.py --issn <ISSN> --preset frontiers --journal-path journals/psychology --year 2025   # 自行估計投稿到接受（非官方）
 python3 ${CLAUDE_PLUGIN_ROOT}/scripts/venue_table.py <venue-id> ...   # 比較表（IF、分區、接受率、速度、APC），讀記錄產生，不手抄
 ```
 
@@ -29,6 +30,7 @@ schema/venue.schema.json          # 形式契約
 scripts/{validate,verify}.py
 scripts/venue_topic_scan.py      # 期刊實際刊了什麼（OpenAlex 標題掃描，choose-venue 用）
 scripts/venue_table.py           # 比較表產生器（venue-report 用）
+scripts/sample_review_times.py   # 官方未公布審稿速度時，自行抽樣估計（只當估計）
 skills/venue-report/templates/   # 報告 .tex 範本
 ```
 

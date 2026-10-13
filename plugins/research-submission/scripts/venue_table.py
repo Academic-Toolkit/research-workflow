@@ -23,6 +23,7 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
+NOTES = []   # (id, 欄位, 說明)；有附註的格子會加 † 或 ‡
 UNKNOWN = "?"
 NOT_PUBLISHED = "未公布"
 
@@ -170,12 +171,27 @@ def acceptance(m):
     return f"{s}（{y}）" if y else s
 
 
+EST_KEYS = {"sub_to_accept": "sub_to_acceptance"}
+
+
+def estimate_or_unpublished(m, key):
+    """官方未公布時，若記錄有自行抽樣估計（identity.metrics.estimates），顯示「未公布（自行估計…‡）」。
+    估計與官方數字必須一眼分得出來，所以一定帶 ‡ 與附註，絕不直接印成官方欄位的數字。"""
+    e = (m.get("estimates") or {}).get(EST_KEYS.get(key, ""))
+    if not e or "value" not in e:
+        return NOT_PUBLISHED
+    NOTES.append((m.get("_id", "?"), "估計",
+                  f"‡ 自行抽樣估計，不是官方統計：{e.get('method', '')} 樣本 n={e.get('n')}；"
+                  f"四分位 {fmt_int(e.get('q1'))}–{fmt_int(e.get('q3'))} 天；限制：{'；'.join(e.get('caveats', [])[:2])}"))
+    return f"{NOT_PUBLISHED}（自行估計中位約 {e['value']:g} 天‡）"
+
+
 def duration(m, key):
     for k in ALIASES[key]:
         if k in m:
             v = m[k]
             if is_unknown(v):
-                return NOT_PUBLISHED
+                return estimate_or_unpublished(m, key)
             n = num(v)
             if n is None:
                 return UNKNOWN
@@ -223,9 +239,6 @@ def review(rec):
     return REVIEW_LABEL.get(t, UNKNOWN if t is None else str(t))
 
 
-NOTES = []   # (id, 欄位, 說明)；有附註的格子會加 †
-
-
 def length(rec):
     req = rec.get("requirements") or {}
     L = req.get("length") or req.get("length_policy") or req.get("length_note")
@@ -257,6 +270,7 @@ def length(rec):
 
 def row(rec):
     m = get(rec, "identity", "metrics") or {}
+    m = {**m, "_id": rec["id"]}
     return {
         "id": rec["id"],
         "name": get(rec, "identity", "name") or rec["id"],
@@ -305,7 +319,7 @@ def main():
     for vid, label in bad:
         print(f"⚠ {vid}：「{label}」讀不出來（記錄結構認不得，不是官方未公布）— 請查記錄或補別名", file=sys.stderr)
 
-    notes = [f"† {i} {k}：{n[:140]}" for i, k, n in NOTES]
+    notes = [(f"{i} {k}：{n}" if k == "估計" else f"† {i} {k}：{n[:140]}") for i, k, n in NOTES]
     if a.format == "quartiles":
         for i in ids:
             m = get(load(i, a.root), "identity", "metrics") or {}
@@ -322,7 +336,7 @@ def main():
             print(f"\n{n}")
     else:
         for r in rows:
-            print(" & ".join(tex(r[k]).replace("†", r"\textsuperscript{†}") for k, _ in COLS) + r" \\")
+            print(" & ".join(tex(r[k]).replace("†", r"\textsuperscript{†}").replace("‡", r"\textsuperscript{‡}") for k, _ in COLS) + r" \\")
         for n in notes:
             print("% " + n)
 

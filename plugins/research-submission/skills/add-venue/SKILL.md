@@ -72,6 +72,31 @@ ls ${CLAUDE_PLUGIN_ROOT}/venues/*/          # apa/psychological-methods.yaml（�
 
 `identity.metrics` 請用 `impact_factor`、`quartiles`、`acceptance_rate`、`time_to_first_decision`、`time_submission_to_acceptance`，形狀見 `venue-report` skill 的「記錄的標準欄位」。**分區（Q）要記系統**：JCR 與 SJR 是不同的統計量，不混用。官方只公布拒絕率時，`acceptance_rate` 寫 not_published，另放 `rejection_rate`。
 
+### 官方沒有公布審稿速度時：自行抽樣估計（只當估計，不當官方事實）
+
+官方未公布「投稿到接受」時，先寫 `not_published`（官方欄位照舊，不動）。若該刊的**文章頁標有 Received／Accepted／Published 日期**，可以用 `scripts/sample_review_times.py` 抽樣估計，結果放在 `identity.metrics.estimates`，**與官方欄位分開**：
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/sample_review_times.py --issn <ISSN> --journal-path <期刊路徑> \
+    --preset frontiers --year <刊出年> --n 200 --out result.json
+```
+
+腳本以 Crossref 隨機抽樣該刊某年刊出的文章，逐篇讀文章頁日期，輸出投稿到接受的中位數、四分位、10–90 百分位與樣本數。記錄格式：
+
+```yaml
+estimates:
+  sub_to_acceptance: {statistic: median, value: ..., unit: days, q1: ..., q3: ..., p10: ..., p90: ...,
+                      method: "...", n: ..., sample_year: ..., queried: ..., caveats: [...]}
+```
+
+**一定要寫進 `caveats` 的限制**：
+1. 只含最後被刊出的稿件，**看不到被拒稿**，不能回答「被拒要花多久」。
+2. 樣本是「某年刊出」的文章，不是「某年投稿」的稿件。
+3. Received 是否等於首次投稿日，要看該刊的說明；沒說明就記為假設。
+4. 抽樣有隨機誤差；n 小時（例：8 篇得到 80 天，198 篇得到 108.5 天）差很多，至少抽 100 篇以上。
+
+**已驗證的 preset 只有 `frontiers`**（2026-10-13）。其他出版社先用 `--n 5` 試跑，`n_parsed` 要等於 `n_sampled` 才放大；出版社擋 curl（例如 MDPI 回 403）時本腳本不能用，要改用 safari-browser 逐篇讀。**估計不得與官方統計互比**（口徑不同：官方的中位數有自己的母體與起訖點），也不得放進官方欄位。
+
 ### 三條填寫紀律
 
 1. **查過但官網沒有 → 寫 `{status: not_published, checked: <date>}`**，不要留空。留空會讓後人以為是漏抓，於是重複去查一次不存在的東西。
