@@ -18,7 +18,17 @@ description: Use when a journal or conference is NOT yet in the research-submiss
 
 **URL 不可推測。** 實測過的陷阱：APA 的 `/submission-guidelines` 是 404、真路徑 `/submit`；Psychometric Society 的 `/imps` 是 404、真路徑帶年份 `/imps-2026`。找不到就從首頁導覽點進去，把真實 URL 記下來。
 
-## Step 2 — 測試抓取方式，記進 `fetch.method`
+## Step 2 — 預設用 safari-browser 讀頁面，再記進 `fetch.method`
+
+**預設用 safari-browser 讀。** 出版社與學會網站多半擋機器人（Wiley、Elsevier/ScienceDirect、MDPI 對 curl 與 WebFetch 都回 403；APA 回 200 空殼），Safari 帶著使用者的一般瀏覽器環境，這些頁面在 Safari 裡都讀得到。看不到頁面是工具的限制，不是期刊的問題，**不要因此換掉候選期刊或改憑記憶填**。
+
+先載入 `safari-browser` skill，照它的 tab-locking 規則：
+
+- 用 `--url <子字串>` 鎖分頁（多視窗時可用 `--window` 加 `--tab-in-window`）；重用鎖定旗標時存成 bash 陣列，不要存成字串。
+- `open` 會開在最前面的視窗，只開自己需要的頁；用完**只關自己開的分頁**，不要碰使用者或其他代理開的分頁。多個代理同時操作時，每次動作前先用頁面內容（期刊名、ISSN）確認抓到的是自己的頁。
+- 讀頁面文字用 `document.body.innerText`。
+
+仍要測一次 curl，不是為了取得內容，是為了回答「這個來源別人能不能自動重抓」，並記進 `fetch.method` / `http_viable`（`verify.py` 靠這個決定能不能自動比對）：
 
 ```bash
 curl -sS -L --max-time 15 -w '\n%{http_code}|%{size_download}' "<url>" | tail -1
@@ -26,12 +36,16 @@ curl -sS -L --max-time 15 -w '\n%{http_code}|%{size_download}' "<url>" | tail -1
 
 判讀：
 
-- 正常大小、狀態 200 → `method: http`, `http_viable: true`
-- **200 但只有幾百 bytes** → **bot 挑戰頁**（APA 的 Incapsula 即如此）。`method: webfetch`, `http_viable: false`，並把失敗樣態寫進 `http_failure_mode`
-- 403 → 同上，可能需要 `method: browser`（safari-browser）
+- 正常大小、狀態 200 → `http_viable: true`。內容仍可用 Safari 讀；`method` 記 `http`
+- **200 但只有幾百 bytes** → **bot 挑戰頁**（APA 的 Incapsula 即如此）。`method: browser`（或 `webfetch`，視實際用哪種讀到），`http_viable: false`，並把失敗樣態寫進 `http_failure_mode`
+- 403 → 同上，`method: browser`，`http_viable: false`
 - 多個不同 URL 回**相同大小/hash** → 決定性證據，全部是同一個挑戰頁
 
-抓不到的頁面用 WebFetch；WebFetch 也不行才用 safari-browser。
+`method: browser` 的來源 `verify.py` 無法自動重抓，會回 `NEEDS_AGENT`；這是預期結果，不是故障。重新驗證時請用 Safari 打開被引用的頁面，確認原文仍在並記下確認日期。
+
+### 收錄／指標：Clarivate Master Journal List
+
+要確認期刊是否收錄在 SSCI、SCIE 時，以 Clarivate Master Journal List（mjl.clarivate.com）為準，不要憑記憶，也不要用出版社自己的收錄清單當證據（實測 IJCS 的出版社頁列有 AHCI，MJL 卻只有 SSCI）。MJL 是 JS 頁面，結果頁網址不帶查詢字串、`?issn=` 會被導回首頁，所以只能在頁內操作：從 `/home` 在 `#search-box` 填 ISSN，按 `#search-button`，讀結果列的 Web of Science Core Collection 欄。SCIE、SSCI、ESCI 要分開記；只有 ESCI 不算 SCIE 或 SSCI。
 
 ## Step 3 — 設定 `fetch.validity`（**不可省略**）
 
