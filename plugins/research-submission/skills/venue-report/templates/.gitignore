@@ -1,0 +1,9 @@
+# LaTeX 編譯產物，不進版控（範本只有 report.tex）
+*.aux
+*.log
+*.out
+*.toc
+*.xdv
+*.fls
+*.fdb_latexmk
+*.pdf
