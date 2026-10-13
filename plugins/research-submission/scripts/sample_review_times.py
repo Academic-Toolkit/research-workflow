@@ -22,7 +22,7 @@ preset（驗證日 2026-10-13）：
   plos         文章頁 "Received: </strong>January 12, 2025;"；刊出日取 Crossref
   europepmc    全文 XML 的 history 段 "Received 2025 Nov 10; Revised …; Accepted 2025 Dec 27"；刊出日取檢索結果的 firstPublicationDate。
                限制：只涵蓋 PMC 收錄的開放全文，覆蓋率與延遲可能造成偏差
-  mdpi-safari  mdpi.com 對 curl 回 403，故用 safari-browser：頁面文字 "Received:\\n19 December 2024\\n…Accepted:\\n…Published:\\n…"
+  mdpi-safari  mdpi.com 對 curl 回 403，故用 safari-browser（網址必須是 https://www.mdpi.com/ 或 mdpi.com，其他主機一律拒絕）：頁面文字 "Received:\\n19 December 2024\\n…Accepted:\\n…Published:\\n…"
 其他出版社先用 --n 5 試跑，n_parsed 要等於 n_sampled 才放大。
 """
 import argparse
@@ -122,6 +122,18 @@ JS_EXTRACT = (r"var t=document.body.innerText;function g(k){var m=t.match(new Re
               r"return m?m[1]:''};return g('Received')+'|'+g('Accepted')+'|'+g('Published')")
 
 
+ALLOWED_BROWSER_HOSTS = {"mdpi-safari": ("www.mdpi.com", "mdpi.com")}
+
+
+def safe_landing(url, preset):
+    """Crossref 的 resource 欄位是出版社自填的，不可信。要交給有登入的 Safari 之前，必須是 https 且主機在白名單內，
+    否則一個被竄改的紀錄就能讓使用者的瀏覽器導向任意網站並在上面執行 JavaScript。"""
+    u = urllib.parse.urlparse(url or "")
+    if u.scheme != "https" or u.hostname not in ALLOWED_BROWSER_HOSTS.get(preset, ()):
+        raise ValueError(f"landing url not allowed: {url!r}")
+    return url
+
+
 def human_delay():
     time.sleep(min(15, max(2.0, 3 + math.tan(math.pi * (random.random() - 0.5)) * 0.8)))
 
@@ -162,7 +174,7 @@ def main():
         sys.exit("✗ 要給 --year，或 --from-date 與 --until-date")
 
     rows, failed, total_pool = [], [], None
-    lock = ["--url", "mdpi.com"]
+    lock = ["--url", "https://www.mdpi.com/"]   # 以完整主機前綴鎖定，避免子字串誤中其他網站
 
     if a.preset == "europepmc":
         sample, total_pool = epmc_sample(a.issn, d0, d1, a.n, a.seed)
@@ -190,13 +202,12 @@ def main():
             for k, x in enumerate(sample, 1):
                 try:
                     if a.preset == "mdpi-safari":
-                        if not x["landing"]:
-                            raise ValueError("no landing url")
+                        landing = safe_landing(x["landing"], a.preset)
                         if not opened:
-                            sf("open", x["landing"], "--new-window")
+                            sf("open", landing, "--new-window")
                             opened = True
                             time.sleep(4)
-                        t = safari_dates(x["landing"], lock)
+                        t = safari_dates(landing, lock)
                         if not t:
                             raise ValueError("no dates")
                         r_, a_, p_ = t
@@ -222,7 +233,7 @@ def main():
                     print(k, file=sys.stderr)
         finally:
             if a.preset == "mdpi-safari" and opened:
-                sf("close", *lock)       # 只關我們開的 mdpi 視窗
+                sf("close", *lock)       # 只關我們開的 mdpi 視窗（以 https://www.mdpi.com/ 前綴鎖定）
 
     if not rows:
         sys.exit("✗ 一篇也解析不出來：檢查網址或日期樣式、出版社是否擋掉 curl（回 403 就改用 safari-browser）")
