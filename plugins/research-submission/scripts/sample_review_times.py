@@ -122,14 +122,16 @@ JS_EXTRACT = (r"var t=document.body.innerText;function g(k){var m=t.match(new Re
               r"return m?m[1]:''};return g('Received')+'|'+g('Accepted')+'|'+g('Published')")
 
 
-ALLOWED_BROWSER_HOSTS = {"mdpi-safari": ("www.mdpi.com", "mdpi.com")}
+# 只接受這種形狀的網址：https、mdpi.com 主機、沒有 userinfo／連接埠／反斜線／空白／控制字元，路徑只含安全字元。
+# 不用 urlparse 判主機：它與瀏覽器（WHATWG）對反斜線等字元的解析不同，
+# 例如 "https://evil.com\\@www.mdpi.com/" 在 Python 裡主機是 www.mdpi.com，瀏覽器卻會導向 evil.com。
+ALLOWED_LANDING = {"mdpi-safari": re.compile(r"^https://(www\.)?mdpi\.com/[A-Za-z0-9._~/-]*$")}
 
 
 def safe_landing(url, preset):
-    """Crossref 的 resource 欄位是出版社自填的，不可信。要交給有登入的 Safari 之前，必須是 https 且主機在白名單內，
-    否則一個被竄改的紀錄就能讓使用者的瀏覽器導向任意網站並在上面執行 JavaScript。"""
-    u = urllib.parse.urlparse(url or "")
-    if u.scheme != "https" or u.hostname not in ALLOWED_BROWSER_HOSTS.get(preset, ()):
+    """Crossref 的 resource 欄位是出版社自填的，不可信。要交給有登入的 Safari 之前必須通過嚴格的形狀檢查。"""
+    pat = ALLOWED_LANDING.get(preset)
+    if not url or not pat or not pat.fullmatch(url):
         raise ValueError(f"landing url not allowed: {url!r}")
     return url
 
