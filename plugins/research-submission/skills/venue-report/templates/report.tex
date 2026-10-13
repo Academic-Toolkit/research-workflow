@@ -1,6 +1,7 @@
 % =====================================================================
 % 期刊選擇報告 範本（venue-report skill）
 % 編譯：latexmk -xelatex -interaction=nonstopmode -halt-on-error report.tex
+% 表格寬度：直向表用 tabularx{\textwidth}；橫向表欄寬加總＋欄距須小於 25.3cm；編譯後 Overfull 必須為 0。
 % 每個「【待填】」都必須替換掉；編譯前以 grep -c '待填' 確認為 0。
 % 比較表的列由 scripts/venue_table.py --format latex 產生，不要手打（表格內有 TABLE_ROWS 標記處）。
 % 官方事實與判斷分開：判斷一律在句尾加 \J。

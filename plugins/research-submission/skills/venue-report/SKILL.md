@@ -60,13 +60,26 @@ python3 ${CLAUDE_PLUGIN_ROOT}/scripts/venue_table.py --order-file order.txt --fo
 
 ```bash
 grep -c '待填' report.tex        # 必須是 0
-latexmk -xelatex -interaction=nonstopmode -halt-on-error report.tex
+latexmk -xelatex -interaction=nonstopmode -halt-on-error report.tex | tee build.log
+grep -c 'Overfull .hbox' build.log   # 必須是 0（見下「表格寬度」）
 pdfinfo report.pdf | grep Pages
 pdffonts report.pdf              # 全部 emb = yes
 ```
 
+### 表格寬度（超寬一定要處理）
+
+`Overfull \hbox (N pt too wide)` 代表有東西超出頁面右緣，**PDF 裡看起來只是被截掉，編譯照樣成功**。任何一件都要處理，不可忽略；超出 1pt 以內的才可以放過。處理順序：
+
+1. **直向的表一律用 `tabularx{\textwidth}`**，文字欄用 `X` 或 `p{寬度}` 加 `\raggedright\arraybackslash`，數字欄用 `\centering\arraybackslash` 的 `X`。不要用沒有寬度限制的 `tabular` 放長標題。
+2. **橫向表**：所有欄寬加總再加欄距（欄數 × 2 × `\tabcolsep`）必須小於橫向版面寬（A4、邊界 2.2 cm 時約 25.3 cm）。超過就縮欄寬，或把字級降到 `\footnotesize`、`\tabcolsep` 降到 3pt。
+3. **單字比欄寬還長**（例如窄欄裡的 `environmental`）不會自動斷行，縮窄欄寬也沒用：改縮寫欄名，並在表後用一行文字寫出完整名稱。
+4. 最後才考慮 `\scriptsize`；字小到難讀就改成拆成兩張表。
+
+修完重編，**再看 Overfull 是 0**，並渲染頁面確認右緣沒有被截。
+
 然後**把頁面渲染出來看**（`pdftoppm -r 60 -png`），不要只看編譯成功。至少檢查：
 
+- 每一張表的右緣都完整在頁面內（含主題證據表這類直向表）。
 - 橫向比較表整張在**同一頁**，沒有只剩一列溢到下一頁。
 - 沒有只有一個標題的空白頁（`landscape` 環境會強制換頁，章節標題要放在環境裡面）。
 - 目錄標題是中文；表格內的 `→`、`%`、`&` 沒有破版。
@@ -78,6 +91,7 @@ pdffonts report.pdf              # 全部 emb = yes
 
 - **2026-10（第一次產生報告）**：比較表是從代理的文字回報手動轉進 `.tex` 的，十三列、十欄，全靠人眼對。這是整份報告最容易出錯的地方，因此現在由腳本讀記錄產生。
 - 同一次：`landscape` 環境前的 `\section` 被孤立在一頁空白頁；表格最後一列溢到下一頁；目錄標題是英文。三項都是編譯成功但看頁面才發現，所以 Step 4 要求渲染頁面。
+- 同一次：主題證據表用沒有寬度限制的 `tabular`，欄標題的 `consumption`、`environmental` 把表撐出右緣 163pt，編譯成功、PDF 右側被截掉，是使用者提醒後才查日誌發現。因此 Step 4 要求 Overfull 為 0。
 - 同一次：各代理寫的記錄欄位名稱不一致（投稿到接受有三種寫法），腳本因此要容忍別名，並在認不得時印「?」而不是猜。
 
 ## 不做
