@@ -10,7 +10,7 @@
   "plugins": [
     {
       "name": "research-submission",
-      "version": "0.7.3",
+      "version": "0.7.4",
       "description": "投稿須知的一手來源語料庫（原名 live-submission-guidelines）：期刊與研討會。快照帶時間戳與內容 hash，投稿前強制現場驗證，避免照著過期規定寫完一整篇稿。5 個 skill（含病例報告撰寫與選刊報告） + schema + 驗證/新鮮度腳本。",
       "author": {
         "name": "Che Cheng"

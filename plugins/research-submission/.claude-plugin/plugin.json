@@ -1,6 +1,6 @@
 {
   "name": "research-submission",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "description": "學術投稿須知的一手來源語料庫（期刊 + 研討會；原名 live-submission-guidelines）。每筆記錄帶來源 URL、擷取日期、最後驗證日期與抽取後內容的 sha256；讀取走快照（快、可離線），投稿前強制現場驗證（錯了會很貴的那一刻才嚴格）。與 livedocs 哲學相同但機制相反：期刊須知數年不變且無 llms.txt（實測 6 家出版社 0/6，半數擋 bot），所以語料庫本身就是產品，live 用於驗證而非讀取。",
   "author": {
     "name": "Che Cheng"

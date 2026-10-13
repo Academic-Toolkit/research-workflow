@@ -198,7 +198,7 @@ def duration(m, key):
             s = f"{fmt_int(n)} 天"
             if isinstance(v, dict):
                 tag = v.get("period") or v.get("year")
-                if isinstance(tag, (str, int)) and tag:
+                if isinstance(tag, (str, int)) and tag and str(tag) not in ("not_published", "not_found", "not_applicable"):
                     s += f"（{str(tag).split('（')[0]}）"
             return s
     return UNKNOWN
