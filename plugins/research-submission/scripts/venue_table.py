@@ -268,11 +268,31 @@ def length(rec):
     return out
 
 
+PUBLISHER_SHORT = [("elsevier", "Elsevier"), ("wiley", "Wiley"), ("springer", "Springer Nature"), ("mdpi", "MDPI"),
+                   ("multidisciplinary digital", "MDPI"), ("frontiers", "Frontiers"), ("public library of science", "PLOS"),
+                   ("plos", "PLOS"), ("american psychological", "APA"), ("sage", "SAGE"), ("taylor", "Taylor & Francis"),
+                   ("oxford", "OUP"), ("cambridge", "CUP")]
+
+
+def publisher(rec):
+    p = str(get(rec, "identity", "publisher") or "")
+    low = p.lower()
+    for k, v in PUBLISHER_SHORT:
+        if k in low:
+            return v
+    return p.split("（")[0].strip() or UNKNOWN
+
+
+DISCOUNTS = {}   # venue id -> 文字；由 --discounts 檔提供（機構專屬資料，不屬於期刊記錄）
+
+
 def row(rec):
     m = get(rec, "identity", "metrics") or {}
     m = {**m, "_id": rec["id"]}
     return {
         "id": rec["id"],
+        "publisher": publisher(rec),
+        "discount": DISCOUNTS.get(rec["id"], "—") if DISCOUNTS else None,
         "name": get(rec, "identity", "name") or rec["id"],
         "index": wos(rec),
         "if": impact_factor(m),
@@ -286,9 +306,9 @@ def row(rec):
     }
 
 
-COLS = [("name", "期刊"), ("index", "收錄"), ("if", "IF"), ("q", "分區"), ("accept", "接受率"),
+COLS = [("name", "期刊"), ("publisher", "出版社"), ("index", "收錄"), ("if", "IF"), ("q", "分區"), ("accept", "接受率"),
         ("first", "首次決定（中位）"), ("sub_accept", "投稿→接受（中位）"), ("apc", "APC"),
-        ("review", "審稿"), ("length", "篇幅")]
+        ("discount", "機構折扣"), ("review", "審稿"), ("length", "篇幅")]
 
 
 def tex(s):
@@ -304,9 +324,13 @@ def main():
     ap.add_argument("ids", nargs="*", help="venue id，例 wiley/journal-of-consumer-psychology")
     ap.add_argument("--order-file", help="每行一個 venue id；決定列的順序（# 開頭為註解，空行略過）")
     ap.add_argument("--root", default=str(ROOT), help="含 venues/ 的外掛根目錄（預設為本外掛）")
+    ap.add_argument("--discounts", help="JSON 檔：{venue-id: 文字}。機構專屬的 APC 折扣或合約資訊（例如某校與出版社的協議），"
+                    "不屬於期刊記錄，所以由外部提供；有給才多一欄「機構折扣」")
     ap.add_argument("--format", choices=["markdown", "latex", "json", "quartiles"], default="markdown")
     a = ap.parse_args()
 
+    if a.discounts:
+        DISCOUNTS.update(json.loads(Path(a.discounts).read_text(encoding="utf-8")))
     ids = list(a.ids)
     if a.order_file:
         ids += [l.strip() for l in Path(a.order_file).read_text(encoding="utf-8").splitlines()
@@ -314,6 +338,9 @@ def main():
     if not ids:
         sys.exit("✗ 沒有 venue id")
 
+    global COLS
+    if not DISCOUNTS:
+        COLS = [c for c in COLS if c[0] != "discount"]
     rows = [row(load(i, a.root)) for i in ids]
     bad = [(r["id"], label) for r in rows for k, label in COLS if r[k] == UNKNOWN or UNKNOWN in str(r[k])]
     for vid, label in bad:

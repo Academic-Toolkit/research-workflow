@@ -1,7 +1,7 @@
 % =====================================================================
 % 期刊選擇報告 範本（venue-report skill）
 % 編譯：latexmk -xelatex -interaction=nonstopmode -halt-on-error report.tex
-% 表格寬度：直向表用 tabularx{\textwidth}；橫向表欄寬加總＋欄距須小於 25.3cm；編譯後 Overfull 必須為 0。
+% 表格寬度：直向表用 tabularx{\textwidth}；橫向表欄寬加總＋欄距（欄數×2×tabcolsep）須小於 25.3cm；12 欄時約 25.0cm，已無餘裕；編譯後 Overfull 必須為 0。
 % 每個「【待填】」都必須替換掉；編譯前以 grep -c '待填' 確認為 0。
 % 比較表的列由 scripts/venue_table.py --format latex 產生，不要手打（表格內有 TABLE_ROWS 標記處）。
 % 官方事實與判斷分開：判斷一律在句尾加 \J。
@@ -77,11 +77,12 @@
 \begin{landscape}
 \section{比較表（只放官方事實）}\label{sec:table}
 \footnotesize
-\renewcommand{\arraystretch}{1.0}
-\setlength{\tabcolsep}{3pt}
-\begin{longtable}{@{}>{\raggedright\arraybackslash}p{3.6cm}p{1.4cm}p{1.0cm}p{1.7cm}>{\raggedright\arraybackslash}p{3.0cm}>{\raggedright\arraybackslash}p{2.0cm}>{\raggedright\arraybackslash}p{3.0cm}>{\raggedright\arraybackslash}p{2.5cm}p{1.5cm}>{\raggedright\arraybackslash}p{2.6cm}@{}}
+\renewcommand{\arraystretch}{0.9}
+\setlength{\tabcolsep}{2pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{3.4cm}>{\raggedright\arraybackslash}p{1.5cm}p{1.2cm}p{0.8cm}p{1.4cm}>{\raggedright\arraybackslash}p{2.1cm}>{\raggedright\arraybackslash}p{1.8cm}>{\raggedright\arraybackslash}p{3.2cm}>{\raggedright\arraybackslash}p{2.5cm}>{\raggedright\arraybackslash}p{2.4cm}>{\raggedright\arraybackslash}p{1.3cm}>{\raggedright\arraybackslash}p{1.7cm}@{}}
 \toprule
-期刊 & 收錄 & IF & 分區 & 接受率 & 首次決定（中位） & 投稿$\to$接受（中位） & APC & 審稿 & 篇幅 \\
+期刊 & 出版社 & 收錄 & IF & 分區 & 接受率 & 首次決定（中位） & 投稿$\to$接受（中位） & APC & 機構折扣 & 審稿 & 篇幅 \\
+% 沒有給 --discounts 時，產表腳本少一欄「機構折扣」：請同步刪掉這個欄標題與欄寬規格中的一欄
 \midrule
 \endhead
 %%TABLE_ROWS%%
