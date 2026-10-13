@@ -1,0 +1,16 @@
+{
+  "name": "research-design",
+  "version": "0.1.0",
+  "description": "研究設計階段的文件：研究假設說明（研究假設一覽）。把假設寫成期刊論文的句式而不宣稱因果，每條分研究假設、依據、統計三層，頁首先交代受測者實際做了什麼，名詞與統計術語都給白話說明，讓合作者、指導教授或不熟統計的讀者只靠這份文件就讀得懂。XeLaTeX 範本，編譯後檢查版面。",
+  "author": {
+    "name": "Che Cheng"
+  },
+  "license": "MIT",
+  "keywords": [
+    "research",
+    "hypotheses",
+    "research-design",
+    "pre-registration",
+    "collaboration"
+  ]
+}

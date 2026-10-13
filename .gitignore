@@ -1,3 +1,11 @@
 .DS_Store
 __pycache__/
 *.pyc
+
+# LaTeX build artifacts（編譯檔含本機路徑，不進公開 repo）
+*.aux
+*.log
+*.fls
+*.fdb_latexmk
+*.xdv
+*.synctex.gz

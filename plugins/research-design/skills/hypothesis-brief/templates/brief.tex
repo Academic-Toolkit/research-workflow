@@ -1,0 +1,108 @@
+% 研究假設說明文件 範本（research-design:hypothesis-brief）
+% 編譯：xelatex brief.tex
+% 每個「【待填】」都要替換；編譯前 grep -c '待填' brief.tex 必須是 0。
+% 下方的「示例」是虛構情境（大學生選課），只示範格式，替換成自己的研究。
+\documentclass[14pt]{extarticle}
+\usepackage[a4paper,top=1.0cm,bottom=0.8cm,left=1.6cm,right=1.6cm]{geometry}
+\usepackage{xeCJK}
+\setCJKmainfont{PingFang TC}
+\setmainfont{Helvetica Neue}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{needspace}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc}
+\definecolor{hdr}{HTML}{1F6F6B}
+\definecolor{sub}{HTML}{333333}
+\definecolor{tag}{HTML}{9A6B00}
+\definecolor{why}{HTML}{6B5B3E}
+\definecolor{stat}{HTML}{5A6B7A}
+\definecolor{andc}{HTML}{B03A2E}
+\pagecolor{white}
+\pagestyle{empty}
+\linespread{1.02}
+\setlength{\parindent}{0pt}
+
+% 傘編號：組標題。needspace 讓標題至少帶著下文換頁，不孤立在頁底。
+\newcommand{\grp}[2]{%
+  \needspace{8\baselineskip}%
+  \vspace{0.8ex}%
+  {\color{hdr}\bfseries\large #1}\quad{\color{hdr}\large #2}\par
+  \vspace{0.3ex}}
+% 傘編號下的總主張（不是檢定單位）。
+\newcommand{\um}[1]{{\leftskip=1.1em\relax\color{hdr}#1\par}\vspace{0.3ex}}
+% 子假設：編號＋期刊句式。
+\newcommand{\hy}[2]{%
+  \hangindent=4.9em \hangafter=1
+  \hspace*{1.1em}{\bfseries #1}\hspace{0.9em}{\color{sub}#2}\par
+  \vspace{0.1ex}}
+% 依據：基礎為 文獻／設計／推論 三選一。
+\newcommand{\wy}[2]{{\leftskip=4.9em\relax\color{why}\small\textbf{#1}｜#2\par}\vspace{0.1ex}}
+% 統計：可檢定形式＋白話說明。
+\newcommand{\st}[1]{{\leftskip=4.9em\relax\color{stat}\small 統計：#1\par}\vspace{0.3ex}}
+% 說明：名詞定義、作答流程、白話解釋。
+\newcommand{\nt}[1]{{\leftskip=1.1em\relax\color{sub}\small #1\par}\vspace{0.3ex}}
+% 警示：未解決的依據爭議、待決事項。
+\newcommand{\warn}[1]{{\color{andc}※ #1}}
+
+\begin{document}
+
+{\LARGE\bfseries 研究假設一覽}\hfill{\color{gray}\small 【待填：日期與所依據的規格檔版本】}
+
+\vspace{0.6ex}
+{\color{gray}\small 每條假設分為三層：\textbf{研究假設}（關於世界的主張，可被理論反駁）／\textbf{依據}（為什麼這樣預期）／\textbf{統計}（可檢定形式，可被資料反駁）。\par\vspace{0.2ex}
+依據標明基礎：\textbf{文獻}＝有來源如此陳述；\textbf{設計}＝由研究設計決定，非關於世界的主張；\textbf{推論}＝研究者自己的推理，目前無來源。\par\vspace{0.2ex}
+編號分兩層：H1、H2 是傘編號，標示一組主張；a、b 才是可個別檢定的假設。【待填：說明各區塊中字母的意思】}
+
+\vspace{1.0ex}
+\hrule height 0.9pt
+\vspace{0.4ex}
+
+{\color{hdr}\bfseries\large 先說明受測者做了什麼}\par\vspace{0.3ex}
+\nt{\textbf{假設的寫法}：以下沿用期刊論文的假設句式。本研究是相關設計，不宣稱因果，所以寫「與……呈正向關聯」「調節……之間的關聯」，不寫「增加」「影響」「驅動」。}
+% 示例（虛構）：每個量表都寫題幹原文、分組、點數與兩端標籤、合成方式。
+\nt{\textbf{修課動機量表}（自變數，每位受測者都填）：題幹是「我選一門課，是考量它對下列各項的幫助」，對九個項目各評一次重要程度，從 1「非常不重要」到 7「非常重要」。九個項目分成三組，各三個：興趣是【項目】；就業是【項目】；同儕是【項目】。每組三題合成一個分數（合成方式：【待填：平均或加總】）。}
+% 示例（虛構）：作業本身。
+\nt{\textbf{選課作業}：六個情境，每個情境在兩門課之間二選一。【待填：各題差在哪裡】}
+% 示例（虛構）：追問的題目＋兩種計數＋一個算出結果的例子。
+\nt{\textbf{選擇的原因}：選完之後才會問。作答分兩步：步驟一，把是你原因的選項全部勾起來，可以複選；步驟二，把勾起來的依重要性排出 1、2、3。}
+\nt{同一份作答可以用兩種方式計數。\emph{有納入理由}：步驟一勾起來的每一個原因都算一次。\emph{主導理由}：只算步驟二排在第 1 的那一個。例如某人勾了一個興趣、兩個就業的原因，並把其中一個就業的原因排第 1；用有納入理由計是興趣 1 次、就業 2 次，用主導理由計只有就業 1 次。}
+\nt{\textbf{調節}：某個關聯的強弱會隨另一個變數而改變。統計上用「交互效果」檢驗：把兩個變數相乘放進模型，看這一項是否顯著。}
+
+\vspace{0.6ex}
+\hrule height 0.6pt
+\vspace{0.3ex}
+
+% 示例（虛構）：一組路徑假設。
+\grp{H1}{興趣動機}
+\um{興趣動機與選課有關，且此關聯受課程負擔調節。}
+\hy{H1a}{興趣動機與選擇【待填】的課程呈正向關聯。}
+\wy{推論}{【待填：為什麼這樣預期】}
+\st{興趣分量越高，選擇【待填】的機率越高；這個關係要是正的。}
+\hy{H1b}{課程負擔負向調節興趣動機與課程選擇之間的關聯；課程負擔越重，此關聯越弱。}
+\wy{文獻}{【待填：作者（年份）與其主張】\warn{若原文方向與本條相反，保留此警示並寫明追蹤處}}
+\st{興趣分量 $\times$ 課程負擔的交互為負：課程負擔越重，興趣分量與選課的關聯越弱。}
+
+% 示例（虛構）：一組組成假設（a、b 為同一主張的兩種衡量）。
+\grp{H2}{選課理由的相對權重}
+\um{學生選課時，三類理由的相對權重依序為【待填】。}
+\hy{H2a}{以有納入理由衡量時，【待填】理由被納入的比例高於【待填】理由。}
+\st{【待填：比較方式】。每組只比兩類，兩類選項數相同，若隨機作答被選中的機會各半，所以比較的基準是一半；同時做幾組比較時以多重比較校正，避免誤判增加。}
+\hy{H2b}{以主導理由衡量時，【待填】理由作為主導理由的比例高於【待填】理由。}
+\st{同 H2a，改用第 1 位的理由計數。}
+
+\clearpage
+
+{\LARGE\bfseries 研究架構}\hfill{\color{gray}\small 【待填：日期】}
+
+\vspace{0.6ex}
+{\color{gray}\small 【待填：一句話說明架構圖怎麼讀】}
+
+\vspace{1.2ex}
+\hrule height 0.9pt
+\vspace{2ex}
+% 用 \input 載入架構圖的原始 tikz 片段，圖才會跟著原檔更新；不要放預先產生的 PDF。
+% \begin{center}\resizebox{\textwidth}{!}{\input{figures/framework.tex}}\end{center}
+【待填：架構圖】
+
+\end{document}

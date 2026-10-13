@@ -1,10 +1,11 @@
 # research-workflow
 
-研究流程用的 Claude Code plugins，從研究會議紀錄到投稿。共同原則是每個產出都指得回來源：會議紀錄指回逐字稿，投稿規定指回帶時間戳的一手來源快照。
+研究流程用的 Claude Code plugins，從研究會議紀錄、研究設計到投稿。共同原則是每個產出都指得回來源：會議紀錄指回逐字稿，投稿規定指回帶時間戳的一手來源快照。
 
 | Plugin | 做什麼 |
 |---|---|
 | [`research-meetings`](plugins/research-meetings) | 研究會議錄音／逐字稿 → 可溯源的研究會議紀錄（標楷體 .tex → PDF；討論、結論、待辦），每一點指得回逐字稿 |
+| [`research-design`](plugins/research-design) | 研究假設說明文件（研究假設一覽）：期刊句式且不宣稱因果、每條分研究假設／依據／統計三層，頁首說明受測者實際做了什麼 |
 | [`research-submission`](plugins/research-submission) | 投稿須知的一手來源語料庫（期刊與研討會），投稿前強制現場驗證 |
 
 ## Install
@@ -12,6 +13,7 @@
 ```
 /plugin marketplace add PsychQuant/research-workflow
 /plugin install research-meetings@research-workflow
+/plugin install research-design@research-workflow
 /plugin install research-submission@research-workflow
 ```
 
