@@ -68,6 +68,10 @@ ls ${CLAUDE_PLUGIN_ROOT}/venues/*/          # apa/psychological-methods.yaml（�
                                             # psychometric-society/imps.yaml（研討會）
 ```
 
+### 指標用標準欄位名（比較表由腳本讀這些欄位產生）
+
+`identity.metrics` 請用 `impact_factor`、`quartiles`、`acceptance_rate`、`time_to_first_decision`、`time_submission_to_acceptance`，形狀見 `venue-report` skill 的「記錄的標準欄位」。**分區（Q）要記系統**：JCR 與 SJR 是不同的統計量，不混用。官方只公布拒絕率時，`acceptance_rate` 寫 not_published，另放 `rejection_rate`。
+
 ### 三條填寫紀律
 
 1. **查過但官網沒有 → 寫 `{status: not_published, checked: <date>}`**，不要留空。留空會讓後人以為是漏抓，於是重複去查一次不存在的東西。

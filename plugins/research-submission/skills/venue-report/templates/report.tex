@@ -1,0 +1,116 @@
+% =====================================================================
+% 期刊選擇報告 範本（venue-report skill）
+% 編譯：latexmk -xelatex -interaction=nonstopmode -halt-on-error report.tex
+% 每個「【待填】」都必須替換掉；編譯前以 grep -c '待填' 確認為 0。
+% 比較表的列由 scripts/venue_table.py --format latex 產生，不要手打（表格內有 TABLE_ROWS 標記處）。
+% 官方事實與判斷分開：判斷一律在句尾加 \J。
+% =====================================================================
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{xeCJK}
+\setCJKmainfont{PingFang TC}
+\usepackage{booktabs,longtable,array,tabularx,enumitem,xcolor,pdflscape}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+
+\definecolor{pro}{HTML}{2E7D32}
+\definecolor{con}{HTML}{B23A3A}
+\definecolor{judg}{HTML}{5B4B8A}
+\newcommand{\J}{\textcolor{judg}{\textbf{（判斷）}}}
+\newcommand{\pro}{\textcolor{pro}{\textbf{優點}}}
+\newcommand{\con}{\textcolor{con}{\textbf{缺點}}}
+
+\linespread{1.18}
+\setlist{nosep,leftmargin=1.4em,itemsep=2pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\titleformat{\section}{\Large\bfseries}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{0.6em}{}
+\pagestyle{fancy}\fancyhf{}
+\fancyfoot[C]{\thepage}
+\fancyhead[L]{\small 【待填：報告標題】}
+\fancyhead[R]{\small 查詢日 【待填：YYYY-MM-DD】}
+\renewcommand{\headrulewidth}{0.3pt}
+\renewcommand{\contentsname}{目錄}
+
+\title{【待填：報告標題】}
+\author{}
+\date{查詢日 【待填：YYYY-MM-DD】（臺北時間）}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+
+\noindent\textbf{閱讀約定。}官方事實一律附來源與日期；標有\J 的是判斷，不是官方事實。【待填：語料庫狀態，例如記錄的 \texttt{extracted\_sha256} 是否已建立基準】
+
+\tableofcontents
+
+% ---------------------------------------------------------------------
+\section{結論先講}
+% 順位表（含試投）、淘汰兩行字、「要先知道的幾件事」。內容取自 choose-venue 的輸出，不在這裡重新判斷。
+【待填】
+
+% ---------------------------------------------------------------------
+\section{前提}
+% 稿件側寫；使用者條件逐條（含加入順序與地位：資格／偏好／必須）；未確認的事項。
+【待填】
+
+% ---------------------------------------------------------------------
+\section{淘汰清單}
+% 每本：類別（四類之一）、官方原文（引句）、來源與日期、翻盤條件。
+% 另列「不是淘汰但風險高」（保留語氣）與「未收錄，無法比較」。
+【待填】
+
+% ---------------------------------------------------------------------
+\section{逐刊優缺}\label{sec:profcon}
+% 每本一個 \subsection：
+%   標題：期刊名（出版社）：順位
+%   一行事實：收錄、IF、審稿、APC
+%   \textbf{\pro} itemize（官方事實，附數字與口徑）
+%   \textbf{\con} itemize（官方事實；判斷句尾加 \J）
+% 優缺是相對於這篇稿件與使用者條件，不是期刊的一般評價。
+【待填】
+
+% ---------------------------------------------------------------------
+\begin{landscape}
+\section{比較表（只放官方事實）}\label{sec:table}
+\footnotesize
+\renewcommand{\arraystretch}{1.0}
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{3.6cm}p{1.5cm}p{1.1cm}p{1.9cm}>{\raggedright\arraybackslash}p{3.2cm}>{\raggedright\arraybackslash}p{2.0cm}>{\raggedright\arraybackslash}p{2.0cm}>{\raggedright\arraybackslash}p{2.6cm}p{1.6cm}>{\raggedright\arraybackslash}p{2.8cm}@{}}
+\toprule
+期刊 & 收錄 & IF & 分區 & 接受率 & 首次決定（中位） & 投稿$\to$接受（中位） & APC & 審稿 & 篇幅 \\
+\midrule
+\endhead
+%%TABLE_ROWS%%
+\bottomrule
+\end{longtable}
+\end{landscape}
+
+% 口徑說明放在橫向頁之外：哪些欄位同口徑可互比、哪些不可（跨出版社不互比）；
+% 分區欄要寫明系統（JCR 或 SJR）與年度，兩者不是同一個統計量。
+【待填：口徑與分區說明】
+
+% ---------------------------------------------------------------------
+\section{主題證據}\label{sec:topic}
+% venue_topic_scan.py 的結果：片語計法、年份窗口、查詢日、篇數；未取得的期刊要列出；
+% 近年例子的框架只在實際讀過標題時才寫；作者群屬判斷。限制要連同數字一起寫。
+【待填】
+
+% ---------------------------------------------------------------------
+\section{最接近的前人結果}\label{sec:prior}
+% 逐篇：它做了什麼、前提、稿件多了什麼；只讀了摘要的標「只讀摘要」；沒讀到的標「未查證」。
+【待填】
+
+% ---------------------------------------------------------------------
+\section{排序與翻盤條件}\label{sec:order}
+% 排序原則；保留但未排入的期刊與「在什麼條件下排進」；翻盤條件表。
+【待填】
+
+% ---------------------------------------------------------------------
+\section{官網未公布或尚待查證}
+% 記錄中 not_published / not_found 的項目；未完成的查詢；使用者尚未確認的前提。
+【待填】
+
+\end{document}

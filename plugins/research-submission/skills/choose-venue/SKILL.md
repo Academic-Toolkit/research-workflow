@@ -101,7 +101,7 @@ python3 ${CLAUDE_PLUGIN_ROOT}/scripts/venue_topic_scan.py --venue <venue-id> \
 | `requirements.openness`、`requirements.reproducibility` | 要準備的程式碼、資料與表單，以及在哪個階段交 |
 | `requirements.review`、`requirements.policies.preprints` | 雙盲期刊與既有或計畫中的 preprint 是否衝突 |
 | `requirements.fees` | 必付或選付、金額、機構協議 |
-| `identity.metrics.*` | 只引用官方公布、附 `as_of` 或年度的值 |
+| `identity.metrics.*` | 只引用官方公布、附 `as_of` 或年度的值。**IF 與分區（Q）每本都要有**：分區取 `quartiles`，並標明系統——JCR（Clarivate）與 SJR（SCImago）是不同的統計量，不混用、不互換；查不到寫「未取得」，不可憑記憶補 |
 | `warnings` | 一律複述給使用者 |
 
 結合 Step 3、3.5 的證據，寫出每本的「定位與補強清單」。
@@ -126,13 +126,23 @@ python3 ${CLAUDE_PLUGIN_ROOT}/scripts/venue_topic_scan.py --venue <venue-id> \
 
 1. **前提**（Step 5 第 1 點）
 2. **淘汰清單**：期刊、淘汰類別（Step 2 的 1–4）、官方原文、`src`、`last_verified_at`；以及「未收錄，無法比較」的期刊
-3. **比較表**：只放官方事實，附 `src` 與 `last_verified_at`；判斷不放進這張表
+3. **比較表**：只放官方事實，附 `src` 與 `last_verified_at`；判斷不放進這張表。欄位至少含收錄（SSCI／SCIE）、**IF、分區（Q，標明 JCR 或 SJR）**、接受率、首次決定、投稿到接受、APC、審稿制度、篇幅；表格可用 `scripts/venue_table.py` 從記錄直接產生
 4. **主題證據**：每本的篇數、計法（片語／寬鬆）、年份窗口、查詢日、近年例子與其框架、限制
 5. **最接近的前人結果**：逐篇寫它證了什麼、前提是什麼、稿件多了什麼；未查證的標出來
 6. **排序與投稿順序**，附翻盤條件；保留但未排入的期刊與理由
 7. **每本的定位與補強清單**
 8. **官網未公布的欄位**（`not_published` / `not_found`）與仍待查證的事
 9. **人的訊號**（例：編委會有與作者同單位的人）：只在回覆裡提醒使用者，**不寫進語料庫**——本 repo 是公開的
+
+## Step 6 — 問要不要產生報告
+
+輸出完成後，**問一次**：要不要把這份結果做成 `.tex` 與 PDF 報告（含逐刊優缺與比較表）？
+
+- 要 → 呼叫 `venue-report`；它只排版，不重新判斷。
+- 不要，或使用者沒回應 → 到此為止，**不自動產生**。
+- 非互動（unattended）情境不問、不產生。
+
+為什麼是問而不是預設產生：報告含稿件細節與使用者偏好，產生它是一個要使用者決定存放位置的動作；多數情況在對話裡讀結果就夠了。
 
 ## 鐵律
 

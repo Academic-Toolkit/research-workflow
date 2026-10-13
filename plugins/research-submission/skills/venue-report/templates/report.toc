@@ -1,0 +1,9 @@
+\contentsline {section}{\numberline {1}結論先講}{1}{section.1}%
+\contentsline {section}{\numberline {2}前提}{1}{section.2}%
+\contentsline {section}{\numberline {3}淘汰清單}{2}{section.3}%
+\contentsline {section}{\numberline {4}逐刊優缺}{2}{section.4}%
+\contentsline {section}{\numberline {5}比較表（只放官方事實）}{3}{section.5}%
+\contentsline {section}{\numberline {6}主題證據}{4}{section.6}%
+\contentsline {section}{\numberline {7}最接近的前人結果}{4}{section.7}%
+\contentsline {section}{\numberline {8}排序與翻盤條件}{4}{section.8}%
+\contentsline {section}{\numberline {9}官網未公布或尚待查證}{4}{section.9}%
