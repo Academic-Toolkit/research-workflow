@@ -1,0 +1,244 @@
+--- # research-submission venue record
+# 內容擷取自 thejns.org 官方頁面 2026-10-19（Safari 讀取；curl 對所有 HTML 頁回 403）。
+# 收錄緣由：一篇脊椎感染回溯世代研究被 The Spine Journal 拒稿後改投本刊，
+# 投稿前用 submit-to 核對時發現語料庫沒有這本。
+
+schema_version: 1
+id: jnspg/jns-spine
+kind: journal
+family: jnspg
+status: active
+
+sources:
+  - id: info_for_authors
+    role: authoritative
+    url: https://thejns.org/page/spine-info-for-authors/jns-spine-information-for-authors
+    note: >-
+      期刊首頁資訊、審稿流程、格式總則、費用、收錄索引都在這一頁。
+      thejns.org 對 curl 一律回 403（919 bytes 的同一個挑戰頁，五個 URL 大小相同），
+      只能用瀏覽器讀。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "403, 919-byte challenge page identical across all thejns.org HTML URLs"
+      validity:
+        must_contain: "Peer review for JNS: Spine is single-blind"
+        min_extracted_chars: 4000
+    snapshot:
+      fetched_at: 2026-10-19
+      last_verified_at: 2026-10-19
+      extracted_sha256: null
+
+  - id: limits_policy
+    role: authoritative
+    url: https://thejns.org/page/manuscript-limits/manuscript-limits-policy
+    note: JNSPG 各刊、各文章類型的摘要／正文／表圖／影片／文獻上限總表。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "403 challenge page"
+      validity:
+        must_contain: "Original research in 5 or more human subjects"
+        min_extracted_chars: 2500
+    snapshot:
+      fetched_at: 2026-10-19
+      last_verified_at: 2026-10-19
+      extracted_sha256: null
+
+  - id: references_guidelines
+    role: authoritative
+    url: https://thejns.org/page/guidelines-for-references
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "403 challenge page"
+      validity:
+        must_contain: "AMA Manual of Style"
+        min_extracted_chars: 2500
+    snapshot:
+      fetched_at: 2026-10-19
+      last_verified_at: 2026-10-19
+      extracted_sha256: null
+
+  - id: figures_guidelines
+    role: authoritative
+    url: https://thejns.org/page/guidelines-for-figures
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "403 challenge page"
+      validity:
+        must_contain: "1200 dpi"
+        min_extracted_chars: 2500
+    snapshot:
+      fetched_at: 2026-10-19
+      last_verified_at: 2026-10-19
+      extracted_sha256: null
+
+  - id: tables_guidelines
+    role: authoritative
+    url: https://thejns.org/page/guidelines-for-tables
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "403 challenge page"
+      validity:
+        must_contain: "table functionality tools in Microsoft Word"
+        min_extracted_chars: 2000
+    snapshot:
+      fetched_at: 2026-10-19
+      last_verified_at: 2026-10-19
+      extracted_sha256: null
+
+  - id: manuscript_template
+    role: supporting
+    url: https://thejns.org/fileasset/info-for-authors/Manuscript_Template.docx
+    note: Word 檔（curl 可下載）。title page 欄位、各節順序、文獻與圖說的寫法都在這份。
+    fetch: {method: http, http_viable: true}
+    snapshot: {fetched_at: 2026-10-19, last_verified_at: 2026-10-19}
+
+  - id: submission_checklist
+    role: supporting
+    url: https://thejns.org/fileasset/info-for-authors/Submission_Checklist.docx
+    note: Word 檔（curl 可下載）。每次新投稿與修訂都必須完成。
+    fetch: {method: http, http_viable: true}
+    snapshot: {fetched_at: 2026-10-19, last_verified_at: 2026-10-19}
+
+identity:
+  name: "Journal of Neurosurgery: Spine"
+  abbreviation: "J Neurosurg Spine"
+  publisher: Journal of Neurosurgery Publishing Group (American Association of Neurological Surgeons)
+  issn: {electronic: "1547-5646"}
+  homepage: https://thejns.org/view/journals/j-neurosurg-spine/j-neurosurg-spine-overview.xml
+  open_access: hybrid
+  metrics:
+    impact_factor: {value: 3.9, year: 2025, src: info_for_authors, note: 出版社頁面自述，未另以 JCR 核對}
+    acceptance_rate: {status: not_published, checked: 2026-10-19, src: info_for_authors}
+  indexing: [PubMed/MEDLINE, Web of Science, Science Citation Index Expanded, Current Contents - Clinical Medicine]
+
+requirements:
+  refresh: {check_every: P6M, method: manual}
+
+  article_types:
+    - id: clinical_article
+      label: Clinical article
+      definition: Original research in 5 or more human subjects
+      limits: {abstract_words: 375, abstract_structured: true, text_words: 4000, tables_and_figures: 8, videos: 2, references: 45}
+    - id: laboratory_investigation
+      label: Laboratory investigation
+      definition: Original research in cadavers, animals, cell lines, or basic science
+      limits: {abstract_words: 375, abstract_structured: true, text_words: 4000, tables_and_figures: 8, videos: 2, references: 45}
+    - id: literature_review
+      label: Literature review (including systematic review)
+      limits: {abstract_words: 375, abstract_structured: false, text_words: 4000, tables_and_figures: 8, videos: 2, references: 75}
+    - id: historical_vignette
+      label: Historical vignette
+      limits: {abstract_words: 200, text_words: 3500, tables_and_figures: 8, videos: 2, references: 45}
+    - id: broca
+      label: "Broca's area (opinion pieces)"
+      limits: {abstract_words: not_applicable, text_words: 3500, tables_and_figures: 5, videos: 2, references: 45}
+    - id: letter
+      label: Letter to the Editor or response
+      limits: {text_words: 500, tables_and_figures: "1 figure or 1 table or 1 video", references: 10}
+  limits_note: >-
+    Text = words from the Introduction through the Conclusions; abstract,
+    acknowledgments, references and end matter are not counted. Tables + figures
+    are a combined total; tables divided into parts (Table 1A, 1B) count as
+    separate tables. src: limits_policy
+
+  abstracts:
+    - id: structured
+      applies_to: [clinical_article, laboratory_investigation]
+      structure: [Objective, Methods, Results, Conclusions]
+      note: 摘要內不得有引用文獻
+      src: [limits_policy, manuscript_template]
+
+  keywords: {min: 3, max: 6, location: title page, src: manuscript_template}
+
+  title_page:
+    required_fields:
+      - 作者名、中間名縮寫、姓，加最高學位（不寫頭銜）
+      - 單位：系所、機構、城市、州或省、國家；多單位以上標數字對應，不加括號
+      - 通訊作者姓名、現職機構、email
+      - 3–6 個關鍵字
+      - 五項計數：摘要字數、正文字數、文獻數、表＋圖總數、影片數（每次修訂都要更新）
+    src: manuscript_template
+
+  sections:
+    order: [Introduction, Methods, Results, Discussion, Conclusions, Acknowledgments, References, Figure Legends]
+    notes:
+      - IRB 核准寫在 Methods
+      - 資金來源只在投稿系統揭露，不寫在 Acknowledgments
+    src: manuscript_template
+
+  formatting:
+    file_formats: [Microsoft Word]
+    page_size: US Letter
+    manuscript_file: 單一 Word 檔，從 title page 到圖說；不得嵌入表、圖或影片連結
+    tables: >-
+      另一個 Word 檔，所有表放在同一檔，每表新起一頁；用 Word 表格工具；
+      只有第一欄的縮排用 tab；不得用顏色、圖片、bullet；縮寫在表註定義；
+      依序在正文引用；表的標題與表註只出現在表格檔；不接受 Excel、PowerPoint 表或 PICT
+    figures: >-
+      每圖一個完整合成的檔（TIFF、JPEG 或高品質 PDF，≤50 MB），檔名含圖號；
+      彩色及含文字的灰階 600 dpi、純線圖 1200 dpi、灰階影像 300 dpi；
+      寬 ≥3.3 in（單欄）或 5–7 in（雙欄），高 ≤9 in；文字為 Arial、Helvetica、
+      Times 或 Times New Roman；3 個以上面板以單一大寫字母標示、不加標點；
+      2 個面板在圖說以 upper/lower 或 left/right 指稱；圖內不放圖說、圖框、註腳；
+      圖內文字用美式拼字
+    figure_legends: 放在主稿最後；每則一段，不用自動編號
+    src: [figures_guidelines, tables_guidelines, manuscript_template]
+
+  references:
+    style: AMA Manual of Style (11th ed.)
+    rules:
+      - 依正文出現順序編號；正文以上標數字引用，不加括號或方括號
+      - 1–6 位作者全列，7 位以上列前 3 位加 et al
+      - 有 DOI 就要列；不列 PMID
+      - 期刊名用 NLM 縮寫
+    src: [references_guidelines, manuscript_template]
+
+  standards:
+    - id: equator
+      statement: 依研究類型附上 EQUATOR Network 對應的報告規範 checklist（例：世代研究附 STROBE）
+      src: info_for_authors
+
+  review:
+    type: single_blind
+    requirements:
+      - Associate Editor 初審，不適合者直接退件
+      - 其餘送 ≥3 位審稿人，依序審查
+      - 被本刊拒稿的稿件，JNSPG 內部只會再考慮 JNS: Case Lessons 或 Neurosurgical Focus
+    src: info_for_authors
+
+  integrity:
+    plagiarism_screening: iThenticate（所有投稿）
+    preprints: 須遵守 JNSPG Preprint Policy（本記錄未讀該頁）
+    src: info_for_authors
+
+  submission:
+    portal: https://jnsspine.msubmit.net/
+    checklist_required: true
+    note: 不符格式的稿件在送審前就會被退回修正
+
+  fees:
+    submission: 0
+    publication: 0
+    apc: {value: 3000, currency: USD, optional: true, license: CC BY-NC-ND 4.0, payable: 錄取後，與審稿結果無關}
+    supplemental_data: {value: 125, currency: USD}
+    errata: {value: 100, currency: USD, unit: per affected page}
+    src: info_for_authors
+
+cycle:
+  applies_to: null
+
+warnings:
+  - >-
+    表＋圖合計上限 8（Clinical article），而且分部表（1A/1B）各算一個。從其他期刊
+    轉投時這通常是最大的改寫量。
+  - >-
+    thejns.org 的 HTML 頁全部擋 curl（403），verify.py 只會回 NEEDS_AGENT；
+    投稿前要用瀏覽器重讀 limits_policy 與 info_for_authors。
+  - >-
+    未讀取的相關頁：Guidelines for Supplemental Data、Guidelines for Videos、
+    Preprint Policy。用到時要另外查。
