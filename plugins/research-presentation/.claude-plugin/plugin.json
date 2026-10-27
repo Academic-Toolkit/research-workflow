@@ -1,0 +1,16 @@
+{
+  "name": "research-presentation",
+  "version": "0.1.0",
+  "description": "研究發表階段的文件：海報或短講的備忘稿。從定稿的海報產生三份講稿（30 秒、約 2 分鐘、4–5 分鐘導覽版含〔動作〕指示），日文講稿標「漢字（かな）」讀音並附數學記號念法表；講稿只講 idea、用語照海報、限制主動講，附字數與朗讀時間檢查工具。",
+  "author": {
+    "name": "Che Cheng"
+  },
+  "license": "MIT",
+  "keywords": [
+    "research",
+    "poster",
+    "presentation",
+    "speaking-script",
+    "japanese"
+  ]
+}

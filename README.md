@@ -6,6 +6,7 @@
 |---|---|
 | [`research-meetings`](plugins/research-meetings) | 研究會議錄音／逐字稿 → 可溯源的研究會議紀錄（標楷體 .tex → PDF；討論、結論、待辦），每一點指得回逐字稿 |
 | [`research-design`](plugins/research-design) | 研究假設說明文件（研究假設一覽）：期刊句式且不宣稱因果、每條分研究假設／依據／統計三層，頁首說明受測者實際做了什麼 |
+| [`research-presentation`](plugins/research-presentation) | 海報／短講的備忘稿：30 秒、約 2 分鐘、4–5 分鐘導覽版（含〔動作〕指示），日文標「漢字（かな）」讀音並附數學記號念法表 |
 | [`research-submission`](plugins/research-submission) | 投稿須知的一手來源語料庫（期刊與研討會），投稿前強制現場驗證 |
 
 ## Install
@@ -14,6 +15,7 @@
 /plugin marketplace add PsychQuant/research-workflow
 /plugin install research-meetings@research-workflow
 /plugin install research-design@research-workflow
+/plugin install research-presentation@research-workflow
 /plugin install research-submission@research-workflow
 ```
 
