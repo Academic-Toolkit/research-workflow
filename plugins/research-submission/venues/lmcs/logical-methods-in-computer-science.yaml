@@ -1,0 +1,748 @@
+--- # research-submission venue record
+# 內容擷取自 Logical Methods in Computer Science（LMCS）官網 lmcs.episciences.org、SCImago、Clarivate Master Journal List
+# 與 ISSN Portal，2026-10-25。
+# lmcs.episciences.org 對 curl 正常回應（HTTP 200，30–76 KB 的真實頁面），所以各頁 method 記 http、http_viable 為 true；
+# 另用 safari-browser 開同一組頁面核對（authors-information 的 innerText 與 curl 抽取結果一致）。
+# 但不存在的路徑也回 HTTP 404 + 29,257 bytes 的完整頁面（導覽列俱全），單靠長度分不出真假，所以每個來源都有 must_contain。
+# 頁面的 HTML 裡有被註解掉的舊文字（FAQ 的 "Impact Factor of the journal is 0.864"、purpose 的 major revision 規則、
+# authors-information 的「四個月內重投」），讀者看不到，verify.py 的抽取器也會略過；本記錄一律不採用註解內的文字。
+# SCImago 與 ISSN Portal 對 curl 擋（SCImago 回 Cloudflare 403 挑戰頁）或回 SPA 空殼，只能用 Safari 讀，記 method: browser。
+
+schema_version: 1
+id: lmcs/logical-methods-in-computer-science
+kind: journal
+family: logic-journals
+status: active
+
+# ─────────────────────────────────────────────────────────────
+# 來源與 provenance。須知分散在 Episciences 託管的 /page/ 子頁；所有子頁網址皆由首頁導覽列連結取得，非推測。
+# 投稿規定本體在 authors-information、authors-submit、policies、authors-latex-style、faq 五頁；
+# 範圍在 purpose 與 list-of-topics。
+# ─────────────────────────────────────────────────────────────
+sources:
+  - id: purpose
+    role: authoritative
+    url: https://lmcs.episciences.org/page/purpose
+    note: 期刊宗旨與範圍（"taken in a broad sense"）、審稿方式（兩位以上審稿人）、版權、約九個月的周轉目標、arXiv overlay 身分。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "fully refereed, open access, free, electronic journal"
+        min_extracted_chars: 1200
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: authors_information
+    role: authoritative
+    url: https://lmcs.episciences.org/page/authors-information
+    note: >-
+      Information for Authors。投稿條件（先貼 arXiv）、50 頁上限、摘要 20 行上限、選編輯、審稿三種結果、
+      錄取後一個月內交終稿、已刊登論文的修訂版。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "should not exceed 50 pages"
+        min_extracted_chars: 3000
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: authors_submit
+    role: authoritative
+    url: https://lmcs.episciences.org/page/authors-submit
+    note: Submission Preparation Checklist（四項全必要）、特刊投稿代碼、登入投稿連結（/submit/index，需登入）。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Submission Preparation Checklist (All items required)"
+        min_extracted_chars: 1000
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: policies
+    role: authoritative
+    url: https://lmcs.episciences.org/page/policies
+    note: 有會議版本的論文、Executive Editor 的修改權、P vs. NP 等長期未解問題的投稿規定。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "P vs. NP and Other Long-Standing Problems"
+        min_extracted_chars: 2000
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: authors_copyright
+    role: authoritative
+    url: https://lmcs.episciences.org/page/authors-copyright
+    note: 授權協議；版權留在作者，錄取後須同意 CC-BY；2018 年前的論文用 CC-BY-ND。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Licence CC-BY is used since 2018"
+        min_extracted_chars: 2000
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: latex_style
+    role: authoritative
+    url: https://lmcs.episciences.org/page/authors-latex-style
+    note: 終稿的 LaTeX 格式清單（lmcs.cls、alphaurl、ORCID 巨集、字型限制、Zenodo 存放程式碼）。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Do not change the default font"
+        min_extracted_chars: 2000
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: faq
+    role: authoritative
+    url: https://lmcs.episciences.org/page/faq
+    note: >-
+      FAQ。無頁費、50 頁上限（超過寫在 cover letter）、錄取標準、收錄資料庫的自述、校正與修訂版。
+      HTML 原始碼裡有被註解掉的段落（含一個 Impact Factor 數字與一則 "Comments" 的說明），頁面上看不到，本記錄不採用。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "there are no page charges for authors"
+        min_extracted_chars: 3500
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: list_of_topics
+    role: authoritative
+    url: https://lmcs.episciences.org/page/list-of-topics
+    note: 主題清單與各主題的負責編輯；頁面明寫清單「not intended to be restrictive」。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "The list is not intended to be restrictive"
+        min_extracted_chars: 2500
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: instructions_tex
+    role: supporting
+    url: https://lmcs.episciences.org/public/instructions.tex
+    note: >-
+      latex_style 頁連到的作者說明範例原始檔（同目錄另有 instructions.pdf 與 lmcs.cls）。keywords 為選填、
+      摘要不得含參考文獻、投稿前檢查清單只出現在這份檔案內。這是範本層級的說明，不是期刊頁面的規定。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Here is a check-list to be completed before submitting the paper to"
+        min_extracted_chars: 10000
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: special_issues_info
+    role: supporting
+    url: https://lmcs.episciences.org/page/on-special-issues
+    note: 特刊提案的規定（只收大型會議的優秀論文擴充版；工作坊與無審稿文集的提案不予考慮）。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Proposals for special issues devoted to workshops"
+        min_extracted_chars: 2000
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: special_issues_completed
+    role: supporting
+    url: https://lmcs.episciences.org/page/special-issues
+    note: >-
+      Completed Special Issues（頁面由腳本於 2026-07-01 產生，最新一年為 2024）。只列已完成者，沒有進行中的徵稿。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Special issues completed so far, grouped by year"
+        min_extracted_chars: 10000
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: survey_articles
+    role: supporting
+    url: https://lmcs.episciences.org/page/survey-articles
+    note: 已刊登的 survey 論文清單（9 篇，僅列題名與作者，沒有投稿規定）。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Logic Meets Algebra: the Case of Regular Languages"
+        min_extracted_chars: 800
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: editorial_board
+    role: supporting
+    url: https://lmcs.episciences.org/page/editorial-board
+    note: 主編、執行編輯與各編輯的負責主題。投稿時須從這份名單選一位 handling editor。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "We list the main topics handled by each editor below"
+        min_extracted_chars: 3000
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: supporters
+    role: supporting
+    url: https://lmcs.episciences.org/page/support
+    note: 支持本刊的會議名單；"carefully reviewed by anonymous referees" 的說法在此頁。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "carefully reviewed by anonymous referees"
+        min_extracted_chars: 1000
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: publisher_page
+    role: supporting
+    url: https://lmcs.episciences.org/page/lmcs-ev
+    note: 出版者 Logical Methods in Computer Science e.V.（德國非營利協會，2014 年 9 月成立；編輯與職員皆為無償志工）。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "non-profit association whose purpose is the support of science and research"
+        min_extracted_chars: 1000
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: journal_home
+    role: supporting
+    url: https://lmcs.episciences.org/
+    note: >-
+      首頁：收錄資料庫的自述、eISSN、Free Journal Network 會員。首頁顯示最新刊登的論文，每次刊出新論文內容就會變，
+      所以此來源的 hash 會常常 CHANGED，屬預期；只需確認 must_contain 的自述句仍在。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "The journal is a member of the Free Journal Network"
+        min_extracted_chars: 3000
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: article_page_example
+    role: supporting
+    url: https://lmcs.episciences.org/19736
+    note: >-
+      任一篇論文頁都列 Submitted on／Accepted on／Published on 三個日期（這是下方 estimates 的資料來源）；
+      這一篇只是例子，期刊沒有對這三個日期做任何定義或說明。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Submitted on:"
+        min_extracted_chars: 1500
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: scimago
+    role: supporting
+    url: https://www.scimagojr.com/journalsearch.php?q=19700175752&tip=sid&clean=0
+    note: >-
+      SCImago（SJR）期刊頁：SJR、H-index、各學科類別逐年分區、涵蓋年份。q=19700175752 是 SCImago 的 source id，
+      由 ISSN 搜尋結果頁（journalsearch.php?q=1860-5974）的唯一結果連結取得。頁面上 "How to publish in this journal"
+      列了一位編輯的 email，本記錄不收。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 回 HTTP 403 + 5,499 bytes 的 Cloudflare 挑戰頁（Just a moment...）"
+      validity:
+        must_contain: "Subject Area and Category"
+        min_extracted_chars: 3000
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: mjl
+    role: supporting
+    url: https://mjl.clarivate.com/home
+    note: >-
+      Clarivate Master Journal List。JS 單頁應用，結果頁網址不帶查詢字串，無法用網址重現；只能在頁內於 #search-box
+      填 ISSN、按 #search-button 後讀結果列。個別期刊的 profile 頁（View profile page）需登入，未能讀取。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "200 但只有 SPA 空殼，查詢結果需在頁內操作"
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25}
+
+  - id: issn_portal
+    role: supporting
+    url: https://portal.issn.org/resource/ISSN/1860-5974
+    note: ISSN 登錄紀錄（基本資料，未訂閱）：Medium 為 Online，沒有紙本 ISSN。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 回 HTTP 200 + 4,376 bytes 的 SPA 空殼，紀錄內容需 JS 渲染"
+      validity:
+        must_contain: "Key title: Logical methods in computer science"
+        min_extracted_chars: 800
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+# ─────────────────────────────────────────────────────────────
+identity:
+  name: Logical Methods in Computer Science
+  abbreviation: LMCS
+  publisher: Logical Methods in Computer Science e.V.
+  publisher_evidence: >-
+    publisher_page 頁首 "LOGICAL METHODS IN COMPUTER SCIENCE e.V."（非營利協會）；MJL 出版社欄
+    "LOGICAL METHODS COMPUTER SCIENCE E V , KLEISTSTR 22, BRAUNSCHWEIG, GERMANY, 38124"；
+    ISSN Portal 的 Latest publisher 為 "Erlangen: Logical Methods in Computer Science e.V. - 2004-"。
+    Crossref 的 publisher 欄寫 "Centre pour la Communication Scientifique Directe"（Episciences 的營運單位），那是平台，不是出版者。
+  issn: {electronic: "1860-5974", src: journal_home}
+  issn_cross_check: >-
+    ISSN Portal 紀錄 1860-5974（"Confirmed record"，Medium: Online，ISSN-L 同號），沒有紙本版；MJL 搜尋 1860-5974 得
+    "ISSN / eISSN: 1860-5974"。Crossref（api.crossref.org/journals/1860-5974）把同一個號碼同時登記成 print 與 electronic，
+    那是登記資料的瑕疵，以 ISSN Portal 的 Online 為準（輔助確認，非來源）。
+  homepage: https://lmcs.episciences.org/
+  hosting_platform: {name: Episciences, url: "https://www.episciences.org/"}
+  overlay_of: {name: "Computing Research Repository (CoRR) / arXiv", src: purpose}
+  editors:
+    editor_in_chief: {name: Alexandra Silva, affiliation: "Cornell University", src: editorial_board}
+    executive_editors:
+      - {name: Brigitte Pientka, affiliation: "McGill University, Montreal", src: editorial_board}
+      - {name: Fabio Zanasi, affiliation: "University College London", src: editorial_board}
+    note: >-
+      Pientka 與 Zanasi 同時是特刊的 managing editors（special_issues_info）。投稿時須從 editorial_board 頁的名單
+      選一位 handling editor（見 requirements.submission）。editorial_board 頁另有數十位編輯，本記錄不逐一抄錄。
+    src: editorial_board
+  frequency: >-
+    滾動式出版：錄取後立即上線（"papers are published on the internet as soon as they are accepted for publication"），
+    分卷只是方便（"divided into volumes for convenience"）。論文頁的卷期標示為 Volume 22, Issue 4（每卷至少有 4 期）。
+  frequency_src: purpose
+  coverage: {value: "2005-current", src: scimago, note: "SCImago 所列涵蓋年份 2005–2026；FAQ 的第一篇 DOI 為 10.2168/LMCS-1(1:1)2005；ISSN Portal 的出版日期起於 2004"}
+  subject_area:
+    value: "Computer Science（SCImago 類別：Computational Theory and Mathematics、Computer Science (miscellaneous)、Theoretical Computer Science）；Mathematics（Logic）"
+    src: scimago
+  external_ids:
+    scimago: "19700175752"
+    crossref: "1860-5974"
+    openalex: issn:1860-5974
+    doi_prefix: "10.46298（Episciences，2020 年代的論文）；早期論文為 10.2168"
+  open_access:
+    value: full_open_access_no_author_fees
+    src: faq
+    note: >-
+      FAQ 第 1 題原文："No, the journal is entirely open-access: access is free, under a Creative Commons license,
+      and there are no page charges for authors."（問題是 "Are there any charges for subscribers or authors?"）。
+      期刊自己的說法是 "free, open access"；"diamond" 是使用者的分類詞，官網沒有使用。
+  access:
+    model: 完全開放取用；不需註冊或訂閱
+    statement: '"Full-text access to all papers is freely available. No registration or subscription is required."'
+    license: "CC-BY（自 Volume 14, Issue 1 的第 15 篇起；先前的論文用 CC-BY-ND）。版權留在作者。"
+    src: purpose
+  indexing:
+    clarivate_mjl:
+      scie: true
+      ssci: false
+      esci: false
+      ahci: false
+      web_of_science_core_collection: Science Citation Index Expanded
+      additional_indexes: [Current Contents Engineering, Computing & Technology, Essential Science Indicators]
+      checked: 2026-10-25
+      search_issn: "1860-5974"
+      mjl_publisher_string: "LOGICAL METHODS COMPUTER SCIENCE E V , KLEISTSTR 22, BRAUNSCHWEIG, GERMANY, 38124"
+      src: mjl
+      note: >-
+        搜尋 1860-5974 得 1 筆 "Exact Match Found"（LOGICAL METHODS IN COMPUTER SCIENCE，ISSN / eISSN 1860-5974），
+        Web of Science Core Collection 欄只列 Science Citation Index Expanded；沒有 SSCI、AHCI、ESCI。
+        搜尋時頁面的篩選條件為預設的四項（SCIE、SSCI、AHCI、ESCI 皆勾選），所以其他三項的缺席是有效的負面結果。
+        個別期刊的 profile 頁需登入，未能讀取（學科類別與 JCR 資料都在那一頁）。
+    publisher_stated:
+      list: [SCOPUS, DBLP, Web of Science, Mathematical Reviews, Zentralblatt]
+      src: journal_home
+      note: >-
+        首頁的自述："covered by SCOPUS, DBLP, Web of Science, Mathematical Reviews and Zentralblatt"。FAQ 的清單較舊
+        （"Mathematical Reviews, DBLP Database and ISI Web of Knowledge"，沒有 Scopus 與 Zentralblatt）。
+        Web of Science 一項已用 MJL 核對為 SCIE；Scopus 另有 SCImago 頁面與 ISSN Portal 的 "Covered by" 清單
+        （Crossref、Doaj、Ezb、Fatcat、Openalex、Scopus、Sherpa Romeo、Sudoc、Web Of Science、Wikidata、Zdb）互相呼應；
+        DBLP、Mathematical Reviews、Zentralblatt 沒有另外核對。
+    other_memberships:
+      - {name: Free Journal Network, src: journal_home, note: 首頁原文 "The journal is a member of the Free Journal Network."}
+  metrics:
+    impact_factor:
+      status: not_found
+      checked: 2026-10-25
+      note: >-
+        官網各頁（首頁、purpose、FAQ、information、policies）都沒有顯示 Impact Factor。JCR 需登入 Clarivate，
+        用 Safari 開 JCR 搜尋頁被導向登入頁，未能讀取；MJL 的 profile 頁同樣需登入。FAQ 頁的 HTML 原始碼有一段被註解掉的
+        "Impact Factor of the journal is 0.864"，頁面上看不到、沒有標年度或系統，不採用。所以這裡不填任何 IF 數字。
+      src: faq
+    sjr:
+      value: 0.334
+      year: 2025
+      as_of: 2026-10-25
+      src: scimago
+    h_index: {value: 45, as_of: 2026-10-25, src: scimago, note: SCImago 頁面所列}
+    quartiles:
+      - {system: SJR, category: Computational Theory and Mathematics, quartile: Q3, year: 2025, as_of: 2026-10-25, src: scimago}
+      - {system: SJR, category: Computer Science (miscellaneous), quartile: Q3, year: 2025, as_of: 2026-10-25, src: scimago,
+         note: "此類別 2006–2016 為 Q1（2017 Q2、2018–2019 Q1、2020–2024 Q2），2025 降為 Q3"}
+      - {system: SJR, category: Logic, quartile: Q3, year: 2025, as_of: 2026-10-25, src: scimago, note: "此類別頁面列出 2024（Q2）、2025（Q3）兩年"}
+      - {system: SJR, category: Theoretical Computer Science, quartile: Q3, year: 2025, as_of: 2026-10-25, src: scimago,
+         note: "此類別 2007–2009 為 Q1，2017 與 2024 起為 Q3，其餘多為 Q2"}
+    quartiles_note: >-
+      以上是 SJR（SCImago，Scopus 資料）分區，不是 JCR。四個類別 2025 年全是 Q3；頁面不給名次。SJR 頁面的值取自 2026-10-25。
+    jcr_quartile:
+      status: not_found
+      checked: 2026-10-25
+      note: JCR 分區與名次需登入 Clarivate JCR，本次未能讀取（見 impact_factor）。上方 quartiles 是 SJR，不是 JCR。
+    acceptance_rate:
+      status: not_published
+      checked: 2026-10-25
+      src: faq
+      note: >-
+        官網沒有錄取率，也沒有拒絕率。FAQ 第 3 題只說 "accept only those papers rated as excellent"，那是標準，不是比率。
+    time_to_first_decision:
+      status: not_published
+      checked: 2026-10-25
+      src: authors_information
+      note: >-
+        官網沒有首次決定的實際統計。只有兩個承諾性的文字：論文會在 "at most two weeks" 內由 handling editor 送審
+        （這是開始送審的時間，不是首次決定）；purpose 說目標是從投稿到出版約九個月（目標，不是統計）。
+    time_submission_to_acceptance:
+      status: not_published
+      checked: 2026-10-25
+      src: purpose
+      note: 官網沒有投稿到錄取的統計；只有 purpose 的 "The goal is to have a fast turnaround of about nine months from submission to publication."（投稿到出版的目標）。
+    estimates:
+      sub_to_acceptance:
+        statistic: median
+        value: 428
+        unit: days
+        q1: 315.5
+        q3: 612
+        p10: 210.8
+        p90: 878.1
+        n: 100
+        n_listed: 122
+        n_missing_dates: 22
+        sample_year: 2025
+        queried: 2026-10-25
+        method: >-
+          普查而非隨機抽樣：以 Crossref（api.crossref.org/journals/1860-5974/works，filter: 2025 年刊出、type: journal-article）
+          列出 2025 年刊出的全部 122 篇，逐篇讀 lmcs.episciences.org 的論文頁，取 "Submitted on" 與 "Accepted on" 兩個日期相減。
+          其中 100 篇兩個日期都在；另 22 篇的論文頁只有 "Published on"，沒有 Submitted／Accepted，無法計算。
+          間隔最短 0 天、最長 2,389 天，平均 513 天。
+        caveats:
+          - 只含最後被刊出的稿件，看不到被拒稿，不能回答「被拒要花多久」。
+          - 樣本是 2025 年刊出的文章，不是 2025 年投稿的稿件。
+          - 論文頁沒有說明 "Submitted on" 是不是首次投稿日；本表假設它是（未證實）。LMCS 的審稿結果有「建議修訂並由原審稿人再審」一類，修訂時間會算在這段間隔內。
+          - 22 篇（約 18%）沒有日期，缺漏的原因不明，可能與這些稿件的處理方式不同；若它們的間隔系統性地更長或更短，中位數會偏。
+          - 最長的 2,389 天（約 6.5 年）遠大於四分位範圍，可能反映的是舊系統遷移或特殊情況，未逐一查明。
+          - 這是對 2025 年刊出論文的描述，不是官方統計，不得與官方公布的數字互比，也不得代替 time_submission_to_acceptance。
+      sub_to_publication:
+        statistic: median
+        value: 505.5
+        unit: days
+        q1: 386.25
+        q3: 678
+        p10: 331.7
+        p90: 940.4
+        n: 100
+        sample_year: 2025
+        queried: 2026-10-25
+        method: 同 sub_to_acceptance（同一批 100 篇，"Submitted on" 到 "Published on"）。
+        caveats:
+          - 同 sub_to_acceptance 的限制。
+          - 官方目標是約九個月（約 270 天）從投稿到出版；這批 2025 年刊出的論文，中位數與四分位下界都高於該目標。目標與統計口徑不同，不是矛盾的證據。
+      acceptance_to_publication:
+        statistic: median
+        value: 74
+        unit: days
+        q1: 57
+        q3: 90
+        p10: 39.9
+        p90: 113.1
+        n: 100
+        sample_year: 2025
+        queried: 2026-10-25
+        method: 同 sub_to_acceptance（"Accepted on" 到 "Published on"）。
+        caveats:
+          - information 頁要求作者在錄取後一個月內交出終稿，此段間隔包含終稿準備與排版。
+
+# ─────────────────────────────────────────────────────────────
+# SLOW — 數年不變。驗證用 hash diff 即可。
+# ─────────────────────────────────────────────────────────────
+requirements:
+  refresh: {check_every: P6M, method: extracted_hash_diff}
+
+  scope:
+    aims: >-
+      "Logical Methods in Computer Science ... welcomes papers on theoretical and practical areas in computer science
+      involving logical methods, taken in a broad sense; some particular areas within its scope are listed below."
+      （purpose）另見 authors_information："We invite submissions ... of original research and survey papers of the highest
+      quality in all theoretical and practical aspects of computer science related to logic in a broad sense. The aim ... is to
+      combine a thorough refereeing process with a quick turnaround time."
+    src: purpose
+    topics:
+      statement: >-
+        list_of_topics 列出約 50 個主題，例如 Algebraic methods、Automata and logic、Automated deduction、Categorical models and logic、
+        Coalgebraic methods、Computability and logic、Computer-aided verification、Concurrency theory、Database theory、Finite model theory、
+        Formalized mathematics、Homotopy type theory and univalent foundations、Interactive proof checking、Logic and complexity、
+        Logic and probability、Logics of programs、Modal and temporal logics、Proof complexity、Proof theory and logic、
+        Quantum computation and logic、Semantics of programming languages、Term rewriting and equational logic、
+        Type theory and constructive mathematics。
+      not_restrictive: >-
+        頁面原文："The list is not intended to be restrictive: authors may submit any papers within the scope of the journal
+        to any editor of their choice."
+      src: list_of_topics
+    evaluation_criteria:
+      status: not_published
+      checked: 2026-10-25
+      note: >-
+        官網沒有逐項列出審稿判準。FAQ 第 3 題只說編輯 "accept only those papers rated as excellent"，information 頁說
+        "highest quality"；兩者都不是可操作的判準。
+      src: faq
+    out_of_scope_hints:
+      - case: 與期刊主題無關的論文
+        statement: '"Papers submitted ... must be written in English, must be related, in a wide sense, to the topics of the journal, and should not exceed 50 pages."'
+        src: authors_information
+      - case: 宣稱解決 P vs. NP 等長期未解問題的論文
+        statement: >-
+          "The study of long-standing open problems in theoretical computer science, in particular of the P vs. NP problem,
+          might be in the scope of Logical Methods in Computer Science provided logic plays an important role. However,
+          extraordinary claims must be supported by extraordinary evidence, and so submissions ... claiming to solve such
+          problems must meet the highest standards of rigour and quality of presentation."
+          另須附 cover letter 說明新想法、投稿前先在公開論壇（例如 ECCC）與專家討論；
+          "Submissions judged not to satisfy these criteria will be rejected without refereeing, and their authors will not be
+          allowed to submit a new paper ... on the same topic until a period of one year has elapsed."
+        src: policies
+      - case: 已發表於會議的論文
+        statement: >-
+          "papers previously published in conference proceedings are usually eligible for publication, provided that the authors
+          have permission to publish. Such submissions should be revised extended versions of conference articles offering an
+          extra benefit to the reader, e.g., full proofs, additonal applications and explanations, improved presentation."
+        src: policies
+      - case: 特刊（不是一般投稿，列此以免誤解）
+        statement: >-
+          "Proposals for special issues devoted to workshops or to conferences with no prior refereed proceedings will not be
+          considered." 特刊只收大型會議、有已審稿且已出版的論文集、並從最佳論文邀稿者。
+        src: special_issues_info
+
+  article_types:
+    - {id: research, label: "Original research papers", src: authors_information, note: 'information 頁原文 "original research and survey papers"；論文頁的 metadata 標為 Research Article'}
+    - {id: survey, label: "Survey papers", src: authors_information, note: 'survey_articles 頁列有 9 篇已刊登的 survey；官網沒有另外的 survey 投稿規定或篇幅'}
+    - {id: special_issue_paper, label: "Special-issue papers", src: special_issues_info, note: '須有 guest editors 給的 Special Issue Code，投稿時先填代碼再選編輯，且不要選一般編輯（authors_submit）'}
+    - {id: revised_version, label: "Revised version of a published paper", src: authors_information, note: '"In exceptional cases, for example if an error is discovered ... authors may publish a revised version accompanied by a statement explaining the changes"；兩個版本都留在網站（FAQ 第 15 題另述 corrigenda 作法）'}
+    - {id: not_listed, label: "其他文章類型（短篇、tutorial、software、data 等）", src: authors_information, note: "2026-10-25 查過：官網沒有列出這些類型，也沒有說不收"}
+
+  length:
+    value: 50
+    unit: pages_typeset
+    basis: {template: "LMCS 樣式（lmcs.cls）", note: "information 頁寫 50 pages，沒有說明用哪個版面計算"}
+    wording: '"Papers submitted to Logical Methods in Computer Science ... should not exceed 50 pages. If authors feel substantially more pages are needed, they should explain why to the handling editor."'
+    exceptions: >-
+      超過 50 頁要向 handling editor 說明理由（information 頁）；FAQ 第 9 題寫的是「寫在 cover letter」。措辭為 "should not exceed"，屬軟性上限。
+    includes_note:
+      status: not_published
+      checked: 2026-10-25
+      note: 官網沒有說明 50 頁是否含參考文獻、附錄、圖表。
+    src: authors_information
+
+  abstracts:
+    - id: main
+      max_words: {status: not_published, checked: 2026-10-25, src: authors_information, note: 官網以行數而非字數限制}
+      max_lines: 20
+      lines_basis: 'LMCS 樣式內的行數：information 頁原文 "In general, the length of the abstract should not exceed 20 lines (in the provided style of the journal)."'
+      required_at: submission
+      rules:
+        - 簡明、易懂地陳述主要結果
+        - 盡量不用數學符號；無法避免時須另附 html 版摘要
+        - 摘要不得含參考文獻（instructions_tex 的檢查清單）
+      src: authors_information
+  keywords:
+    required: false
+    note: 'LMCS 樣式提供 \keywords{...}，範例檔註明 "optional comma separated list of keywords"；arXiv 投稿的主分類至少要選 cs.LO。'
+    src: instructions_tex
+
+  formatting:
+    typesetting: LaTeX（lmcs.cls）。初次投稿可以是 PDF；終稿必須用 LMCS 樣式並附 TeX 原始檔
+    statement: >-
+      purpose："Papers can be submitted electronically as pdf-files. On acceptance, authors are asked to provide a source tex file";
+      latex_style："All final versions of articles must be formated using the Logical Methods in Computer Science LaTeX style."
+    template:
+      class: lmcs
+      files: ["lmcs.cls", "instructions.tex", "instructions.pdf"]
+      url: https://lmcs.episciences.org/public/lmcs.cls
+      src: latex_style
+    submission_file: PDF（經 Episciences 投稿；論文須先貼在 arXiv，含 TeX 原始檔）
+    language: English（information 頁："must be written in English"）；可另附其他語言版本，以註腳連到 CoRR 上的 PDF
+    introduction: 每篇投稿須以 introductory section 開頭；長篇可在 handling editor 同意下於引言結尾附目錄
+    final_version_deadline: 錄取後一個月內交出終稿（information 頁）
+    checklist_highlights:
+      - 使用最新版 lmcs.cls，不要用 arXiv 提供的版本（instructions_tex 清單）
+      - 參考文獻用 BibTeX 與 alphaurl 樣式，.bib 檔須一併放在 arXiv
+      - 用 \lmcsorcid{} 為作者加 ORCID
+      - 不得更改預設字型（不用 times、txfonts、mathptmx、ae、libertine、beramono、lmodern）
+      - 不得有 overfull hbox；除非必要不用 \sloppy、\vspace、\vskip
+      - 全部原始碼都會公開在 arXiv，所以要清掉註解與被註解掉的段落
+      - 程式碼與其他 artifacts 請放在 Zenodo 並以 DOI 引用，避免連到可能下線的網頁
+    orcid: {supported: true, how: "\\lmcsorcid{...}", required: {status: not_published, checked: 2026-10-25, src: latex_style}, src: latex_style}
+    src: latex_style
+
+  supplementary_material:
+    status: not_published
+    checked: 2026-10-25
+    note: 官網沒有補充材料的專門規定。latex_style 只建議把程式碼與其他 artifacts 存在 Zenodo 並以 DOI 引用。
+    src: latex_style
+
+  reproducibility:
+    code_and_data_sharing_mandate:
+      status: not_published
+      checked: 2026-10-25
+      note: >-
+        官網沒有要求公開資料或程式碼，也沒有資料可得性聲明。latex_style 對程式碼與 artifacts 的文字是建議
+        （"should be hosted on Zenodo and cited with a DOI"）。
+      src: latex_style
+    reporting_standards: {status: not_published, checked: 2026-10-25, note: 無 TOP、JARS 或其他報告標準要求}
+
+  review:
+    type: referee_anonymous
+    statement: >-
+      審稿人匿名（supporters 頁："our papers are carefully reviewed by anonymous referees"）。官網沒有作者匿名（去識別化稿件）的要求或選項；
+      而且投稿前必須先把論文公開貼在 arXiv，所以審稿人看得到作者（這一點是由 arXiv 先行的規定推得，官網沒有明講）。
+    author_anonymization: {status: not_published, checked: 2026-10-25, note: 官網未提供雙盲選項；arXiv 先行的規定使作者身分公開, src: authors_information}
+    src: supporters
+    referees:
+      count: 'purpose："two or more referees per paper"；information："generally ... two or three referees"；FAQ："two or three referees"'
+      src: authors_information
+    stages:
+      - id: acknowledgement_and_assignment
+        detail: >-
+          作者在投稿網站選一位 handling editor；Executive Editor 實際指派，並盡量尊重作者的選擇（editor 有權拒絕，則另派）。
+          作者會立即收到自動確認，並 "will be contacted within at most two weeks by the editor who will handle their paper"；
+          論文 "will be sent to review within at most two weeks by the handling editor"。
+        src: authors_information
+      - id: refereeing
+        detail: 通常兩到三位審稿人。FAQ 說期刊 "leaves ample time for all referees to provide their reports"，所以不設審稿時限承諾。
+        src: faq
+    decision_categories:
+      - {id: accept, label: Accept (possibly subject to minor revision), note: 作者須備妥終稿與逐點回覆審稿意見}
+      - {id: revision, label: "Revision recommended", note: 編輯認為值得刊登但須審稿人再看修訂版；由同一位編輯處理，須附逐點回覆}
+      - {id: reject, label: Not accepted}
+    decision_categories_src: authors_information
+    timeline_targets:
+      note: 皆為官方的目標或承諾，不是實際統計
+      send_to_review: 至多兩週內由 handling editor 送審（authors_information）
+      submission_to_publication: 約九個月（purpose："The goal is to have a fast turnaround of about nine months from submission to publication."）
+      final_version: 錄取後一個月內交終稿（authors_information）
+      src: purpose
+    author_may_suggest_reviewers:
+      status: not_published
+      checked: 2026-10-25
+      note: 官網沒有提到作者推薦審稿人；作者只能選 handling editor。
+      src: authors_information
+    handling_editor_choice:
+      required: true
+      how: 在投稿頁從 Editorial Board 名單選一位（不能是已卸任而不在名單的人）；特刊投稿則先填 Special Issue Code，不選一般編輯
+      src: authors_submit
+    conflict_of_interest: >-
+      編輯也可以投稿本刊；guest editors 不得是特刊論文的作者或共同作者；managing editors 投稿時依 ACM 的 EIC 利益衝突政策處理
+      （FAQ 第 16 題）。
+
+  submission:
+    portal: https://lmcs.episciences.org/submit/index
+    portal_note: authors_submit 頁 "Login and Submit Here" 的連結目標（相對路徑 ../submit/index）；需登入，未登入的內容未讀取。
+    system: Episciences
+    file: PDF
+    prerequisites:
+      - 論文已貼在 CoRR（arXiv 的電腦科學部分），含 TeX 原始檔，主分類至少含 "Logic in Computer Science" (cs.LO)；投稿時要選對 arXiv 版本
+      - 論文未在他處發表、也未在他處審查中
+      - 已簽署授權協議（CC-BY 加期刊協議）
+      - 從現任 Editorial Board 選一位 handling editor
+    cover_letter:
+      required: {status: not_published, checked: 2026-10-25, src: authors_information}
+      conditional: >-
+        論文超過 50 頁時要說明理由（FAQ 寫在 cover letter，information 頁寫給 handling editor）；
+        有會議版本時要在首頁給出精確的先前出版參考，並在投稿時說明差異（policies）；
+        宣稱解決 P vs. NP 等問題時必須附 cover letter（policies）。
+    conditions: >-
+      authors_submit 的 Submission Preparation Checklist（全部必要）：未在他處發表或審查中；已簽授權協議；已貼 arXiv；選一位編輯。
+    src: authors_submit
+
+  fees:
+    submission: {status: not_published, checked: 2026-10-25, src: faq, note: 官網沒有投稿費；FAQ 第 1 題說明無作者費用}
+    apc:
+      amount: 0
+      mandatory: false
+      note: >-
+        沒有 APC，也沒有頁費。FAQ 第 1 題："there are no page charges for authors"；purpose："free, open access"。
+        官網未標幣別（金額為零，幣別不影響）。
+      src: faq
+    page_charges: 0
+    color_print: {status: not_applicable, checked: 2026-10-25, src: faq, note: 沒有紙本版（FAQ 第 2 題："There is, so far, no hardcopy version."）}
+
+  policies:
+    dual_submission: forbidden
+    original_work: >-
+      purpose / policies："publishes only original papers which have not been published previously, nor submitted for
+      publication elsewhere."（會議版本例外，見 scope.out_of_scope_hints）
+    preprints:
+      allowed: true
+      required: true
+      statement: >-
+        投稿前必須先把論文貼在 CoRR/arXiv（含 TeX 原始檔），"As subject they must choose at least 'Logic in Computer Science' (cs.LO)"。
+        官網說明這項規定的理由："This policy is intended to favour both the authors and the journal. For the authors, because
+        availability of their results is not delayed by the review process; for the journal, as the requirement of making preprints
+        available online may lead to higher quality submissions."
+      overlay: purpose 與 information 都說本刊是 CoRR 的 overlay journal。錄取後的修訂與終稿透過更新 arXiv 版本完成。
+      after_publication: >-
+        授權協議："no new version of the article, once it is published in the Journal, will be submitted to the Computing Research
+        Repository without the agreement of the Journal. The Owner agrees to handle all changes or corrections via the assigned editor."
+      src: authors_information
+    copyright:
+      retained_by_authors: true
+      license: CC-BY（自 Volume 14, Issue 1 的第 15 篇起；先前為 CC-BY-ND）
+      alternative_licenses: 經申請可改用其他 Creative Commons 授權（authors_copyright 的 Alternative Licenses 與 instructions_tex 的 Licensing 節）
+      agreement: >-
+        錄取後、出版前，作者須同意 CC-BY 與期刊的協議（協議內容涉及更正與再版）；
+        再出版相同或實質相同內容時須註明已在本刊出版。
+      src: authors_copyright
+    executive_editor_rights: >-
+      policies："The Executive Editor retains the right to require changes to papers after their acceptance by the handling editor.
+      Such changes normally concern matters of style or format."
+    generative_ai:
+      status: not_published
+      checked: 2026-10-25
+      note: >-
+        已檢查 purpose、information、submit、policies、copyright、latex-style、FAQ、list-of-topics、special issues 各頁
+        與 instructions.tex，皆無生成式 AI 政策。
+    ethics:
+      status: not_published
+      checked: 2026-10-25
+      note: 官網沒有獨立的出版倫理頁；policies 頁只有上列三項政策。
+      src: policies
+    conflict_of_interest:
+      author_disclosure: {status: not_published, checked: 2026-10-25, note: 官網沒有作者的利益衝突揭露要求；利益衝突條文只針對編輯（FAQ 第 16 題）, src: faq}
+
+  standards: []
+
+# ─────────────────────────────────────────────────────────────
+# FAST — 期刊無年度週期。
+# ─────────────────────────────────────────────────────────────
+cycle:
+  applies_to: null
+  rolling_calls: []
+  special_issues:
+    status: not_published
+    checked: 2026-10-25
+    note: >-
+      special_issues_completed 只列已完成的特刊（最新一年為 2024），沒有進行中的徵稿公告。特刊由 guest editors 向 managing editors
+      （Pientka、Zanasi）提案，投稿者要有 guest editors 給的 Special Issue Code（special_issues_info、authors_submit）。
+    src: special_issues_completed
+
+# ─────────────────────────────────────────────────────────────
+warnings:
+  - >-
+    投稿前必須先把論文貼在 arXiv（含 TeX 原始檔，主分類至少 cs.LO），再到 Episciences 投稿並選對 arXiv 版本。
+    論文因此在審稿期間就是公開的，作者身分也是公開的；官網沒有匿名投稿的選項。
+  - >-
+    篇幅上限是 50 頁（軟性，超過要說明理由），但官網沒有說明是否含參考文獻與附錄，也沒有說用哪個版面計算。
+  - >-
+    官網沒有任何 Impact Factor 或審稿時間的統計；JCR 需登入，本記錄沒有讀到。SJR 分區四個類別 2025 年都是 Q3，
+    Clarivate MJL 的收錄只有 SCIE（沒有 SSCI、ESCI）。
+  - >-
+    官網的目標是投稿到出版約九個月；2025 年刊出的論文中，投稿到錄取的中位數約 428 天（自行普查估計，見 identity.metrics.estimates，
+    不是官方統計，且只含已刊出者）。
+  - >-
+    宣稱解決 P vs. NP 等長期未解問題的投稿有額外門檻：不符標準會被不經審稿直接退稿，且同一主題一年內不得再投（policies）。
+  - >-
+    有會議版本的論文必須是「擴充修訂版」，並在首頁註明先前出版處、投稿時說明差異（policies）。

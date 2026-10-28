@@ -1,0 +1,780 @@
+--- # research-submission venue record
+# 內容擷取自 Taylor & Francis（ASA 委託出版）的 JCGS 投稿須知與期刊資訊頁、T&F Author Services 全出版社政策頁、
+# ASA 與 IMS 的官方頁面、SCImago、Clarivate Master Journal List，2026-10-25。
+# 讀取方式：tandfonline.com 對 curl 回 403 挑戰頁，用 Safari 讀 document.body.innerText；
+# authorservices.taylorandfrancis.com、amstat.org、community.amstat.org 以 curl 可取得完整頁面（200）；
+# IMS 的頁面前面有 Anubis 機器人檢查（curl 只拿到 7 KB 空殼），Safari 等幾秒後可讀；
+# SCImago 與 MJL 用 Safari 讀（MJL 是 JS 單頁應用，只能在頁內查詢）。
+# 本刊的「Instructions for authors」是 tandfonline.com 上的 HTML 頁，沒有 PDF；頁尾標示「Updated 10-06-2026」（月日順序頁面未說明）。
+# 收錄緣由：語料庫缺這本；與 JASA（asa/jasa）同出版社同學會，但 scope 偏計算與視覺化，供 choose-venue 比較用。
+# 本記錄只放期刊公開規定與公開的編輯部名單，不含任何投稿者或稿件資訊。
+#
+# sources 排序是刻意的：http 來源全部排在前面、browser 來源排在最後。
+# verify.py 以「替換第一個 extracted_sha256: null」寫回 hash，若 browser 來源排在前面，
+# http 來源的 hash 會被寫進 browser 來源的欄位。
+
+schema_version: 1
+id: asa/jcgs
+kind: journal
+family: statistics-journals
+status: active
+
+# ─────────────────────────────────────────────────────────────
+sources:
+  - id: tf_preprints
+    role: supporting
+    url: https://authorservices.taylorandfrancis.com/publishing-your-research/making-your-submission/posting-to-preprint-server/
+    note: T&F 全出版社層級的 preprint 政策；JCGS 須知頁「Preprints Author Services page」連結指向此頁（連結少了結尾斜線，會導到此頁）。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "We do not consider posting on a preprint server to be duplicate publication"
+        min_extracted_chars: 3000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: tf_ai_policy
+    role: supporting
+    url: https://authorservices.taylorandfrancis.com/editorial-policies/using-ai-in-your-research-and-manuscript-preparations/
+    note: T&F 全出版社層級的生成式 AI 政策；JCGS 須知頁 Checklist 的「Declaration of generative AI use」連到此頁。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "How to declare generative AI use in your manuscript"
+        min_extracted_chars: 3000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: tf_supplementary
+    role: supporting
+    url: https://authorservices.taylorandfrancis.com/publishing-your-research/writing-your-paper/enhancing-your-article-with-supplementary-material/
+    note: >-
+      T&F 對 supplementary material 的通則：什麼是「for review」、檔案放在 Figshare、不設大小上限、T&F 不檢查也不校對。
+      JCGS 須知頁「More information on supplements is available here」的連結
+      （https://authorservices.taylorandfrancis.com/enhancing-your-article-with-supplemental-material/）2026-10-25 回 404；
+      Checklist 裡另一個連結（.../writing-your-paper/enhance-article-with-supplemental-material/）會導到本頁。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Taylor & Francis supports a range of supplementary materials"
+        min_extracted_chars: 3000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: tf_data_sharing_policies
+    role: supporting
+    url: https://authorservices.taylorandfrancis.com/data-sharing-policies/
+    note: >-
+      T&F 的資料共享政策分級（Basic、Share upon reasonable request、Publicly Available、Open Data、Open and FAIR），
+      並寫明「請看該期刊的 Instructions for Authors 以得知適用哪一級」。JCGS 須知頁沒有點名其中任何一級，見 requirements.openness。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "A journal with our basic policy encourages you to share"
+        min_extracted_chars: 3000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: tf_metrics_guide
+    role: supporting
+    url: https://authorservices.taylorandfrancis.com/publishing-your-research/choosing-a-journal/journal-metrics/
+    note: >-
+      T&F 期刊頁指標的定義：速度指標（首次決定、首次審後決定、接受到上線）與接受率怎麼算。
+      JCGS 期刊資訊頁的 "Learn more about journal metrics" 與各指標連結都指向此頁。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Speed to first decision and first post-review decision"
+        min_extracted_chars: 10000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: latex_template
+    role: supporting
+    url: https://files.taylorandfrancis.com/ucgs-template.zip
+    note: >-
+      須知頁「JCGS LaTeX template (zip file)」。zip 內含 template.tex、template.qmd、agsm.bst、bibliography.bib 與範例圖。
+      這是二進位檔：verify.py 的 HTML 抽取器對它只能產生決定性的位元組指紋（可偵測範本被換掉），不是可讀文字；
+      must_contain 只用來確認拿到的是 zip 而不是 404 頁。2026-10-25 下載解壓後讀 template.tex 與 template.qmd。
+      摘要「200 or fewer words」與關鍵字「3 to 6 keywords, that do not appear in the title」只寫在這個範本裡，須知頁沒有。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "template.tex"
+        min_extracted_chars: 100000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: asa_journals
+    role: supporting
+    url: https://www.amstat.org/publications/journals
+    note: ASA 自家期刊總覽頁，JCGS 只有兩句簡介（"A journal of the ASA and the Institute of Mathematical Statistics"）；連到 tandfonline 的 toc/ucgs20/current。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "A journal of the ASA and the Institute of Mathematical Statistics"
+        min_extracted_chars: 4000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: asa_data_policy_2018
+    role: supporting
+    url: https://community.amstat.org/blogs/ronald-wasserstein/2018/01/17/asa-journals-policies-on-data-sharing-and-reproduc
+    note: >-
+      ASA 執行長 2018-01-17 的部落格文章（署名 Ronald Wasserstein，主要撰稿 Eric Sampson，ASA Journals Manager）：
+      ASA 自有期刊的資料與程式碼政策，其中一句點名 JCGS。這是 2018 年的說法，早於現行的投稿須知（2026），
+      只當歷史背景，現行規定以 tf_instructions 為準。amstat.org 上的對應頁
+      （https://www.amstat.org/publications/q-and-as/asa-journal-policies-on-data-sharing-and-reproducibility）
+      只是這篇的摘要，沒有提到 JCGS。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Another example is the Journal of Computational and Graphical Statistics, which requires authors to submit code and data"
+        min_extracted_chars: 3000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: tf_instructions
+    role: authoritative
+    url: https://www.tandfonline.com/action/authorSubmission?show=instructions&journalCode=ucgs20
+    note: >-
+      規定本體：About the Journal（含 JCGS 自己寫的 scope 與審查段）、Open Access、Structure、Length、Style Guidelines、
+      Supplementary Material、Checklist、Submitting Your Paper、Publication Charges。頁尾標示「Updated 10-06-2026」。
+      頁面內 JCGS 自有段落與 T&F 通用段落並存，有數處措辭不一致，記在各欄位的 note。
+      由 https://www.tandfonline.com/journals/ucgs20 的 "Instructions for authors" 進入。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: >-
+        Cloudflare 挑戰頁：curl 回 HTTP 403、約 5.7 KB（2026-10-25 實測）；同站 journals/ucgs20、about-this-journal
+        也都是 403 + 約 5.5 KB 的同型挑戰頁。safari-browser（已登入的真實 Safari）可正常讀取（約 22.6 KB 文字）。
+      validity:
+        must_contain: "the principal criterion for acceptance of an article is the strength of its contribution to these fields"
+        min_extracted_chars: 15000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: tf_about
+    role: authoritative
+    url: https://www.tandfonline.com/journals/ucgs20/about-this-journal
+    note: >-
+      Aims and scope、Journal metrics、Editorial board、Abstracting and indexing、Open access、Publication details（ISSN）都在本頁。
+      "Publication details" 是收合的區塊，document.body.innerText 讀不到，ISSN 要從 DOM 的 .serialDetailsIssn / .serialDetailsEissn 取。
+      指標每年更新（頁尾腳註：IF 與分區的版權屬 Journal Citation Reports、Clarivate Analytics；CiteScore 屬 Scopus），
+      hash 會因此變動；比對時看 must_contain 與指標那幾行即可。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Cloudflare 挑戰頁（curl HTTP 403、約 5.5 KB），與 tf_instructions 相同。
+      validity:
+        must_contain: "Articles are written for readers who have a strong background in statistics but are not necessarily experts in computing"
+        min_extracted_chars: 8000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: tf_journal_home
+    role: supporting
+    url: https://www.tandfonline.com/journals/ucgs20
+    note: 期刊首頁："Published on behalf of the American Statistical Association"、Aims and scope 摘要、最新文章、現行期別（Volume 35, Issue 3, 2026）。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Cloudflare 挑戰頁（curl HTTP 403、約 5.5 KB），與 tf_instructions 相同。
+      validity:
+        must_contain: "Published on behalf of the American Statistical Association"
+        min_extracted_chars: 3000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: tf_special_issues
+    role: supporting
+    url: https://www.tandfonline.com/journals/ucgs20/special-issues
+    note: 2026-10-25 頁面寫 "There are no special issues available for this journal"，沒有開放中的徵稿。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Cloudflare 挑戰頁（同 tf_instructions）。
+      validity:
+        must_contain: "There are no special issues available for this journal"
+        min_extracted_chars: 1000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: ims_handbook
+    role: supporting
+    url: https://imstat.org/ims-handbook/ims-handbook-activities-with-other-organizations/
+    note: >-
+      IMS Handbook 的「與其他組織的合作」頁：JCGS 的共同出版與管理委員會結構（ASA 為管理夥伴，IMS 與 IFNA 對科學內容與方向提供意見）。
+      T&F 的 JCGS 頁面只提到 ASA 與 IMS，Interface Foundation 的角色只見於本頁。
+      頁面前有 Anubis 機器人檢查：curl 回 200 但只有約 7 KB 的 "Making sure you're not a bot!" 空殼（2026-10-25 實測），
+      Safari 開啟後等約 10 秒才載入內容。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 回 HTTP 200 但只有約 7 KB 的機器人檢查空殼（標題 Making sure you're not a bot!）"
+      validity:
+        must_contain: "Co-published by the American Statistical Association (ASA), the Interface Foundation (IFNA) and the IMS"
+        min_extracted_chars: 5000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: scimago
+    role: supporting
+    url: https://www.scimagojr.com/journalsearch.php?q=23863&tip=sid&clean=0
+    note: >-
+      SCImago（SJR）期刊頁：SJR、分區（三個類別各一）、H-index、Scope、ISSN。sid 23863 由
+      journalsearch.php?q=1061-8600&tip=iss 的搜尋結果取得（搜尋頁只列這一筆）。
+      curl 回 403 挑戰頁（2026-10-25 實測：HTTP 403、5559 bytes），只能用瀏覽器讀。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "403, 5559-byte challenge page"
+      validity:
+        must_contain: "Journal of Computational and Graphical Statistics"
+        min_extracted_chars: 8000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: mjl
+    role: supporting
+    url: https://mjl.clarivate.com/home
+    note: >-
+      Clarivate Master Journal List。JS 單頁應用，結果頁網址不帶查詢字串，無法用網址重現；
+      只能在頁內於 #search-box 填 ISSN、按 #search-button 後讀結果列。
+      本次填 1061-8600，結果頁網址是 https://mjl.clarivate.com/search-results。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "SPA 空殼，查詢結果需在頁內操作（同出版社的其他記錄 2026-10-25 實測 curl /home 為 200、約 11 KB 空殼）"
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+
+# ─────────────────────────────────────────────────────────────
+identity:
+  name: Journal of Computational and Graphical Statistics
+  abbreviation: JCGS
+  publisher: Taylor & Francis
+  publisher_src: tf_about
+  owner: American Statistical Association
+  owner_src: tf_journal_home
+  co_sponsors:
+    - {name: Institute of Mathematical Statistics, src: [tf_about, asa_journals, ims_handbook]}
+    - {name: Interface Foundation of North America, src: ims_handbook}
+  co_sponsors_note: >-
+    IMS Handbook 寫 "Co-published by the American Statistical Association (ASA), the Interface Foundation (IFNA) and the IMS.
+    The ASA is designated as the managing JCGS partner, with IMS and IFNA providing input/influence regarding the journal's
+    scientific content and direction."，並說明六人管理委員會（ASA、IMS、IFNA 各二）負責審議編輯政策、選任編輯、核准 Associate Editors。
+    T&F 的 JCGS 頁面只寫 "Published on behalf of the American Statistical Association"，免責聲明與會員資訊提到 ASA 與 IMS，沒有 Interface Foundation。
+    IMS Handbook 頁面沒有日期，Interface Foundation 目前是否仍是共同出版者，本次只找到這一個來源。
+  issn: {print: "1061-8600", electronic: "1537-2715", src: tf_about}
+  issn_note: SCImago（10618600, 15372715）與 MJL（1061-8600 / 1537-2715）的 ISSN 與此一致。
+  homepage: https://www.tandfonline.com/journals/ucgs20
+  established: 1992
+  established_src: tf_about
+  frequency: quarterly（3、6、9、12 月）
+  article_types_listed: [Articles, Short Technical Notes]
+  open_access: hybrid（T&F Open Select）
+  editors:
+    co_editors:
+      - {name: Yuguo Chen, affiliation: University of Illinois Urbana-Champaign}
+      - {name: Rebecca Killick, affiliation: Clemson University}
+      - {name: Laura M. Sangalli, affiliation: Politecnico di Milano}
+    editorial_coordinator: {name: Janet Wallace, email: jcgs.office@gmail.com}
+    journals_manager: Eric Sampson
+    src: tf_about
+    note: 編輯部名單取自 about-this-journal 頁（公開 masthead），頁面沒有標示各人任期。頁面名單沒有列「Associate Editor for Reproducibility」這類可重現性專責編輯。
+  external_ids:
+    crossref: "1061-8600"
+    openalex: issn:1061-8600
+    scimago: "23863"
+  indexing:
+    clarivate_mjl:
+      scie: true
+      ssci: false
+      ahci: false
+      esci: false
+      web_of_science_core_collection: Science Citation Index Expanded
+      additional_indexes: [Current Contents Physical Chemical & Earth Sciences, Essential Science Indicators]
+      checked: 2026-10-25
+      search_issn: "1061-8600"
+      mjl_title_string: "JOURNAL OF COMPUTATIONAL AND GRAPHICAL STATISTICS"
+      mjl_publisher_string: "TAYLOR & FRANCIS INC , 530 WALNUT STREET, STE 850, PHILADELPHIA, USA, PA, 19106"
+      src: mjl
+      note: >-
+        搜尋 1061-8600 得 1 筆 "Exact Match Found"（ISSN / eISSN 1061-8600 / 1537-2715），Web of Science Core Collection 欄只列
+        Science Citation Index Expanded；沒有 SSCI、AHCI、ESCI。Additional Web of Science Indexes 欄列
+        Current Contents Physical, Chemical & Earth Sciences 與 Essential Science Indicators。
+    publisher_stated:
+      src: tf_about
+      note: >-
+        出版社頁面自述的收錄清單含 Science Citation Index Expanded、Web of Science、Current Contents、Scopus、MathSciNet、
+        Current Index to Statistics、PubMed 等；SCIE 以上方 MJL 為準。aims 段落另列 SciSearch、CompuMath Citation Index 等舊名稱。
+      list: [American Mathematical Society, MathSciNet, American Statistical Association, Current Index to Statistics (Online), CABI (various), De Gruyter Saur (various), EBSCOhost (various), Elsevier BV, Scopus, Gale (various), Genamics JournalSeek, National Library of Medicine, PubMed, OCLC, ArticleFirst, ProQuest (various), Statistical Theory and Method Abstracts (CD-ROM), Clarivate Analytics, Current Contents, Science Citation Index Expanded, Web of Science]
+  metrics:
+    impact_factor:
+      value: 1.6
+      year: 2025
+      as_of: 2026-10-25
+      src: tf_about
+      system: Journal Citation Reports (Clarivate)
+      note: >-
+        T&F 期刊頁 "1.6 (2025) Impact Factor"，頁尾腳註 "*Copyright: Journal Citation Reports®, Clarivate Analytics"，
+        所以系統是 JCR；頁面沒有說明 2025 是 JCR 發布年或資料年。本次未另以 JCR 核對（JCR 需登入）。
+    impact_factor_5yr:
+      value: 2.4
+      year: 2025
+      as_of: 2026-10-25
+      src: tf_about
+      system: Journal Citation Reports (Clarivate)
+    citescore: {value: 3.7, year: 2025, as_of: 2026-10-25, src: tf_about, system: Scopus（T&F 腳註 "CiteScore™, Scopus"）}
+    snip: {value: 1.387, year: 2025, as_of: 2026-10-25, src: tf_about}
+    sjr: {value: 1.333, year: 2025, as_of: 2026-10-25, src: [tf_about, scimago], note: T&F 頁面與 SCImago 頁面的 2025 年 SJR 一致}
+    h_index: {value: 114, as_of: 2026-10-25, src: scimago, system: SCImago}
+    usage: {value: 271000, unit: annual downloads/views, as_of: 2026-10-25, src: tf_about, note: 頁面寫 "271K annual downloads/views"}
+    quartiles:
+      - {system: SJR, category: Discrete Mathematics and Combinatorics, subject_area: Mathematics, quartile: Q1, year: 2025, as_of: 2026-10-25, src: scimago,
+         note: SCImago 列此類別 1999–2025 每年皆為 Q1；頁面不給名次}
+      - {system: SJR, category: Statistics and Probability, subject_area: Mathematics, quartile: Q1, year: 2025, as_of: 2026-10-25, src: scimago,
+         note: SCImago 列此類別 2025 年為 Q1（1999–2025 只有 2001 年為 Q2）；頁面不給名次}
+      - {system: SJR, category: "Statistics, Probability and Uncertainty", subject_area: Decision Sciences, quartile: Q1, year: 2025, as_of: 2026-10-25, src: scimago,
+         note: SCImago 列此類別 2025 年為 Q1（1999–2025 只有 2001 年為 Q2）；頁面不給名次。subject_area 依頁面「Subject Area and Category」清單的排列判讀}
+    quartile_note: >-
+      上面的 quartiles 清單只收直接從 SCImago 頁面讀到的 SJR 分區。T&F 頁面另外轉述了兩個最佳分區（見 publisher_stated_best_quartiles），
+      其中一個以 JCR 為準；JCR 本身需登入，本次沒有直接讀，所以不放進 quartiles 清單（以免被當成直接查到的 JCR 分區）。
+      同一本刊在不同系統的分區不同（JCR 最佳分區 Q2 對 SJR Q1），引用時一定要註明系統。
+    publisher_stated_best_quartiles:
+      impact_factor_best_quartile:
+        value: Q2
+        year: 2025
+        as_of: 2026-10-25
+        src: tf_about
+        system: JCR（T&F 頁面轉述）
+        category: 頁面未標明類別
+        definition: 'T&F 腳註："Impact Factor Best Quartile*: the journal''s highest subject category ranking in the Journal Citation Reports. Q1 = 25% of journals with the highest Impact Factors."'
+        note: >-
+          腳註 "*Copyright: Journal Citation Reports®, Clarivate Analytics"。這是出版社頁面上的數字，不是本次直接從 JCR 讀的。
+      citescore_best_quartile:
+        value: Q1
+        year: 2025
+        as_of: 2026-10-25
+        src: tf_about
+        system: Scopus CiteScore（T&F 頁面轉述）
+        category: 頁面未標明類別
+    jcr_quartile:
+      status: not_found
+      checked: 2026-10-25
+      note: >-
+        JCR 各類別的分區與名次需登入 Clarivate JCR，本次未查，不猜。T&F 頁面轉述的最佳分區見 publisher_stated_best_quartiles
+        （Q2，類別未標明）。
+    acceptance_rate:
+      value: 15
+      unit: percent
+      as_of: 2026-10-25
+      src: tf_about
+      basis: >-
+        T&F 頁面 "15% acceptance rate"。定義（同頁）："articles accepted for publication by the journal in the previous calendar year
+        as percentage of all papers receiving a final decision"。頁面沒有標明是哪一年。
+    time_to_first_decision:
+      value: 15
+      unit: days
+      statistic: 頁面寫 "avg."，定義寫 "the average (median) number of days"，兩個詞並用，無法確定是平均還是中位數
+      as_of: 2026-10-25
+      src: tf_about
+      basis: >-
+        T&F 頁面 "15 days avg. from submission to first decision"。定義（同頁）：以最近六個月內收到首次決定的稿件計，
+        "This includes manuscripts which are not sent for peer review (desk rejections). Manuscripts which are sent out for review
+        can therefore have a significantly longer wait than this metric indicates."
+    time_to_first_post_review_decision:
+      value: 116
+      unit: days
+      statistic: 同上，頁面寫 "avg."，定義寫 "average (median)"
+      as_of: 2026-10-25
+      src: tf_about
+      basis: 送外審的稿件從投稿到首次審後決定的天數，以最近六個月內收到審後決定的稿件計。
+    acceptance_to_online:
+      value: 80
+      unit: days
+      statistic: 同上
+      as_of: 2026-10-25
+      src: tf_about
+      basis: 從接受到 Version of Record 上線，以最近六個月內上線的文章計。
+    time_submission_to_acceptance:
+      status: not_published
+      checked: 2026-10-25
+      src: tf_about
+      note: T&F 頁面與投稿須知都沒有列投稿到接受的天數。本次沒有做抽樣估計（tandfonline.com 擋 curl，現有的 sample_review_times.py preset 不涵蓋 T&F）。
+
+# ─────────────────────────────────────────────────────────────
+requirements:
+  refresh: {check_every: P6M, method: extracted_hash_diff}
+
+  scope:
+    aims: >-
+      計算與視覺化方法在統計與資料分析上的應用與推進：數值方法、圖形展示與方法、感知（perception）。
+      讀者是統計背景紮實、但不一定是計算專家的人。
+    src: tf_about
+    statement_about: >-
+      "The Journal of Computational and Graphical Statistics (JCGS) presents the very latest techniques on improving and extending
+      the use of computational and graphical methods in statistics and data analysis. Established in 1992, this journal contains
+      cutting-edge research, data, surveys, and more on numerical graphical displays and methods, and perception. Articles are
+      written for readers who have a strong background in statistics but are not necessarily experts in computing."（tf_about）
+    statement_instructions: >-
+      "The purpose of the Journal of Computational and Graphical Statistics (JCGS) is to improve and extend the use of computational
+      and visualization methods in statistics and data analysis. The journal publishes articles that make original contributions to
+      one or both of the fields of computational statistics and data visualization. In addition to quality, the principal criterion
+      for acceptance of an article is the strength of its contribution to these fields."（tf_instructions, About the Journal）
+    audience: >-
+      "Articles should be written for readers who have a strong background in statistics but are not necessarily experts in
+      computing and data visualization."
+    encouraged: >-
+      "Articles describing new computational methods or visualization techniques for application in any area of statistics are
+      especially encouraged."
+    theory_vs_computation:
+      statement: >-
+        "Articles of a theoretical nature are appropriate, provided that the results are relevant to computational statistics or
+        data visualization and they include results that illustrate practical applications of the new material."
+      reading: >-
+        純理論稿不是被排除，但有兩個條件：結果須與計算統計或資料視覺化有關，且須含說明實際應用的結果。
+        頁面沒有說「純理論稿不收」，條件是用 "provided that" 寫的。
+      src: tf_instructions
+    software_and_algorithms:
+      statement: >-
+        "Articles on statistical software are appropriate if they introduce new concepts, new algorithms, or new approaches to software
+        design, or otherwise improve existing knowledge about statistical software."
+      reading: 軟體稿須帶來新概念、新演算法、新的軟體設計方式，或增進對統計軟體的既有知識；只是發布一個套件不在這句話涵蓋內，但頁面也沒有明說不收。
+      src: tf_instructions
+    reviews:
+      statement: >-
+        "Review articles are also acceptable, especially if they describe results in areas of computing or visualization that are
+        unlikely to be familiar to most readers of statistics literature."
+      src: tf_instructions
+    discouraging_or_excluding_sentences:
+      - text: '"Avoid over-long papers, as they tend to burden our reviewers, elicit negative reviews, and discourage readership."'
+        kind: 鼓勵短稿的勸告，不是排除
+        src: tf_instructions
+      - text: >-
+          "Articles of a theoretical nature are appropriate, provided that the results are relevant to computational statistics or
+          data visualization and they include results that illustrate practical applications of the new material."
+        kind: 對理論稿附條件（見 theory_vs_computation）
+        src: tf_instructions
+      - text: >-
+          "Articles on statistical software are appropriate if they introduce new concepts, new algorithms, or new approaches to
+          software design, or otherwise improve existing knowledge about statistical software."
+        kind: 對軟體稿附條件
+        src: tf_instructions
+    no_categorical_exclusion: >-
+      2026-10-25 讀 tf_instructions 與 tf_about 全文，沒有找到「不收某類稿件」的明文；上列三句是最接近排除或勸退的字句。
+    reproducibility: 見 openness（程式碼與資料是預期隨稿附上的 supplement，不是 scope 的一部分）。
+    peer_review_policy_in_scope: >-
+      須知頁 About the Journal 寫 "Please see the journal's Aims & Scope for information about its focus and peer-review policy."，
+      但 Aims & Scope 頁（action/journalInformation?show=aimsScope&journalCode=ucgs20 導到 about-this-journal）沒有 peer-review policy 段落；
+      審查模式實際寫在須知頁的 Peer Review 段，見 review。
+
+  article_types:
+    - id: article
+      label: Articles
+      limits: 見 length（平均約 8,000 字、約 35 頁雙行距，含附錄、參考文獻、圖表）
+      src: tf_instructions
+    - id: short_technical_note
+      label: Short Technical Notes
+      limits: {status: not_published, checked: 2026-10-25, src: tf_instructions}
+      note: >-
+        須知頁 About the Journal 只寫 "Journal of Computational and Graphical Statistics accepts the following types of article:
+        Articles, Short Technical Notes."，沒有定義、也沒有長度上限；tf_about 與 tf_journal_home 亦無。
+      src: tf_instructions
+    - id: review
+      label: Review articles
+      note: >-
+        須知頁在 scope 段承認 review articles 可接受，但 "accepts the following types" 的清單沒有列 Review；
+        是否有獨立的 Review 類型或長度上限，頁面沒有說。
+      src: tf_instructions
+    - id: proceedings_paper
+      label: Papers Published in Proceedings
+      note: >-
+        已刊於研討會論文集（不論是否經審查）不妨礙投稿。ASA Proceedings 的論文可幾乎原樣投稿；非 ASA proceedings 須是更完整的研究
+        （新內容、寫給統計讀者、不侵犯版權），cover letter 須說明期刊版新增了什麼、會議論文是否有版權，並在期刊版引用會議論文。
+      src: tf_instructions
+
+  length:
+    value: 35
+    unit: pages_double_spaced
+    basis: {paper: "8.5 x 11 in", font_size_pt: 12, spacing: double, lines_per_page: "26-27", margins: "at least one inch on all four edges"}
+    includes: [appendixes, references, tables, figures]
+    kind: guideline_average
+    approx_words:
+      value: 8000
+      assumption: "須知頁自己給的對應：'about 8,000 words, or the equivalent of approximately 35 double-spaced pages'，不是本記錄換算"
+      confidence: high
+    exceptions: >-
+      原文："The average JCGS paper should be about 8,000 words, or the equivalent of approximately 35 double-spaced pages
+      (about 26-27 lines per page) including all appendices, references, tables, and figures. Avoid over-long papers, as they tend
+      to burden our reviewers, elicit negative reviews, and discourage readership."
+      這句是「平均值」與「應該約」，不是硬性上限；頁面沒有寫超過多少會被退回。與 JASA 不同：JCGS 把附錄算進篇幅，
+      並要求隨稿附上審查需要的未發表論文與技術報告（Supplements for Review）。
+      Short Technical Notes 的長度頁面沒有寫。
+    src: tf_instructions
+
+  abstracts:
+    - id: main
+      max_words: 200
+      required_at: submission
+      structure: unstructured
+      note: >-
+        須知頁只寫 "The manuscript should contain an abstract"，沒有字數；200 字來自 T&F 提供的 LaTeX 範本
+        （template.tex：「The text of your abstract. 200 or fewer words.」）。範本是 T&F 的官方檔，但不是規定頁，
+        所以此上限的效力低於須知頁本文。
+      src: latex_template
+
+  keywords:
+    min: 3
+    max: 6
+    alphabetical_order: true
+    must_not_appear_in_title: true
+    note: >-
+      須知頁 Preparation of Manuscript 寫 "from three to 6 key words or phrases in alphabetical order"（原文 "orvphrases" 有誤植），
+      Checklist 寫 "Between 3 and 6 keywords"。「不得與標題重複」只見於 LaTeX 範本（"3 to 6 keywords, that do not appear in the title"）。
+    src: [tf_instructions, latex_template]
+
+  formatting:
+    style_manual: {name: ASA Style Guide, url: "https://files.taylorandfrancis.com/asa-style-guide.pdf", src: tf_instructions}
+    spelling: American
+    quotation_marks: 雙引號；引文中的引文用單引號；長引文縮排且不加引號
+    file_formats: [Word, LaTeX]
+    initial_submission_format: >-
+      Peer Review 段："PDF files are required for initial submission. Upon final acceptance for publication, a LaTeX or plain text file
+      of the full text (without figures), along with individual files for all figures will be requested."
+      Submitting Your Paper 段另寫 LaTeX 稿先轉成 PDF 上傳，並把 LaTeX 原始檔打成單一 zip 標為「LaTeX Source Files」。
+    latex:
+      document_class: article（避免任何特殊 macro）
+      references: 鼓勵 BibTeX，並須提交 .bbl
+      template:
+        url: https://files.taylorandfrancis.com/ucgs-template.zip
+        note: >-
+          2026-10-25 下載解壓檢視 template.tex：article 12pt；\newcommand{\anon}{1} 切換具名版，改為 0 則隱藏作者與致謝、產生匿名版；
+          內文 \spacingset{1.8}（註明 DON'T change，約 26 行/頁）；natbib 加 agsm.bst；含 Disclosure statement、
+          Data Availability Statement、SUPPLEMENTARY MATERIAL 三個範例區塊；同時附 template.qmd（Quarto 的 jasa-pdf 格式，
+          以 journal: blinded: false/true 切換匿名；其註解寫邊界約 0.75 吋，與須知頁「至少 1 吋」不一致）。
+      src: [tf_instructions, latex_template]
+    page: {size: "8.5 x 11 in", font_size_pt: 12, spacing: "double-spaced（約 26-27 lines/page）", margins: "至少 1 吋", numbered: true}
+    element_order: [title page, abstract, keywords, main text（introduction, materials and methods, results, discussion）,
+                    acknowledgments, declaration of interest statement, references, appendices, tables（各自一頁）, figures, figure captions（列表）]
+    tables_figures:
+      placement: >-
+        須知頁 Figures and Tables 段：置於內文首次提及後盡快出現，"They should not appear in separate files or at the end after the bibliography."
+        但 Formatting and Templates 段另寫 "Figures should be saved separately from the text"，Structure 段又列 tables、figures 在 appendices 之後；
+        三處措辭不一致。LaTeX 範本的做法是圖表放在內文。
+      figures: "1200 dpi（線稿）、600 dpi（灰階）、300 dpi（彩色），尺寸需與刊出大小相符；格式 PS、JPEG、TIFF，或在 Word 內畫的 DOC/DOCX"
+      tables: 表格應呈現新資訊而非重複內文，讀者不看內文也要讀得懂；須提供可編輯檔
+      equations: Word 稿的公式須可編輯
+      units: SI 單位（非斜體）
+      image_descriptions: 作者可選擇附 alt text；T&F 會用 AI 產生圖像描述並讓作者在校樣時檢視
+    unpublished_cited_works: 審查需要的未發表論文與技術報告須隨稿附上，作為 Supplements for Review
+    src: tf_instructions
+
+  structure:
+    cover_letter: {status: not_published, checked: 2026-10-25, src: tf_instructions, note: 須知頁沒有要求 cover letter；只在 Papers Published in Proceedings 段要求該類稿件在 cover letter 說明新增內容}
+    supplementary_material:
+      expected: true
+      statement: >-
+        "Authors are expected to submit code and datasets as online supplements to the manuscript. Exceptions for reasons of security or
+        confidentiality may be granted by the Editor. Authors are also encouraged to submit supplemental materials that are directly
+        related to their papers. The supplements are subject to editorial review and approval."
+      hosting: T&F 把 supplementary material 放在 Figshare（見 tf_supplementary）；T&F 不檢查或修改這些檔案，也不提供校樣
+      src: [tf_instructions, tf_supplementary]
+    statements_required:
+      - {id: funding, content: 列出所有經費來源；沒有經費也要聲明, src: tf_instructions}
+      - {id: disclosure, content: 利益衝突聲明（"declaration of interest statement"）；無衝突也要寫 "The authors report there are no competing interests to declare.", src: tf_instructions}
+      - {id: generative_ai, content: 是否與如何使用生成式 AI；未使用也要聲明, src: tf_instructions}
+
+  review:
+    type: single_anonymized
+    type_note: 預設單匿名；作者可選雙匿名（見 author_option）
+    statement: '"JCGS is now reviewed using a single-anonymous system, with an author option for double-anonymous review."'
+    flow: 先由 editor 判斷是否適合，再送外審（"Once your paper has been assessed for suitability by the editor, it will then be single or double anonymous peer reviewed by independent, anonymous expert referees."）
+    default: single_anonymous
+    author_option: double_anonymous
+    how_to_choose_double_anonymous: {status: not_published, checked: 2026-10-25, src: tf_instructions, note: 須知頁沒有說明如何選擇雙匿名（是否在投稿系統勾選、需交哪些檔案）；只在 Submitting Your Paper 段提到上傳檔名 "Manuscript - with author details" 與 "Manuscript - anonymous"}
+    author_may_suggest_reviewers: {status: not_published, checked: 2026-10-25, src: tf_instructions}
+    src: tf_instructions
+    conditional:
+      - id: double_anonymous_option
+        optional: true
+        when: 作者選擇雙匿名審查
+        requirements:
+          - 須知頁沒有寫匿名化的具體規則；LaTeX 範本把 \anon 設為 0 產生匿名版（隱藏作者與致謝）
+          - 範本註解：匿名版不可間接識別作者，例如不要寫 "In Smith et al. (2009) we showed that ..."，改寫 "Smith et al. (2009) showed that ..."
+      - id: preprint_posted
+        optional: true
+        when: 作者已把稿件早期版本放上 preprint server
+        requirements: [須知頁提醒匿名性無法保證（"anonymity cannot be guaranteed"）]
+    editorial_screening: >-
+      須知頁只寫 Crossref 相似度檢查（見 submission.similarity_screening）與零容忍政策；
+      退回重投稿件之類的規定頁面沒有寫。
+
+  openness:
+    code_and_data:
+      expectation: >-
+        "Authors are expected to submit code and datasets as online supplements to the manuscript. Exceptions for reasons of security or
+        confidentiality may be granted by the Editor."
+      strength: expected（"are expected to"），例外由 Editor 准許
+      due_at: {status: not_published, checked: 2026-10-25, src: tf_instructions, note: 須知頁沒有寫是初投稿、修改稿還是接受後才要交。LaTeX 範本內的說明寫 "In early stages of the submission process, you may be unsure what to include as supplementary material. Don't worry---this is something that can be worked out at later stages."}
+      review_of_supplements: >-
+        "The supplements are subject to editorial review and approval."（tf_instructions）。是否有人實際執行程式碼，現行頁面沒有寫。
+        2018 年 ASA 部落格（asa_data_policy_2018）寫 JCGS "requires authors to submit code and data (and any other relevant materials) along with their papers,
+        although extensive review of those materials is not necessarily performed"，這是 2018 年的說法，現行須知頁沒有重述。
+      reproducibility_editor: >-
+        about-this-journal 頁的編輯名單（co-editors、editorial coordinator、journals manager、production editor、advisory editors、associate editors）
+        沒有列可重現性專責編輯，也沒有像 JASA 那樣的 Reproducibility Pre-Submission Checklist 或 ACC form；這是對 2026-10-25 頁面內容的觀察，不是政策聲明。
+      src: [tf_instructions, asa_data_policy_2018]
+    data_availability_statement:
+      status: not_published
+      checked: 2026-10-25
+      src: tf_instructions
+      note: >-
+        須知頁 Checklist 沒有列 Data Availability Statement；T&F 的 LaTeX 範本卻有一個 "Data Availability Statement" 區塊
+        （"Deidentified data have been made available at the following URL: XX."），所以實務上期刊預期有，但規定頁沒有要求。
+    tf_data_sharing_policy_level:
+      status: not_found
+      checked: 2026-10-25
+      src: tf_data_sharing_policies
+      note: T&F 要求看各期刊須知頁以得知適用哪一級資料政策（Basic 到 Open and FAIR）；JCGS 須知頁沒有點名任何一級。
+    software_citation: {status: not_published, checked: 2026-10-25, src: tf_instructions, note: 須知頁沒有要求引用軟體}
+    authorship_credit: {taxonomy: CRediT, required: false, note: 期刊 "supports" CRediT；投稿時須準備好各作者的 CRediT 角色，有提供才會刊出, src: tf_instructions}
+
+  authorship:
+    taxonomy: CRediT
+    credit_required: false
+    affiliation_changes_after_acceptance: forbidden
+    orcid: {required: false, note: '"Where available, please also include ORCiDs and social media handles"'}
+    corresponding_author: 須指定一位通訊作者；通訊作者的 email 通常顯示在 PDF 與線上文章
+    src: tf_instructions
+
+  submission:
+    system: Taylor & Francis Submission Portal
+    portal:
+      url: https://rp.tandfonline.com/submission/create?journalCode=UCGS
+      verified: false
+      note: >-
+        取自須知頁「Go to submission site」按鈕的 href（2026-10-25）。curl 取該網址回 404（92 KB），未實際載入確認，可能需要登入或瀏覽器環境。
+        同頁「Click to Submit Online」按鈕卻指向 https://mc.manuscriptcentral.com/amstat（舊的 ScholarOne ASA 站；curl 回 403，未確認是否仍可用），
+        兩個入口不一致；「To submit your manuscript please click here」與 "Submission Portal" 連結用的是小寫 journalCode=ucgs。
+        以 "Go to submission site"（journalCode=UCGS）為準，另一個疑為舊連結。
+    similarity_screening: Crossref（同意於審查與製作期間做原創性檢查）
+    language: English only
+    src: tf_instructions
+
+  fees:
+    submission: 0
+    page_charges: 0
+    publication_fee: 0
+    statement: "There are no submission fees, publication fees or page charges for this journal."
+    apc:
+      applies_when: 選擇 Open Select 開放取用時
+      amount: {status: not_published, checked: 2026-10-25, src: [tf_instructions, tf_about], note: 兩頁都未列金額，只指向 T&F 的 APC finder；機構或資助者若與 T&F 有 OA 協議可減免或免費}
+      not_open_access: 不選 OA 則無 APC
+      funding_note: 只有通訊作者可向機構申請 APC 補助，且投稿後不能為了取得資格而更換通訊作者
+    color_print:
+      online: 免費
+      first_four_per_figure: {USD: 400, GBP: 300, AUD: 500, EUR: 350}
+      fifth_onward_per_figure: {USD: 75, GBP: 50, AUD: 100, EUR: 65}
+      note: 只有印刷版要彩色時才收費；依所在地可能另加稅
+    src: tf_instructions
+
+  policies:
+    dual_submission: forbidden
+    plagiarism: >-
+      "The American Statistical Association observes a policy of zero tolerance in cases of malfeasance by authors. These acts include
+      plagiarism and submitting nearly identical papers to different publications. Authors who engage in these acts will have their
+      papers rejected and their institutions will be notified of the rejection and its motivation."
+    preprints:
+      allowed: true
+      conditions:
+        - 可放在非商業 preprint server；T&F 不視為重複發表，也不影響審稿
+        - 投稿稿件中須引用該 preprint
+        - 接受後在 preprint 上註明已被接受；刊出後加上正式版 DOI
+      anonymity_caveat: 已放 preprint 時，期刊明言匿名性無法保證
+      journal_specific_statement: {status: not_published, checked: 2026-10-25, src: tf_instructions, note: JCGS 須知頁除了匿名性提醒外沒有自己的 preprint 條文，以 T&F 通則為準}
+      src: [tf_preprints, tf_instructions]
+    generative_ai:
+      disclosure_required: true
+      placement: 獨立聲明（"Declaration of generative AI use"）；未使用也須聲明
+      suggested_wording_if_unused: "The authors report generative AI was not used in their research or preparation of this manuscript"
+      statement_contents: [作者已確認內容原創與正確, AI 工具名稱與版本, 已確認工具使用條款允許發表, 作者對全部內容（含參考文獻正確性）負全責]
+      drafting_text: 不允許以生成式 AI 產出稿件或任何章節的初稿
+      copyediting: 允許（拼字、文法、行文），不可用來建立或推導論證
+      software_coding_assistance: 允許用生成式 AI 產生程式碼，但須經作者審查與驗證其正確性（T&F AI 政策表格；此列沒有額外聲明要求）
+      reference_suggestion: 允許，但作者須自行查證
+      src: [tf_instructions, tf_ai_policy]
+    conflict_of_interest:
+      disclosure_required: true
+      placement: acknowledgments 之後、references 之前（依 Structure 段的順序：acknowledgments → declaration of interest statement → references）
+      wording_if_none: "The authors report there are no competing interests to declare."
+      src: tf_instructions
+    copyright: 須知頁只列 "Copyright Options"，指向 T&F 出版協議頁；選 OA 則有 Creative Commons 授權選項
+    third_party_material: 投稿前須取得版權人書面許可
+    accepted_manuscript_online: 接受後先以未編輯的 Accepted Manuscript Online（AMO）上線，之後由 Version of Record 取代；兩者共用同一 DOI
+    src: tf_instructions
+
+  standards:
+    - id: asa-style-guide
+      label: ASA Style Guide
+      url: https://files.taylorandfrancis.com/asa-style-guide.pdf
+      required: true
+      level: 須知頁寫 "Please use this ASA style guide when preparing your paper"
+    - {id: credit, label: CRediT, url: "https://authorservices.taylorandfrancis.com/editorial-policies/credit-at-taylor-francis/", required: false}
+
+# ─────────────────────────────────────────────────────────────
+cycle:
+  applies_to: null
+  rolling_calls: []
+  note: 2026-10-25 檢查 special issues 頁，頁面寫沒有任何 special issue（src tf_special_issues）。
+
+# ─────────────────────────────────────────────────────────────
+warnings:
+  - JCGS 的 scope 是計算統計與資料視覺化：理論稿須與其相關並含說明實際應用的結果（"provided that ..."）；軟體稿須帶來新概念、新演算法或新的軟體設計方式；主要判準是對這兩個領域的貢獻強度
+  - 須知頁預期隨稿提交程式碼與資料作為 supplement（"are expected to"），例外須經 Editor 准許；頁面沒有寫何時要交，補充材料受 editorial review
+  - 篇幅是「平均約 8,000 字、約 35 頁雙行距，含附錄、參考文獻、圖表」的指引，不是明文硬上限；但附錄也算在內，與 JASA 把附錄移到 supplement 的做法不同
+  - 審查是單匿名，作者可選雙匿名；選了雙匿名要自行清除身分線索，須知頁沒有寫具體做法與選擇方式；已放 preprint 則匿名性無法保證
+  - 摘要 200 字與關鍵字不得與標題重複，只見於 T&F 的 LaTeX 範本，須知頁本文沒有寫；關鍵字數量須知頁寫 3–6 個且依字母順序
+  - Short Technical Notes 在文章類型清單裡，但須知頁沒有定義也沒有長度上限
+  - IF 1.6 與「JCR 最佳分區 Q2」是 T&F 頁面轉述的 JCR 數字（2025），本次未直接查 JCR；SJR（SCImago）與 CiteScore 的分區是 Q1，是不同系統，引用時要註明系統
+  - T&F 頁面的 "15 days avg. from submission to first decision" 含 desk rejection，送外審稿件的首次審後決定是 116 天；頁面對 avg 與 median 並用
+  - 須知頁有兩個投稿入口（rp.tandfonline.com 的 Submission Portal 與疑為舊連結的 mc.manuscriptcentral.com/amstat），以 "Go to submission site" 的 journalCode=UCGS 為準
+  - 須知頁「More information on supplements is available here」連結已失效（404），內容請看 T&F 的 supplementary material 通則頁（tf_supplementary）

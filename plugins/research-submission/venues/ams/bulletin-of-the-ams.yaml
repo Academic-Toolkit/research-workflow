@@ -1,0 +1,986 @@
+--- # research-submission venue record
+# 內容擷取自 AMS 數位圖書館的 Bulletin 頁面（pubs.ams.org/journals/bull，www.ams.org/journals/bull/ 會轉址到此）、
+# AMS 的作者資源與政策頁（www.ams.org/arc、www.ams.org/publications/...）、2026 年 10 月號（63 卷 4 期）印刷版前頁的
+# "Information for Authors"（PDF）、EditFlow 投稿入口 Step 0（ams.msp.org）、SCImago 與 Clarivate Master Journal List，
+# 全部 2026-10-25 經 Safari 讀頁面文字（document.body.innerText；PDF 則以頁內 fetch 取得檔案後用 pdftotext 抽字）取得。
+# AMS 網站（www.ams.org、pubs.ams.org）對 curl 一律回 HTTP 403 + 約 28.8 KB 的 bot 挑戰頁（title 為
+# "Verifying your connection :: American Mathematical Society"），所以 AMS 各頁 fetch.method 記 browser、http_viable: false；
+# 只有 EditFlow（ams.msp.org）對 curl 正常。
+# Bulletin 的須知分散在三處：Bulletin 自己的 Journal Details／About／Submission 三頁（短）、印刷版前頁的 Information for Authors
+# （本刊文章該長什麼樣子的唯一詳細說明，也是唯一寫明單匿名審稿的地方）、AMS 全體期刊共用的 ARC／Policies 頁。
+# 三處對審稿模式的說法有出入，見 review.type 與 warnings。
+
+schema_version: 1
+id: ams/bulletin-of-the-ams
+kind: journal
+family: mathematics-journals
+status: active
+
+# ─────────────────────────────────────────────────────────────
+# 來源與 provenance。網址皆由 Bulletin 首頁導覽、頁內連結，或使用者指定的 www.ams.org/journals/bull/ 轉址取得，非推測。
+# 例外與已失效的連結見各 source 的 note 與 warnings。
+# ─────────────────────────────────────────────────────────────
+sources:
+  - id: ams_about
+    role: authoritative
+    url: https://pubs.ams.org/BULL?active=about
+    note: >-
+      Bulletin 的 About 頁（導覽列 "About Bulletin of the American Mathematical Society"）：期刊概述（範圍一段）、
+      1891 起全部期別上線、投稿資訊指向 "Submission for Peer Review" 頁、出版週期、收錄清單（出版社自述）、offprint。
+      本站每個 BULL?active=* 頁的頁首都有同一段範圍文字、ISSN 與 MCQ。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 回 HTTP 403 + 28800 bytes 的挑戰頁（title 'Verifying your connection :: American Mathematical Society'）"
+      validity:
+        must_contain: "makes all issues of the Bulletin freely available to all mathematicians through the generosity of its members"
+        min_extracted_chars: 3300
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: ams_submission
+    role: authoritative
+    url: https://pubs.ams.org/BULL?active=submit
+    note: >-
+      Bulletin 的 "Submission" 頁（導覽列 "Submission Information"；首頁連結 "Submission for Peer Review" 的實際網址
+      https://pubs.ams.org/publications/journals/journalsframework/bullsubmit 會轉址到這裡）。內容是 AMS 各刊共用的初審投稿說明：
+      Centralized Manuscript Processing、PDF 優先、紙本替代方式、一稿多投、2020 MSC、abstract 必填、錄取後程序。
+      頁內沒有 Bulletin 專屬的文章類型或篇幅規定。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 回 HTTP 403 + 28803 bytes 的挑戰頁"
+      validity:
+        must_contain: "The AMS uses Centralized Manuscript Processing for initial submissions to AMS journals"
+        min_extracted_chars: 3000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: ams_info_for_authors
+    role: authoritative
+    url: https://www.ams.org/journals/bull/2026-63-04/bull-63-4-print-matter.pdf
+    note: >-
+      63 卷 4 期（2026 年 10 月號）印刷版前頁與後頁（首頁 ToC 上方的連結 "View front and back matter from the print issue"），13 頁 PDF，
+      PDF 建立日 2026-08-22。其中 "Editorial Information" 與 "Information for Authors" 是本刊投稿規定中最詳細的一份：文章該長什麼樣子、
+      誰受邀、審稿模式、初審投稿方式、錄取後程序。網址含期號，每期各有一份（同一命名規則：bull-<卷>-<期>-print-matter.pdf），
+      換期後本網址仍可讀但不是最新一期；重新驗證時應改查最新一期的同名檔。
+      這份 PDF 的 Information for Authors 內有過時處，見 warnings（初審投稿網址在 2026-10-25 回 404；EPS 圖檔規定與錄取後寄檔方式是舊式程序）。
+      本記錄不收其中列的任何 email。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 回 HTTP 403 + 28928 bytes 的挑戰頁；Safari 同頁 fetch 可取得 334314 bytes 的 PDF"
+      validity:
+        must_contain: "All articles submitted to this journal are peer reviewed"
+        min_extracted_chars: 20000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: ams_editflow
+    role: authoritative
+    url: https://ams.msp.org/submit_new.php?j=bull
+    note: >-
+      EditFlow 投稿入口 Step 0（Article Submission）。含新投稿 vs 修訂稿的區分、PDF 單檔要求、Author Agreement（按 "I accept" 前須確認的條件）、
+      AI 工具政策摘要。Bulletin 首頁的連結 "Initial Manuscript Submission form" 指向這個網址。
+      本記錄只讀到 Step 0，沒有按 "I accept"，所以後續步驟（作者資料、編輯選擇、檔案上傳等）未讀。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Proceed only if this is an entirely new submission to"
+        min_extracted_chars: 2500
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: ams_arc_journals
+    role: authoritative
+    url: https://www.ams.org/arc/journals/index.html
+    note: >-
+      AMS Author Resource Center 的 Journal Author Resources（"Select a Journal" 步驟頁）。AMS 全體期刊共用：
+      初審投稿集中處理、原創性偵測、"All articles accepted for publication in AMS Journals are peer reviewed by external reviewers"、
+      編輯可不送外審直接退稿、單匿名到雙匿名的轉換說明、AMS 各刊的開放取用分類。Bulletin 列在可投稿的期刊清單與編輯委員名單內。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 回 HTTP 403 + 28823 bytes 的挑戰頁"
+      validity:
+        must_contain: "All articles accepted for publication in AMS Journals are peer reviewed by external reviewers"
+        min_extracted_chars: 3400
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: ams_ai_policy
+    role: authoritative
+    url: https://www.ams.org/publications/journals/policies/UseofArtificialIntelligence
+    note: >-
+      AMS 的 "Use of Artificial Intelligence" 政策（改編自 COPE 2023 年 2 月聲明）。網址從 AMS Policies 頁的
+      "Use of Artificial Intelligence in Authoring" 連入（www.ams.org/ctp 之類的短網址同理會轉址）。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 回 HTTP 403 + 28971 bytes 的挑戰頁"
+      validity:
+        must_contain: "AI tools cannot be listed as an author of a paper"
+        min_extracted_chars: 2000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: ams_copyright
+    role: authoritative
+    url: https://www.ams.org/publications/authors/ctp
+    note: >-
+      AMS Copyright Policy（www.ams.org/ctp 轉址到此；也是 Bulletin 首頁 "Consent to Publish" 連結的目標）。Consent to Publish、
+      作者可保留版權或轉讓、作者接受稿與預印本的張貼規定、第三方素材許可。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 回 HTTP 403 + 28826 bytes 的挑戰頁"
+      validity:
+        must_contain: "either before or after peer review, may be reproduced under a CC BY Creative Commons License"
+        min_extracted_chars: 6500
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: ams_open_access
+    role: authoritative
+    url: https://www.ams.org/publications/journals/open-access/open-access
+    note: >-
+      AMS Open Access 頁（www.ams.org/open-access 轉址到此）：diamond／green／gold 三種模式與各自的期刊、
+      兩本金色 OA 期刊的 APC、Creative Commons 授權、Open Archive（訂閱刊內容滿 5 年開放）。Bulletin 不在 diamond 或 gold 名單內。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 回 HTTP 403 + 28910 bytes 的挑戰頁"
+      validity:
+        must_contain: "AMS Open Access provides unrestricted electronic access to AMS peer-reviewed scholarly research"
+        min_extracted_chars: 3300
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: ams_home
+    role: supporting
+    url: https://pubs.ams.org/journals/bull
+    note: >-
+      Bulletin 首頁（使用者指定的 https://www.ams.org/journals/bull/ 轉址到此）："Journal Details" 的範圍一段（含 "both by invitation only"）、
+      ISSN、MCQ、現行期別目錄、導覽選單。內容隨每期更新，hash 會常變；範圍與 ISSN 的規定性依據用 ams_about 與 ams_info_for_authors。
+      首頁頁尾說 PDF 需訂閱、摘要免費："A current active subscription to the electronic version of this journal is required to view article PDFs in all volumes."
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 回 HTTP 403 + 28773 bytes 的挑戰頁"
+      validity:
+        must_contain: "The Bulletin publishes expository articles on contemporary mathematical research"
+        min_extracted_chars: 2200
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: ams_editorial
+    role: supporting
+    url: https://pubs.ams.org/BULL?active=editorial
+    note: >-
+      Bulletin 編輯名單（Chief Editor、Editorial Board for Articles、Editorial Board for Book Reviews、Consultant to the Editors）。
+      本記錄只收姓名與所屬機構，不收 email。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 回 HTTP 403 + 28812 bytes 的挑戰頁"
+      validity:
+        must_contain: "Editorial Board for Articles"
+        min_extracted_chars: 2400
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: ams_policies
+    role: supporting
+    url: https://www.ams.org/publications/journals/policies/policies
+    note: >-
+      AMS Ethical Guidelines and Journal Policies 總頁（www.ams.org/policies/policies 轉址到此）：作者姓名更改、學術誠信、作者署名、
+      申訴程序、雙匿名審稿、審稿人權責、編輯最佳實務手冊、開放取用、版權、AI 使用。各政策的子頁網址從此頁的 "More . . ." 連結取得。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 回 HTTP 403 + 28892 bytes 的挑戰頁"
+      validity:
+        must_contain: "Ethical Guidelines and AMS Journal Policies"
+        min_extracted_chars: 3600
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: ams_double_anonymous_news
+    role: supporting
+    url: https://www.ams.org/news?news_id=6983
+    note: >-
+      AMS 2022-02-15 新聞稿 "AMS adopts double-anonymous peer review for journals"：從 Proceedings of the AMS 與 Representation Theory 起步，
+      其餘期刊 "further rollout planned across all AMS journals after the initial implementation is fine-tuned"。
+      頁面是 JS 渲染，Safari 開啟後等數秒才有內文（開啟瞬間只有 "...loading..."）。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 回 HTTP 403 + 28799 bytes 的挑戰頁；Safari 開啟瞬間只有 '...loading...' 外殼，須等待"
+      validity:
+        must_contain: "AMS adopts double-anonymous peer review for journals"
+        min_extracted_chars: 2500
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: ams_authorship
+    role: supporting
+    url: https://www.ams.org/publications/journals/policies/authorshippolicy
+    note: 作者排序（常見字母序）、署名變更、通訊作者職責、非作者貢獻者的致謝建議。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 回 HTTP 403 + 28916 bytes 的挑戰頁"
+      validity:
+        must_contain: "Authors are often listed in alphabetical order"
+        min_extracted_chars: 1700
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: ams_best_practice
+    role: supporting
+    url: https://www.ams.org/publications/journals/bestpractice
+    note: >-
+      AMS 給各刊編輯與副編輯的 "Best Practices Manual for Editors in the Peer Review Process"。這是編輯端的指引，不是對作者的承諾；
+      唯一的時程字眼是初審（desk review）"usually 1?2 weeks"（頁面文字就是 "1?2"，疑為 1–2 的編碼問題，未確認）。適用 AMS 各主要研究期刊，頁面未說明是否逐字適用於 Bulletin。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 回 HTTP 403 + 28856 bytes 的挑戰頁"
+      validity:
+        must_contain: "Best Practices Manual for Editors in the Peer Review Process"
+        min_extracted_chars: 8000
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: ams_journals_list
+    role: supporting
+    url: https://pubs.ams.org/journals/journals
+    note: >-
+      AMS 期刊總覽：每刊的 ISSN 與 MCQ。Bulletin 在此列出 "MCQ: 0.47"，沒有標示年度，與 Bulletin 首頁的 "2024 MCQ ... 0.84" 不同（見 identity.metrics.mcq）。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 回 HTTP 403 + 28785 bytes 的挑戰頁"
+      validity:
+        must_contain: "High quality journals covering a broad range of mathematical disciplines"
+        min_extracted_chars: 1000
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: ams_issue_2024_61_1
+    role: supporting
+    url: https://pubs.ams.org/BULL/2024-61-01
+    note: >-
+      61 卷 1 期目錄。用途：觀察已刊出稿件的分欄標籤（Commentary、Mathematical Perspectives、Selections Reprinted from Mathematical Reviews、Book Reviews）
+      與頁數。這是刊出結果，不是投稿規定。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 回 HTTP 403 + 28779 bytes 的挑戰頁"
+      validity:
+        must_contain: "Mathematical Perspectives"
+        min_extracted_chars: 3000
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: ams_issue_2025_62_2
+    role: supporting
+    url: https://pubs.ams.org/BULL/2025-62-02
+    note: 62 卷 2 期目錄。用途：觀察 Mathematical Perspectives 一欄的多篇稿件與頁數（刊出結果，不是投稿規定）。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 回 HTTP 403（挑戰頁）"
+      validity:
+        must_contain: "Mathematical Perspectives"
+        min_extracted_chars: 2200
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: ams_issues_vol63
+    role: supporting
+    url: https://pubs.ams.org/BULL/2026-63-03
+    note: >-
+      63 卷 3 期目錄（63 卷 1、2、4 期同樣的網址規則：https://pubs.ams.org/BULL/2026-63-0N）。用途：統計 2026 年各期文章與書評的頁數範圍
+      （刊出結果，不是投稿規定）。1、2、4 期另外讀過，未各自列為 source。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 回 HTTP 403（挑戰頁）"
+      validity:
+        must_contain: "Contents of Volume 63, Number 3"
+        min_extracted_chars: 2000
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: scimago
+    role: supporting
+    url: https://www.scimagojr.com/journalsearch.php?q=24660&tip=sid&clean=0
+    note: >-
+      SCImago（SJR）期刊頁：SJR、分區（1999–2025 逐年）、H-index、涵蓋年份、Scope、逐年發表篇數。網址的 q=24660 是 SCImago 的 source id，
+      由 ISSN 搜尋結果頁（journalsearch.php?q=02730979&tip=iss&clean=0）唯一的結果連結取得。
+      頁面上 "How to publish in this journal" 列了一個 email，本記錄不收。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 回 HTTP 403 + 5650 bytes 的 Cloudflare 挑戰頁（title 為 'Just a moment...'）"
+      validity:
+        must_contain: "Subject Area and Category"
+        min_extracted_chars: 14000
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: mjl
+    role: supporting
+    url: https://mjl.clarivate.com/home
+    note: >-
+      Clarivate Master Journal List。JS 單頁應用，結果頁網址不帶查詢字串，無法用網址重現；只能在頁內於 #search-box 填 ISSN
+      （本次填 0273-0979）、按 #search-button 後讀結果列。結果列的 "View profile page" 需要免費登入（頁面標 "* Requires free login."），
+      所以 JCR 的類別與分區沒有取得。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 回 200 + 11428 bytes，但只有 SPA 空殼，查詢結果需在頁內操作"
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25}
+
+# ─────────────────────────────────────────────────────────────
+identity:
+  name: Bulletin of the American Mathematical Society
+  name_variants:
+    - value: Bulletin (New Series) of the American Mathematical Society
+      src: [ams_info_for_authors]
+      note: 印刷版前頁與 AMS Author Packages 清單使用的全名
+  abbreviation: Bull. Amer. Math. Soc.
+  abbreviation_note: 縮寫出自各篇文章的引用行 "Bull. Amer. Math. Soc. 63 (2026), 531-557"（ams_home）
+  publisher: American Mathematical Society
+  owner: American Mathematical Society
+  publisher_evidence: >-
+    ams_info_for_authors："Bulletin (New Series) of the American Mathematical Society ... is published quarterly by the American Mathematical Society
+    at 201 Charles Street, Providence, RI 02904-2213 USA."
+    MJL 出版社欄 "AMER MATHEMATICAL SOC , 201 CHARLES ST, PROVIDENCE, USA, RI, 02940-2213"（郵遞區號與 AMS 自己寫的 02904 不同，MJL 端的筆誤）；
+    SCImago 出版社欄 "American Mathematical Society"，國別 United States。
+  issn: {print: "0273-0979", electronic: "1088-9485", src: ams_home}
+  issn_cross_check: >-
+    SCImago 頁 "ISSN 02730979, 10889485"；MJL 搜尋 0273-0979 得 "ISSN / eISSN: 0273-0979 / 1088-9485"；ams_info_for_authors 也寫
+    "ISSN 0273-0979 (print); ISSN 1088-9485 (online)"。四處一致。
+  homepage: https://pubs.ams.org/journals/bull
+  homepage_note: 使用者指定的 https://www.ams.org/journals/bull/ 在 2026-10-25 轉址到 pubs.ams.org/journals/bull
+  hosting_platform: {name: AMS Digital Library, url: "https://pubs.ams.org/journals/bull"}
+  subject_area:
+    value: Mathematics（涵蓋全數學，無單一子領域限定）
+    scimago: "Mathematics → Applied Mathematics；Mathematics (miscellaneous)"
+    src: [scimago, ams_home]
+  frequency:
+    value: quarterly
+    src: [ams_about, ams_info_for_authors]
+    note: '"The Bulletin of the American Mathematical Society is published quarterly with articles electronically published individually to the AMS website before appearing in an issue."（ams_about）'
+  founded:
+    value: 1891
+    src: [ams_about, scimago]
+    note: 'ams_about："beginning with the inaugural issue published in 1891"；SCImago 涵蓋年份 1891–2026'
+  coverage: {value: "1891-2026", src: scimago, note: SCImago 頁面所列涵蓋年份}
+  external_ids:
+    scimago: "24660"
+    crossref: "0273-0979"
+    openalex: issn:0273-0979
+  open_access:
+    value: subscription_with_green_oa
+    src: [ams_open_access, ams_copyright, ams_home, ams_about]
+    note: >-
+      Bulletin 不在 AMS 的 diamond OA 名單（Communications of the AMS、Conformal Geometry and Dynamics、Representation Theory）
+      也不在 gold OA 名單（Proceedings of the AMS Series B、Transactions of the AMS Series B）。AMS 只對這兩本 gold 刊公布 APC。
+      摘要、參考文獻與書目資料對所有人免費；ams_home 寫 PDF 需要現行電子版訂閱；ams_open_access 寫訂閱刊內容滿 5 年（滾動）開放；
+      ams_about 另有一句 "The American Mathematical Society makes all issues of the Bulletin freely available to all mathematicians through the generosity of its members."
+      這幾句在字面上互相有出入，見 warnings。預印本與作者接受稿的張貼規定見 requirements.policies.preprints。
+  access:
+    model: 訂閱制（會員含在會費內）；摘要與參考文獻免費；作者可張貼預印本與作者接受稿
+    statement: >-
+      ams_info_for_authors："Paper delivery and electronic access are included with membership."；
+      ams_home："Abstracts, references (with links to MathSciNet), and bibliographic information are freely viewable for every article.
+      A current active subscription to the electronic version of this journal is required to view article PDFs in all volumes."
+    src: [ams_info_for_authors, ams_home]
+  editors:
+    chief: {name: Alejandro Adem, affiliation: "University of British Columbia", role: Chief Editor, src: [ams_editorial, ams_info_for_authors]}
+    consultant: {name: Edward G. Dunne, role: Consultant to the Editors, src: ams_editorial}
+    list_src: ams_editorial
+    board_for_articles:
+      - {name: Carolina B. Araujo, affiliation: "Instituto de Matemática Pura e Aplicada"}
+      - {name: Antonio Auffinger, affiliation: "Northwestern University"}
+      - {name: Matthew Baker, affiliation: "Georgia Institute of Technology"}
+      - {name: Bhargav Bhatt, affiliation: "Institute for Advanced Study"}
+      - {name: Ivan Z. Corwin, affiliation: "Columbia University"}
+      - {name: Daniel Erman, affiliation: "University of Hawai'i"}
+      - {name: Wilfrid Gangbo, affiliation: "University of California, Los Angeles"}
+      - {name: Marco Gualtieri, affiliation: "University of Toronto"}
+      - {name: Herwig Hauser, affiliation: "University of Vienna"}
+      - {name: Kathryn Mann, affiliation: "Cornell University"}
+      - {name: Rafe Mazzeo, affiliation: "Stanford University"}
+      - {name: Deanna Needell, affiliation: "University of California, Los Angeles"}
+      - {name: Karen Parshall, affiliation: "University of Virginia"}
+      - {name: Emily Riehl, affiliation: "Johns Hopkins University"}
+      - {name: Pham Huu Tiep, affiliation: "Rutgers University"}
+      - {name: Tatiana Toro, affiliation: "University of Washington & Simons Laufer Mathematical Sciences Institute"}
+      - {name: Bianca Viray, affiliation: "University of Washington"}
+    board_for_book_reviews:
+      - {name: Tobias H. Colding, affiliation: "Massachusetts Institute of Technology"}
+      - {name: Brian Conrad, affiliation: "Stanford University"}
+      - {name: Svetlana Jitomirskaya, affiliation: "University of California, Irvine"}
+      - {name: Peter Kuchment, affiliation: "Texas A&M University"}
+      - {name: Robert K. Lazarsfeld, affiliation: "Stony Brook University"}
+      - {name: Po-Ling Loh, affiliation: "University of Wisconsin"}
+      - {name: Svitlana Mayboroda, affiliation: "University of Minnesota"}
+      - {name: Mona Merling, affiliation: "University of Pennsylvania"}
+      - {name: Volodymyr Nekrashevych (Chair), affiliation: "Texas A&M University"}
+      - {name: Lara Pudwell, affiliation: "Valparaiso University"}
+      - {name: Philip Protter, affiliation: "Columbia University"}
+    note: >-
+      名單照 ams_editorial 的 2026-10-25 版本。編輯委員會分兩組："Editorial Board for Articles" 與 "Editorial Board for Book Reviews"，
+      與 ams_info_for_authors 的分工一致（"Submissions will be reviewed by the Editorial Board for Articles"）。
+      官網沒有列出各編輯自述的領域，也沒有說明投稿時作者是否自行選擇編輯（紙本投稿須附的資料裡有 "The author should suggest an appropriate Editor to review the paper"；
+      ams_info_for_authors 寫 "The Bulletin Chief Editor will be notified as new submissions arrive. The Editor will collect these submissions and assign them to subject area specialists."）。
+  metrics:
+    impact_factor:
+      status: not_published
+      checked: 2026-10-25
+      src: [ams_home, ams_about, ams_journals_list, ams_arc_journals, ams_info_for_authors]
+      note: >-
+        AMS 的 Bulletin 首頁、About、期刊總覽、ARC 與印刷版前頁都沒有 Journal Impact Factor。AMS 自己公布的指標是 MCQ（見 mcq）。
+        Bulletin 在 MJL 列為 SCIE；JIF 需登入 Clarivate JCR 才讀得到，本次未查，也不引用第三方網站的數字。
+    mcq:
+      value: 0.84
+      year: 2024
+      system: MCQ（Mathematical Citation Quotient；AMS／MathSciNet 的指標，五年引用期；與 JCR 的 Impact Factor 是不同的統計量，不可互換）
+      as_of: 2026-10-25
+      src: ams_home
+      definition: '"The Mathematical Citation Quotient (MCQ) measures journal impact by looking at citations over a five-year period."（首頁 MCQ 旁的說明）'
+      conflict: >-
+        ams_journals_list 對 Bulletin 列 "MCQ: 0.47"，沒有標示年度；Bulletin 首頁與各 BULL 頁的頁首寫 "The 2024 MCQ for Bulletin of the American Mathematical Society is 0.84."
+        兩個值同在 2026-10-25 讀到，哪個年度是 0.47 頁面沒說，所以只採有標年度的 0.84（2024）。
+    sjr:
+      value: 0.586
+      year: 2025
+      as_of: 2026-10-25
+      src: scimago
+      note: SCImago 頁面標 "SJR 2025 0.586"。逐年值：2023 為 1.362、2024 為 0.806、2025 為 0.586。
+    h_index: {value: 71, as_of: 2026-10-25, src: scimago, note: SCImago 頁面所列}
+    quartiles:
+      - {system: SJR, category: Applied Mathematics, quartile: Q2, year: 2025, as_of: 2026-10-25, src: scimago,
+         note: "SCImago 頁面 1999–2025 逐年分區：2019、2020、2024、2025 為 Q2，其餘各年 Q1；頁面不給名次"}
+      - {system: SJR, category: Mathematics (miscellaneous), quartile: Q2, year: 2025, as_of: 2026-10-25, src: scimago,
+         note: "SCImago 頁面 1999–2025 逐年分區：2019、2025 為 Q2，其餘各年 Q1；頁面不給名次"}
+    jcr_quartile:
+      status: not_found
+      checked: 2026-10-25
+      note: >-
+        JCR 的類別、分區與名次需登入 Clarivate JCR，本次未查；MJL 結果列的 "View profile page" 也標 "* Requires free login."。
+        AMS 各頁只列 MCQ，沒有分區。上方 quartiles 是 SJR 分區，不是 JCR。
+    indexing:
+      clarivate_mjl:
+        scie: true
+        ssci: false
+        esci: false
+        ahci: false
+        web_of_science_core_collection: Science Citation Index Expanded
+        additional_indexes: [Current Contents Physical, Chemical & Earth Sciences, Essential Science Indicators]
+        checked: 2026-10-25
+        search_issn: "0273-0979"
+        mjl_publisher_string: "AMER MATHEMATICAL SOC , 201 CHARLES ST, PROVIDENCE, USA, RI, 02940-2213"
+        src: mjl
+        note: >-
+          搜尋 0273-0979 得 1 筆 "Exact Match Found"（BULLETIN OF THE AMERICAN MATHEMATICAL SOCIETY，ISSN / eISSN 0273-0979 / 1088-9485），
+          Web of Science Core Collection 欄只列 Science Citation Index Expanded；沒有 SSCI、AHCI、ESCI。
+          搜尋時頁面的篩選條件為預設的四項（SCIE、SSCI、AHCI、ESCI 皆勾選），所以其他三項的缺席是有效的負面結果。
+      publisher_stated:
+        list: [Mathematical Reviews, Science Citation Index, Science Citation Index-Expanded, ISI Alerting Services, CompuMath Citation Index, Current Contents/Physical Chemical & Earth Sciences]
+        archived_in: [Portico, CLOCKSS]
+        src: [ams_about, ams_info_for_authors]
+        note: >-
+          出版社自述（ams_about 的 "Indexing and archiving notes"，與印刷版前頁相同）。SCIE 與 Current Contents Physical, Chemical & Earth Sciences
+          已用 MJL 核對相符；其他項目沒有另外核對。
+    acceptance_rate:
+      status: not_published
+      checked: 2026-10-25
+      src: [ams_home, ams_about, ams_submission, ams_info_for_authors, ams_arc_journals, ams_editflow]
+      note: Bulletin 首頁、About、Submission、印刷版前頁、ARC 與 EditFlow Step 0 都沒有錄取率，也沒有拒絕率。
+    time_to_first_decision:
+      status: not_published
+      checked: 2026-10-25
+      src: [ams_about, ams_submission, ams_info_for_authors, ams_arc_journals, ams_editflow]
+      note: >-
+        沒有首次決定時間的統計，也沒有對作者的時程承諾。唯一的時程字眼在 ams_best_practice（編輯端手冊）："Perform a desk review within a reasonable timeframe (usually 1?2 weeks)"，
+        這是給編輯的指引，不是 Bulletin 的統計，也不是對作者的承諾，所以不填入本欄。
+    time_submission_to_acceptance:
+      status: not_published
+      checked: 2026-10-25
+      src: [ams_about, ams_submission, ams_info_for_authors, ams_arc_journals, ams_editflow]
+      note: >-
+        官方無投稿到接受的統計。本記錄沒有做自行抽樣估計（sample_review_times.py 沒有 AMS 的 preset；文章頁可見文字只有
+        "Published electronically" 日期，Bibliographic Information 區塊未展開檢視），且本次範圍只收官方數字。
+    backlog:
+      status: not_found
+      checked: 2026-10-25
+      src: ams_info_for_authors
+      note: >-
+        印刷版前頁寫 "Information on the backlog for this journal can be found on the AMS website starting from http://www.ams.org/bull."
+        2026-10-25 該網址轉址到 Bulletin 的 About 頁（pubs.ams.org/bull/aboutbull），在 Bulletin 首頁、About、Submission、Editorial 四頁都沒有看到積壓量（backlog）的數字或頁面。
+    published_volume:
+      value: 21
+      year: 2025
+      as_of: 2026-10-25
+      src: scimago
+      note: 'SCImago "Total Documents"（所有文件類型，含書評等）；2023 為 15、2024 為 35、2025 為 21。'
+
+# ─────────────────────────────────────────────────────────────
+# SLOW — 數年不變。驗證用 hash diff 即可。
+# ─────────────────────────────────────────────────────────────
+requirements:
+  refresh: {check_every: P6M, method: extracted_hash_diff}
+
+  scope:
+    aims_verbatim: >-
+      The Bulletin publishes expository articles on contemporary mathematical research, written in a way that gives insight to mathematicians
+      who may not be experts in the particular topic. The Bulletin also publishes reviews of selected books in mathematics and short articles
+      in the Mathematical Perspectives section, both by invitation only.
+    aims_verbatim_note: >-
+      Bulletin 首頁、About 頁（"Journal overview"）與 SCImago 的 Scope 逐字相同。2026 年 10 月號印刷版前頁的寫法略有不同，且把 "by invitation only"
+      的指涉範圍寫得不含歧義："The Bulletin publishes expository articles on contemporary mathematical research written in a way that gives insight to mathematicians
+      who may not be experts in the particular topic. The Bulletin publishes, by invitation only, reviews of selected books in mathematics and short articles
+      in the “Mathematical Perspectives” section."——受邀限定的是書評與 Mathematical Perspectives，不是 expository articles。
+    src: [ams_home, ams_about, ams_info_for_authors, scimago]
+    what_an_article_is_expected_to_be:
+      statement_verbatim: >-
+        A well-written expository article will include motivating problems and examples, some indication of the historical development of the subject,
+        and of course the results and open problems that make it an interesting and exciting area of mathematics. In most cases proofs should be at most
+        briefly sketched, and there should be a good bibliography whose main aim is to help those wishing to pursue the subject further. Articles reporting on
+        recent mathematical research should include an introductory section addressed to nonexperts describing the motivation, background, and significance
+        of the results announced. Following the statement of results, there should be a sketch of proofs that may be addressed to experts, including elements
+        of the proof which are novel. References should be given so that an interested reader can find the details.
+      first_page_requirement_verbatim: >-
+        The first page must consist of a short descriptive title, followed by an abstract that summarizes the article in language suitable for mathematicians
+        in the general area. The descriptive title should be short but informative; useless or vague phrases such as “some remarks about” or “concerning”
+        should be avoided. The abstract should be a brief technical description of the new material.
+      src: ams_info_for_authors
+      reading: >-
+        這是一本綜述／導讀型期刊：寫給「不是該專題專家的數學家」；證明通常只略述，重點在動機、歷史、結果與開放問題、足夠的參考文獻。
+        官網沒有把原創研究論文（完整證明）列為排除，但 "In most cases proofs should be at most briefly sketched" 與全刊定位都指向不收完整證明的論文。
+    submission_invitation:
+      statement_articles: >-
+        ams_info_for_authors："Initial submission. Authors of articles may submit manuscripts for consideration as PDF files at ..."；
+        "The Bulletin Chief Editor will be notified as new submissions arrive. The Editor will collect these submissions and assign them to subject area specialists."
+        ams_editflow 開放給 Bulletin 的 Step 0 投稿表單（"This form may be used to submit a PDF of your manuscript to the Bulletin of the American Mathematical Society for publication consideration."）。
+      statement_invited_only: >-
+        "reviews of selected books in mathematics and short articles in the Mathematical Perspectives section, both by invitation only"（ams_home、ams_about）；
+        "Book Reviews are by invitation only."（ams_info_for_authors）
+      lecture_writeups: >-
+        ams_info_for_authors："Mathematicians giving AMS lectures (Gibbs Lectures, Colloquium Lectures, and Progress in Mathematics Lectures) or invited hour addresses
+        at meetings of the Society are encouraged to write up their lectures using the guidelines for expository articles described above.
+        Submissions will be reviewed by the Editorial Board for Articles, and authors will be notified of its decision."
+      gap: >-
+        官網沒有說明未受邀的 expository article 被收錄的實際比例，也沒有投稿前先詢問編輯（pre-submission inquiry）的程序。
+        ams_submission 與 ams_editflow 都是 AMS 各刊共用的通用文字，沒有 Bulletin 專屬的邀稿或不收未受邀稿的說明。
+      src: [ams_home, ams_about, ams_info_for_authors, ams_editflow, ams_submission]
+    areas:
+      - id: all_of_mathematics
+        statement: >-
+          "expository articles on contemporary mathematical research"（原文）。官網沒有列舉數學子領域，也沒有領域限定；
+          ams_info_for_authors 要求每篇附 2020 Mathematics Subject Classification 的主要與次要分類。
+        src: [ams_home, ams_info_for_authors]
+    acceptance_criteria:
+      status: not_published
+      checked: 2026-10-25
+      src: [ams_home, ams_about, ams_info_for_authors, ams_submission]
+      note: >-
+        Bulletin 專屬的錄取標準只有上面「文章該長什麼樣子」的描述。AMS 全體期刊的編輯手冊（ams_best_practice）列有「Criteria for Recommending Publication」：
+        Mathematical correctness、Originality、Relevance and significance（"Accepted papers should interest the broader readership"）、Clarity and structure，
+        但頁面說是給 AMS 各主要研究期刊的編輯，沒有說逐字適用於 Bulletin，且「Originality」一條與綜述型期刊的關係頁面沒有說明。
+    explicit_exclusions:
+      status: not_published
+      checked: 2026-10-25
+      src: [ams_home, ams_about, ams_info_for_authors, ams_submission, ams_arc_journals]
+      note: >-
+        沒有 "we do not publish X" 形式的主題排除句。ams_arc_journals 寫編輯可以不送外審直接退稿："Editors may reject papers without external review that are
+        not suitable for publication in the journal due to reasons such as subject matter or clear weaknesses in scientific content or presentation style."
+        （AMS 全體期刊共用）。
+
+  # 文章類型：只收官方頁面描述的類型。length 欄記官方公布的規定；官方沒有公布篇幅時寫 not_published，
+  # 另以 observed_length 記已刊出稿件的頁數範圍（刊出結果，不是規定）。
+  article_types:
+    - id: expository_article
+      label: Expository article（Bulletin 的主體文章）
+      description_verbatim: >-
+        The Bulletin publishes expository articles on contemporary mathematical research, written in a way that gives insight to mathematicians
+        who may not be experts in the particular topic.
+      invited: false
+      invited_basis: >-
+        官方文字只把書評與 Mathematical Perspectives 列為受邀限定；ams_info_for_authors 寫 "Authors of articles may submit manuscripts for consideration"。
+        這只表示投稿管道對作者開放，不表示未受邀稿的錄取比例（官網未公布）。
+      content_expectations: 見 scope.what_an_article_is_expected_to_be
+      review: 外審（"All articles submitted to this journal are peer reviewed."），由 Editorial Board for Articles 處理
+      length:
+        status: not_published
+        checked: 2026-10-25
+        src: [ams_info_for_authors, ams_submission, ams_editflow, ams_about]
+        note: 官網沒有頁數、字數或參考文獻數的上限或建議值。
+      observed_length:
+        unit: pages_typeset
+        min: 17
+        max: 133
+        median: 31
+        n: 15
+        extra: 另有 1 篇 3 頁的專輯導言（63 卷 3 期）不計入
+        basis: >-
+          63 卷（2026）1–4 期目錄的頁碼範圍（刊出時的期刊頁數；例：1–57、59–77、79–117、119–144、177–197、199–331、355–389、395–419、421–437、
+          439–469、471–490、491–529、531–557、559–636、637–684）。這是已刊出稿件的結果，不是投稿規定，也不排除刊出前有刪減。
+        src: [ams_home, ams_issues_vol63]
+      src: [ams_home, ams_about, ams_info_for_authors]
+
+    - id: mathematical_perspectives
+      label: Mathematical Perspectives（短文欄）
+      description_verbatim: '"short articles in the Mathematical Perspectives section, both by invitation only"（ams_home、ams_about）'
+      invited: true
+      invited_basis: >-
+        ams_home、ams_about："both by invitation only"；ams_info_for_authors："The Bulletin publishes, by invitation only, reviews of selected books in mathematics
+        and short articles in the “Mathematical Perspectives” section."
+      length:
+        status: not_published
+        checked: 2026-10-25
+        src: [ams_home, ams_about, ams_info_for_authors]
+        note: 官網只用 "short articles"，沒有給頁數或字數。
+      observed_length:
+        unit: pages_typeset
+        min: 11
+        max: 31
+        n: 4
+        extra: 另有 1 頁（61 卷 1 期）與 3 頁（62 卷 2 期）的欄首短文，不計入
+        basis: >-
+          61 卷 1 期（2024）該欄的一篇 11 頁文章；62 卷 2 期（2025）該欄的 3 篇各 25、28、31 頁文章。
+          "short" 在這個欄位的實際頁數範圍相當寬，不是以兩三頁為準。刊出結果，不是投稿規定。
+        src: [ams_issue_2024_61_1, ams_issue_2025_62_2]
+      src: [ams_home, ams_about, ams_info_for_authors]
+
+    - id: book_review
+      label: Book Reviews
+      description_verbatim: >-
+        "reviews of selected books in mathematics"（ams_home）；"Book Reviews are by invitation only. The first page must include the title of the book being reviewed;
+        the name(s) of the author(s); publisher; city of publication; year of publication; number of pages, including front matter; price if known; and ISBN.
+        There should also be a footnote with the 2020 Mathematics Subject Classification representing the primary and secondary subjects of the book under review."
+      invited: true
+      invited_basis: '"both by invitation only"（ams_home）；"Book Reviews are by invitation only."（ams_info_for_authors）'
+      review: 由 Editorial Board for Book Reviews 處理（ams_editorial 另列一組委員，主席 Volodymyr Nekrashevych）
+      length:
+        status: not_published
+        checked: 2026-10-25
+        src: [ams_info_for_authors, ams_home]
+        note: 官網沒有書評的頁數或字數規定。
+      observed_length:
+        unit: pages_typeset
+        min: 7
+        max: 11
+        n: 7
+        basis: '63 卷（2026）1–4 期目錄中書評的頁碼範圍（7、7、7、7、10、11、7 頁）。刊出結果，不是投稿規定。書評頁面寫 "Book reviews do not contain an abstract."'
+        src: [ams_home, ams_issues_vol63]
+      src: [ams_home, ams_info_for_authors, ams_editorial]
+
+    - id: commentary
+      label: Commentary（目錄分欄標籤，官方未說明）
+      description_verbatim: null
+      invited: {status: not_published, checked: 2026-10-25, src: [ams_home, ams_about, ams_info_for_authors]}
+      length:
+        status: not_published
+        checked: 2026-10-25
+        src: [ams_home, ams_about, ams_info_for_authors]
+        note: 官網沒有把 Commentary 列為文章類型。
+      observed:
+        basis: '61 卷 1 期（2024）目錄有一欄 "Commentary"，內容 1–2 頁，單一署名。只看到這一期，未逐期核對其他期是否也有。刊出結果，不是投稿規定。'
+        src: ams_issue_2024_61_1
+      src: ams_issue_2024_61_1
+
+    - id: selections_reprinted_from_mathematical_reviews
+      label: Selections Reprinted from Mathematical Reviews（目錄分欄標籤，官方未說明）
+      description_verbatim: null
+      invited: {status: not_published, checked: 2026-10-25, src: [ams_home, ams_about, ams_info_for_authors]}
+      length:
+        status: not_published
+        checked: 2026-10-25
+        src: [ams_home, ams_about, ams_info_for_authors]
+        note: 官網沒有說明這類稿件。
+      observed:
+        basis: '61 卷 1 期（2024）目錄在 Mathematical Perspectives 欄內列有 "Selections Reprinted from Mathematical Reviews"，13 頁（173–185）。刊出結果，不是投稿規定。'
+        src: ams_issue_2024_61_1
+      src: ams_issue_2024_61_1
+
+  article_types_note: >-
+    官方頁面只描述三類：expository articles、Mathematical Perspectives（受邀）、book reviews（受邀）。Commentary 與 Selections Reprinted from Mathematical Reviews
+    只是已刊目錄上的分欄標籤，官方文字沒有說明。官網沒有 research article、short communication、survey 等分類；沒有 "errata article" 以外的更正類型
+    （印刷版前頁寫更正重大錯誤用 errata article："Corrections of critical errors may be made to the paper by submitting an errata article to the Editor."）。
+
+  length_note:   # schema 的 length 需要 value 與 unit；官方沒有篇幅規定，故不放 requirements.length
+    status: not_published
+    checked: 2026-10-25
+    src: [ams_info_for_authors, ams_submission, ams_editflow, ams_about, ams_arc_journals]
+    note: >-
+      Bulletin 與 AMS 通用投稿頁都沒有任何篇幅規定（沒有頁數、字數、圖表數或參考文獻數上限）。已刊出稿件的頁數範圍見 article_types[].observed_length。
+
+  abstracts:
+    - id: main
+      max_words: {status: not_published, checked: 2026-10-25, src: [ams_submission, ams_info_for_authors]}
+      required_at: initial_submission
+      rules:
+        - 'ams_submission："An abstract is required. It should be a brief technical description of the new material."'
+        - 'ams_info_for_authors："The first page must consist of a short descriptive title, followed by an abstract that summarizes the article in language suitable for mathematicians in the general area."'
+        - 'ams_submission："No abstracts appear in the printed journal starting in 1998." 摘要在網站免費供所有人閱讀。'
+        - '書評沒有摘要："Book reviews do not contain an abstract."（ams_home 的目錄頁）'
+      src: [ams_submission, ams_info_for_authors, ams_home]
+  keywords:
+    msc_classification:
+      required: true
+      statement: >-
+        ams_submission："Included with the footnotes to the paper should be the 2020 Mathematics Subject Classification representing the primary and secondary subjects of the article."；
+        ams_info_for_authors："Each paper should include a footnote with the 2020 Mathematics Subject Classification representing the primary and secondary subjects of the article."
+      src: [ams_submission, ams_info_for_authors]
+    free_keywords:
+      max: {status: not_published, checked: 2026-10-25, src: [ams_info_for_authors]}
+      statement: 'ams_info_for_authors："The Mathematics Subject Classification footnote may be followed by a list of key words and phrases describing the subject matter of the article and taken from it."（可選）'
+      src: ams_info_for_authors
+
+  formatting:
+    submission_file: 單一 PDF 檔（含全部文字、圖與附錄）
+    statement: >-
+      ams_editflow："The PDF should include all text, graphics, and appendices for the paper. Do not upload separate files for text, graphics, and appendices."；
+      ams_info_for_authors："Manuscripts must be a single file with images embedded."；
+      ams_submission："The preferred method of submission is to upload a PDF file using the Initial Manuscript Submission form."
+    paper_alternative: >-
+      可郵寄紙本到 "Centralized Manuscript Processing, Bulletin of the AMS, 201 Charles Street, Providence, Rhode Island 02904-2213 USA"，
+      須附期刊名、通訊作者姓名、聯絡資料（含 email 與郵寄地址）與建議的編輯（ams_submission、ams_editflow）。
+    typesetting: >-
+      錄取後建議用 AMS-LaTeX 與 AMS 的作者套件（ams_submission："Authors are encouraged to use AMS-prepared style files in preparing their papers."；
+      ams_info_for_authors："Manuscripts should be electronically prepared in AMS-LATEX."）。投稿（初審）階段官網沒有要求特定格式，只要求 PDF。
+    template:
+      class: AMS author package for the Bulletin
+      src: [ams_submission, ams_info_for_authors]
+      note: >-
+        作者套件從 Bulletin 的 Submission 頁 "AMS-prepared style files" 連結取得（pubs.ams.org/bull/bullauthorpac.html）；另有 Overleaf 上的 AMS journal article templates。
+        本記錄沒有下載套件。
+    after_acceptance: >-
+      ams_submission："Once a paper has been accepted for publication, authors should follow the online Submission Instructions."
+      ams_info_for_authors 寫錄取後應立即將最終版原始檔寄到 Providence 辦公室。這份舊式說明裡的圖檔規定（EPS）與
+      "Submission Instructions" 頁（pubs.ams.org/jourhtml/submitms.html）在 2026-10-25 已過時或失效，見 warnings。
+    authors_identifiable: >-
+      ams_info_for_authors 的審稿描述是單匿名（審稿人知道作者），所以稿件應列作者。但 AMS 全體政策正在轉向雙匿名（稿件不得含作者姓名與單位），
+      Bulletin 的頁面沒有說已轉換。見 review.type 與 warnings。
+    src: [ams_submission, ams_editflow, ams_info_for_authors]
+
+  supplementary_material:
+    status: not_published
+    checked: 2026-10-25
+    src: [ams_submission, ams_info_for_authors, ams_editflow]
+    note: Bulletin 與 AMS 通用投稿頁都沒有補充材料的規定。EditFlow 要求初審 PDF 包含全部附錄，不收分開的檔案。
+
+  reproducibility:
+    code_and_data_sharing_mandate:
+      status: not_published
+      checked: 2026-10-25
+      src: [ams_submission, ams_info_for_authors, ams_editflow, ams_policies]
+      note: 沒有資料或程式碼公開、資料可得性聲明的規定。
+    formalization_or_proof_checking:
+      status: not_published
+      checked: 2026-10-25
+      src: [ams_submission, ams_info_for_authors, ams_editflow, ams_ai_policy]
+      note: 官網沒有關於形式化驗證（proof assistant）或機器證明稿件的規定。AMS 對 AI 工具的規定見 policies.generative_ai。
+    reporting_standards: {status: not_published, checked: 2026-10-25, src: [ams_submission, ams_info_for_authors], note: 無 TOP、JARS 或其他報告標準要求}
+
+  review:
+    type: single_anonymized
+    basis: >-
+      ams_info_for_authors（63 卷 4 期，2026 年 10 月）的 Information for Authors："All articles submitted to this journal are peer reviewed. The AMS has a single-blind
+      peer-review process in which the reviewers know who the authors of the manuscripts are, but the authors do not have access to information on who the peer reviewers are."
+    conflict: >-
+      ams_arc_journals（AMS 全體期刊）寫："Historically, the AMS has had a single-anonymous peer-review process ... In 2021, the AMS Council voted to transition to a
+      double-anonymous peer review process in which both authors and referees of a given article remain anonymous to each other, and this transition is being rolled out
+      across the research journal portfolio."；ams_policies 另有 "Double Anonymous Peer Review" 一節。ams_double_anonymous_news（2022）說從 Proceedings of the AMS 與 Representation Theory 起步，
+      其餘期刊之後推行；該政策要求投稿稿件不含作者姓名與單位，但不要求匿名化參考文獻、致謝與經費資訊。
+      Bulletin 自己的 About、Submission 頁與 EditFlow Step 0 沒有提到匿名投稿，只有印刷版前頁明寫單匿名。因此本記錄採單匿名，但這是 2026 年 10 月號印刷版的敘述；
+      EditFlow Step 0 之後的步驟未讀，投稿時以投稿系統與 Chief Editor 的指示為準。
+    src: [ams_info_for_authors, ams_arc_journals, ams_policies, ams_double_anonymous_news, ams_about, ams_submission, ams_editflow]
+    external_review: >-
+      ams_arc_journals："All articles accepted for publication in AMS Journals are peer reviewed by external reviewers. Editors may reject papers without external review
+      that are not suitable for publication in the journal due to reasons such as subject matter or clear weaknesses in scientific content or presentation style."
+    originality_check: 'ams_arc_journals："To verify originality, your article may be checked by the originality detection service."'
+    editorial_process: >-
+      ams_info_for_authors："The Bulletin Chief Editor will be notified as new submissions arrive. The Editor will collect these submissions and assign them to subject area specialists."
+      受邀的書評與 Mathematical Perspectives 的處理流程官網沒有說明。
+    stages:
+      status: not_published
+      checked: 2026-10-25
+      src: [ams_about, ams_submission, ams_info_for_authors, ams_arc_journals, ams_editflow]
+      note: 官網沒有說明審稿人人數、輪次或各階段時程（編輯手冊 ams_best_practice 只有給編輯的建議："no more than two major revisions"）。
+    timeline_targets:
+      status: not_published
+      checked: 2026-10-25
+      src: [ams_about, ams_submission, ams_info_for_authors, ams_arc_journals, ams_editflow]
+      note: 對作者的時程承諾沒有。編輯手冊的 "usually 1?2 weeks"（初審）是給編輯的指引，見 identity.metrics.time_to_first_decision 的 note。
+    appeals:
+      statement: >-
+        ams_policies 有 "AMS Process for Filing, Investigating, Communicating Results, and Appealing Claims"（子頁 .../policies/filingclaims）；該子頁本記錄沒有讀。
+      src: ams_policies
+    author_may_suggest_editor: >-
+      ams_submission（紙本投稿須附的資料）："The author should suggest an appropriate Editor to review the paper"。EditFlow Step 0 沒有提到；後續步驟未讀。
+    author_may_suggest_reviewers: {status: not_found, checked: 2026-10-25, src: [ams_submission, ams_info_for_authors, ams_editflow], note: Step 0 與其他頁面都沒有提到；EditFlow 後續步驟未讀}
+    revisions_link: >-
+      修訂稿不要走新投稿入口：ams_editflow 寫 "If you are trying to upload a revision of a previously submitted article, use the status link from the email you received from us
+      about your original submission."；被拒稿的修訂版不得重新投稿，除非編輯委員會明確邀請（"unless you have been explicitly invited to re-submit by the editorial board of this journal"）。
+
+  submission:
+    portal: https://ams.msp.org/submit_new.php?j=bull
+    system: EditFlow（MSP 的編輯管理平台；AMS 稱此入口為 "Initial Manuscript Submission form"）
+    file: 單一 PDF（含全部文字、圖與附錄）
+    conditions:                     # ams_editflow 的 Author Agreement；按 "I accept" 即表示同意
+      - 稿件原創、從未以全部或部分形式發表
+      - 稿件目前沒有在別處審查中，審查期間也不會投到別處
+      - 稿件不是本刊先前被拒稿件的修訂版，除非編輯委員會明確邀請重投
+      - 每位共同作者都知道此投稿以其名義送出，且各有只屬於本人的有效 email
+      - 沒有共同作者冒用身分
+      - 已閱讀並理解 AMS 的 AI 工具政策（見 policies.generative_ai）
+    paper_alternative: 見 formatting.paper_alternative
+    portal_steps_read: Step 0 only
+    steps_not_read: 作者資料、編輯選擇、cover letter、檔案上傳等欄位未讀（需按 "I accept" 才會進入，本記錄沒有開始投稿）
+    contact: 初審投稿問題寄 jrnl-initsub@ams.org（ams_arc_journals、ams_editflow 皆列）
+    stale_pointer: >-
+      ams_info_for_authors 的 Information for Authors 寫初審 PDF 投稿網址是 http://www.ams.org/peer-review/submission.pl；
+      2026-10-25 該網址回 "This page was not found on the AMS website."（404）。現行入口是上面的 EditFlow 網址（Bulletin 首頁的 "Initial Manuscript Submission form" 連結）。
+    src: [ams_editflow, ams_submission, ams_arc_journals, ams_info_for_authors]
+
+  fees:
+    submission: {status: not_published, checked: 2026-10-25, src: [ams_submission, ams_editflow, ams_info_for_authors, ams_arc_journals], note: Bulletin、AMS 通用投稿頁與 EditFlow Step 0 都沒有提投稿費}
+    apc:
+      status: not_published
+      checked: 2026-10-25
+      src: [ams_open_access, ams_submission, ams_info_for_authors, ams_copyright]
+      note: >-
+        ams_open_access 只對兩本 gold OA 期刊公布 APC（Proceedings of the AMS Series B：US$1,500；Transactions of the AMS Series B：US$2,750；AMS 會員擔任通訊作者者 $247）。
+        Bulletin 不在其中，Bulletin 與 AMS 通用投稿頁、版權頁都沒有提到 Bulletin 的 APC 或付費開放取用選項。
+    page_charges: {status: not_published, checked: 2026-10-25, src: [ams_submission, ams_info_for_authors], note: 沒有頁費規定}
+    color_print: {status: not_published, checked: 2026-10-25, src: [ams_submission, ams_info_for_authors], note: 沒有彩色圖費用規定}
+
+  open_access:
+    options: [訂閱制（作者不付費）, 預印本與作者接受稿的張貼（green OA；見 policies.preprints）]
+    gold_oa_option: {status: not_published, checked: 2026-10-25, src: [ams_open_access, ams_copyright, ams_submission], note: AMS 的 gold OA 名單只有兩本 Series B 期刊，Bulletin 不在其中；官網沒有提到 Bulletin 文章的付費 OA 選項}
+    licenses_offered: >-
+      ams_open_access 與 ams_copyright 的 Creative Commons 授權（CC-BY-NC-ND、CC-BY-NC、CC BY-ND、CC-BY）只用於 diamond 或 gold OA 刊物（"Articles published in AMS diamond or gold open access journals will be distributed under Creative Commons licenses"）。
+      ams_submission 的 "After Acceptance" 段寫 "If the article is to be published in one of the AMS Open Access journals, authors must agree which Creative Commons License will be selected."
+      Bulletin 不屬於這些期刊。
+    green_oa:
+      embargo_months: 0
+      statement: >-
+        ams_open_access（Green Open Access Journals 一節）："With green open access, the author may post a prepublication version of a journal article on their personal web page,
+        their institution's noncommercial repository, and/or on arXiv.org with no embargo period. The AMS considers any version of the paper up to the final peer-reviewed manuscript,
+        including revisions that take into account comments and suggestions of referees (often called the Author-Accepted-Manuscript), to be a prepublication version."
+      src: ams_open_access
+      note: ams_open_access 沒有逐一列出哪些期刊屬於 green 模式；此頁把 AMS 研究期刊分為 diamond、green、gold 三種，Bulletin 不在 diamond 與 gold 名單，所以適用的是 green（推論，頁面沒有明寫 Bulletin 屬於 green）。
+    open_archive: >-
+      ams_open_access："Open Archive: All subscription journal content over 5 years old (rolling) is open and free to read to all."
+    src: [ams_open_access, ams_copyright, ams_submission, ams_about]
+
+  policies:
+    dual_submission: forbidden
+    dual_submission_wording: >-
+      ams_submission："No paper that has been previously published, or is being considered for publication elsewhere, should be submitted to the American Mathematical Society,
+      nor may a paper that is under consideration by the American Mathematical Society be submitted elsewhere."；
+      ams_info_for_authors："By submitting a paper to this journal, authors certify that the results have not been submitted to nor are they under consideration for publication
+      by another journal, conference proceedings, or similar publication."
+    preprints:
+      allowed: true
+      statement: >-
+        ams_copyright："An author’s accepted manuscript (AAM) or other draft version of the work, either before or after peer review, may be reproduced under a CC BY Creative Commons License
+        by any means for educational and scientific purposes by the author(s). This means that the pre-publication draft of the work may be posted on the author’s personal website,
+        contributed to the author’s institutional repository, and/or posted on pre-print servers such as arXiv.org, all provided that no commercial use of the material is made
+        (no fees may be charged for access to or use of the material) and no derivative works are included."（適用於 "non-open access journal and proceedings articles"）
+      before_submission: >-
+        ams_double_anonymous_news："We will place no new restrictions on how authors choose to disseminate and publicize their work—for example, by giving talks,
+        posting preprints that include author names, and discussing with colleagues."（針對雙匿名政策的說明；2022 年新聞稿）
+      note: >-
+        官網沒有一句專門回答「投稿前張貼預印本是否算先前發表」。ams_copyright 允許在審稿前後張貼草稿（"either before or after peer review"），
+        ams_double_anonymous_news 說 AMS 對張貼含作者姓名的預印本不設新限制。這兩處合起來顯示預印本不被視為先前發表，但頁面沒有用這個字眼表述。
+        另外，ams_copyright 該句同時說 "under a CC BY" 又限制「商業用途與衍生作品」，字面上自相矛盾（CC BY 允許商業用途與衍生作品）；本記錄照原文抄錄，未解讀。
+      src: [ams_copyright, ams_open_access, ams_double_anonymous_news]
+    copyright:
+      transfer_required: false
+      statement: >-
+        ams_copyright："Authors must grant the AMS specific permission to publish their work (i.e., a formal "consent to publish"). ... Authors are encouraged, but not required, to transfer
+        copyright to their work to the AMS."；"With this agreement, authors may choose to transfer copyright to the AMS, to retain copyright, and/or choose to dedicate their work to the public domain
+        28 years following publication (see Section 6)."（該頁讀到的內容只到 Section 4，Section 6 本記錄未見）
+      process: 錄取後 AMS Providence 辦公室寄 Consent to Publish 給所有作者，處理稿件前必須完成（ams_info_for_authors："A Consent to Publish is required before we can begin processing your paper."）
+      src: [ams_copyright, ams_info_for_authors, ams_submission]
+    generative_ai:
+      author_listing: 'ams_ai_policy 與 ams_editflow："AI tools, including ChatGPT and other large language models, cannot be listed as authors, as they cannot take responsibility for the submitted work."'
+      disclosure: >-
+        ams_ai_policy："Authors who use AI tools in the writing of a manuscript, production of images or graphical elements of the paper, or in the collection and analysis of data,
+        must be transparent in disclosing in the Materials and Methods (or similar section) of the paper how the AI tool was used and which tool was used.
+        Authors are fully responsible for the content of their manuscript, even those parts produced by an AI tool, and are thus liable for any breach of publication ethics."
+      reviewer_side: 'ams_ai_policy："Editors and referees are not to upload papers under review to an LLM in any format, for any reason."'
+      src: [ams_ai_policy, ams_editflow]
+    authorship:
+      statement: >-
+        ams_authorship："Authors are often listed in alphabetical order."；署名變更（順序、增刪）須全體作者同意，初審投稿後的變更要以全體作者簽署的信或全體副本的 email 向編輯說明。
+      src: ams_authorship
+    ethics:
+      statement: >-
+        AMS 研究期刊是 COPE（Committee on Publication Ethics）的會員（ams_policies："AMS Research Journals participate as members of the Committee on Publication Ethics (COPE)"；
+        ams_journals_list 同）；ams_policies 列有學術誠信、作者署名、申訴、冒犯性素材等政策，各子頁本記錄沒有逐一讀。
+      src: [ams_policies, ams_journals_list]
+    conflict_of_interest:
+      author_disclosure: {status: not_found, checked: 2026-10-25, src: [ams_submission, ams_info_for_authors, ams_editflow, ams_ai_policy], note: "只有編輯手冊（ams_best_practice）提到 'declared by authors'，沒有對作者的揭露格式或欄位要求；EditFlow 後續步驟未讀"}
+    language_editing: >-
+      ams_submission 的 Useful Tools 列有 Charlesworth Author Services 的語言編修服務（ams_arc_journals："AMS journal contributors receive 15% off"）；自選，自費。
+    originality_detection: 見 review.originality_check
+
+  standards: []
+
+# ─────────────────────────────────────────────────────────────
+# FAST — 期刊無年度週期。
+# ─────────────────────────────────────────────────────────────
+cycle:
+  applies_to: null
+  rolling_calls: []
+  special_issues:
+    status: not_published
+    checked: 2026-10-25
+    note: >-
+      Bulletin 首頁、About、Submission 與編輯名單頁都沒有徵稿或特刊公告。已刊目錄顯示偶有專題成組（63 卷 3 期一組同主題的歷史文章；62 卷 2 期的 Mathematical Perspectives 一組），
+      但那是受邀欄目的刊出結果，不是公開徵稿。
+
+# ─────────────────────────────────────────────────────────────
+warnings:
+  - >-
+    Bulletin 是綜述／導讀型期刊，不是原創研究論文期刊："expository articles on contemporary mathematical research, written in a way that gives insight to mathematicians who may not be experts in the particular topic"，
+    證明 "in most cases ... should be at most briefly sketched"。官網沒有說明未受邀的 expository article 被收錄的比例，也沒有投稿前詢問編輯的程序；書評與 Mathematical Perspectives 為受邀限定。
+  - >-
+    審稿模式有出入：2026 年 10 月號印刷版前頁寫單匿名（"single-blind"，審稿人知道作者）；AMS 全體的 ARC 頁寫政策正轉向雙匿名（投稿稿件不含作者姓名與單位），
+    "is being rolled out across the research journal portfolio"，2022 年新聞稿只列 Proceedings of the AMS 與 Representation Theory 兩本。Bulletin 的 About、Submission 與
+    EditFlow Step 0 沒有提到匿名投稿。本記錄採單匿名，並限於這個日期的印刷版敘述；投稿前在 EditFlow 後續步驟與系統說明再確認稿件是否要去掉作者資訊。
+  - >-
+    官網沒有任何篇幅規定（頁數、字數、參考文獻數）。article_types[].observed_length 的頁數範圍是已刊出稿件的結果（expository article 17–133 頁，中位數 31；n = 15，63 卷 2026），不是投稿規定。
+  - >-
+    官方沒有公布 Journal Impact Factor、錄取率、首次決定時間、投稿到接受時間，也沒有 backlog 數字（印刷版前頁說有，卻在 2026-10-25 的 Bulletin 網頁上找不到）。
+    AMS 自己公布的指標是 MCQ，與 JCR 的 Impact Factor 不同；Bulletin 首頁寫 2024 年 0.84，期刊總覽頁寫 0.47 且沒標年度，兩個值對不上。JCR 分區需登入，本記錄沒有。
+    記錄中的 Q2 是 SJR 分區（Applied Mathematics、Mathematics (miscellaneous)），不是 JCR。Web of Science 只收錄在 SCIE（MJL 核對），不在 SSCI、AHCI、ESCI。
+  - >-
+    存取與開放取用的字面說法互相有出入：Bulletin 首頁寫 "A current active subscription to the electronic version of this journal is required to view article PDFs in all volumes"；
+    About 頁寫 "The American Mathematical Society makes all issues of the Bulletin freely available to all mathematicians through the generosity of its members"；
+    AMS Open Access 頁寫訂閱刊內容滿 5 年（滾動）開放。Bulletin 沒有公布 APC 或付費 OA 選項（AMS 只有 Proceedings Series B 與 Transactions Series B 是 gold OA）。
+    要把論文放上 arXiv 或個人網站，依 AMS Copyright Policy 允許張貼作者接受稿或更早的草稿。
+  - >-
+    投稿前要確認的過時連結：印刷版前頁的 Information for Authors 寫初審投稿網址為 http://www.ams.org/peer-review/submission.pl，2026-10-25 回 404，
+    現行入口是 https://ams.msp.org/submit_new.php?j=bull；同一份說明提到的 "Submission Instructions" 頁（Bulletin 首頁連結 https://pubs.ams.org/jourhtml/submitms.html）
+    在 2026-10-25 轉址到 AMS Digital Library 的搜尋結果頁（沒有內容）；前頁 PDF 裡的圖檔規定（EPS／TIFF）、錄取後寄原始檔到特定 email 的說明是舊式程序，投稿階段只需要單一 PDF。
+  - >-
+    AMS 網站（www.ams.org、pubs.ams.org）對 curl 與一般腳本回 HTTP 403 + 約 28.8 KB 的 "Verifying your connection" 挑戰頁；重新驗證時要用 Safari 開頁面確認原文仍在，
+    verify.py 對這些來源會回 NEEDS_AGENT，這是預期結果。Bulletin 首頁與各期目錄頁每期都會變，hash 會常變；規定性內容的比對以 ams_about、ams_submission、ams_info_for_authors 為準。
+  - >-
+    EditFlow 只讀到 Step 0（沒有按 "I accept"）。作者資料、編輯選擇、cover letter、檔案上傳等欄位要求未知；初審投稿的 PDF 是否要去掉作者姓名與單位，Step 0 沒有說。

@@ -26,6 +26,19 @@ ROOT = Path(__file__).resolve().parent.parent
 NOTES = []   # (id, 欄位, 說明)；有附註的格子會加 † 或 ‡
 UNKNOWN = "?"
 NOT_PUBLISHED = "未公布"
+# 記錄的 status 值 -> 表上的字。not_found 是「查過但沒取得」（例如 JCR 要登入），
+# 不是官方沒公布，兩者不可混成同一個字（#5）。
+STATUS_LABEL = {
+    "not_published": NOT_PUBLISHED,
+    "not_found": "未取得",
+    "not_applicable": "不適用",
+}
+
+# 篇幅的頁數單位 -> 表上的字。只有這兩種有定義；其他 pages_* 原樣印出單位，不猜（#5）。
+PAGE_UNIT_LABEL = {
+    "pages_double_spaced": "頁雙行距",
+    "pages_typeset": "頁（排版後）",
+}
 
 # 標準欄位 -> 已知別名（依序嘗試）
 ALIASES = {
@@ -39,6 +52,7 @@ REVIEW_LABEL = {
     "single_anonymized": "單匿名",
     "single_blind": "單盲",
     "single_anonymized_interactive": "單匿名＋互動式",
+    "referee_anonymous": "審稿人匿名",
 }
 
 
@@ -59,6 +73,18 @@ def get(d, *keys):
 
 def is_unknown(v):
     return isinstance(v, dict) and "status" in v and "value" not in v
+
+
+def status_label(v):
+    """is_unknown 的值要印什麼：依 status 區分未公布／未取得／不適用。"""
+    return STATUS_LABEL.get(v.get("status"), NOT_PUBLISHED)
+
+
+def is_status_only(v):
+    """只記了「查過、沒有值」的欄位。status 也有別的用法（例：APC 的 status: optional
+    表示選付、旁邊另有金額），所以只認 STATUS_LABEL 的三個值，且不得帶 amount／value。"""
+    return (isinstance(v, dict) and v.get("status") in STATUS_LABEL
+            and "amount" not in v and "value" not in v)
 
 
 def num(v):
@@ -102,7 +128,7 @@ def impact_factor(m):
     if v is None:
         return UNKNOWN
     if is_unknown(v):
-        return NOT_PUBLISHED
+        return status_label(v)
     n = num(v)
     return f"{n}" if n is not None else UNKNOWN
 
@@ -208,10 +234,17 @@ def duration(m, key):
 def apc(rec):
     fees = get(rec, "requirements", "fees") or {}
     a = fees.get("apc")
+    if is_status_only(a):                  # 整欄只有 status：查過，官方沒有 APC 資訊
+        return status_label(a)
     if not isinstance(a, dict):
         return UNKNOWN
     cur = a.get("currency") or fees.get("currency")
     amt = a.get("amount")
+    if is_status_only(amt):                # 有 OA 選項但金額沒公布（例：只指向出版社的 APC 查詢頁）
+        optional = a.get("mandatory") is False or bool(a.get("applies_when"))
+        return f"{status_label(amt)}（選付）" if optional else status_label(amt)
+    if amt == 0:                           # 鑽石 OA：沒有任何作者費用，不是「0 元選付」
+        return "不收費"
     if isinstance(amt, dict):
         cur, amt = "USD", amt.get("usd")
     if amt is None:
@@ -236,6 +269,8 @@ def apc(rec):
 
 def review(rec):
     t = get(rec, "requirements", "review", "type")
+    if t in STATUS_LABEL:                  # 查過、官方沒寫審稿制度
+        return STATUS_LABEL[t]
     return REVIEW_LABEL.get(t, UNKNOWN if t is None else str(t))
 
 
@@ -257,8 +292,8 @@ def length(rec):
         return UNKNOWN
     if unit == "words":
         out = f"{fmt_int(v)} 字"
-    elif unit and unit.startswith("pages"):
-        out = f"{fmt_int(v)} 頁雙行距"
+    elif unit in PAGE_UNIT_LABEL:
+        out = f"{fmt_int(v)} {PAGE_UNIT_LABEL[unit]}"
     else:
         out = f"{fmt_int(v)} {unit or ''}".strip()
     note = str(L.get("note") or L.get("exceptions") or "")

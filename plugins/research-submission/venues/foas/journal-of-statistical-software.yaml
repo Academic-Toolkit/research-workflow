@@ -1,0 +1,819 @@
+--- # research-submission venue record
+# 內容擷取自 Journal of Statistical Software（jstatsoft.org）的 Information for Authors、Information on Mission、
+# Submissions、About the Journal、Editorial Team、Style Guide、Submission Guide 等頁面與 JSS 風格手冊（jss.pdf）、
+# Foundation for Open Access Statistics（foastat.org）的三個頁面、SCImago、Clarivate Master Journal List，2026-10-27。
+#
+# 【重要：2026-10-27 當天 jstatsoft.org 連不上，下列 JSS 頁面不是從官網現場讀的】
+# 當天 curl 對 www.jstatsoft.org 所有路徑都是 TCP 連線逾時（25–60 秒；nc 對 138.232.16.156 的 80 與 443 埠、ping 也不通），
+# Safari 顯示「無法打開網頁」；用 check-host.net 從法國、斯洛維尼亞、土耳其、烏克蘭、伊朗的探測點測也全部逾時，
+# 所以不是本機網路問題。各頁原始碼裡有一段已被註解掉的公告（未標年份）寫 6 月 30 日至 7 月 2 日曾因 AI 請求暴增而中斷服務，
+# 那是另一次事件；這次中斷的原因頁面沒有說明。改讀 Internet Archive（web.archive.org）保存的原始 HTML（網址帶 id_，
+# 即網站當時送出的未改寫頁面），抓取日如下，各 source 的 note 另有完整網址：
+#   authors 2026-08-02、submissions 與 guides/submission 與 jss-style.zip 2026-08-19、style 2026-09-28、
+#   mission 與 about 與 editorialTeam 2026-10-05。
+# 這些是官網頁面的存檔，不是官網現場；頁面在抓取日之後有沒有改動，本次無從得知。
+# JSS 官網恢復後，請用 Safari 重讀每個 jstatsoft.org 來源，確認 must_contain 仍在、規定沒有變，再更新 last_verified_at。
+#
+# 讀取方式：foastat.org 以 curl 可取得完整頁面（200）；SCImago 與 MJL 用 Safari 讀（MJL 是 JS 單頁應用，只能在頁內查詢）。
+# 收錄緣由：語料庫缺這本；補錄統計軟體類期刊，供 choose-venue 比較用。
+# 本記錄只放期刊公開規定與公開的編輯部名單，不含任何投稿者或稿件資訊。
+#
+# sources 排序是刻意的：http 來源排在前面、browser 來源排在最後。
+# verify.py 以「替換第一個 extracted_sha256: null」寫回 hash，若 browser 來源排在前面，
+# http 來源的 hash 會被寫進 browser 來源的欄位。
+
+schema_version: 1
+id: foas/journal-of-statistical-software
+kind: journal
+family: statistics-journals
+status: active
+
+# ─────────────────────────────────────────────────────────────
+sources:
+  - id: foas_jss
+    role: supporting
+    url: https://www.foastat.org/jss.html
+    note: >-
+      FOAS（出版者基金會）自己的 JSS 說明頁：JSS 對讀者與作者都免費、開銷來源、使用 OJS、論文與軟體一起出版。
+      頁面沒有日期，內文提到 useR! 2014 與 2011 年的 Nature 報導，是約 2014 年的文字；
+      約 20,000 美元／年的開銷與 UCLA 統計系負擔的說法，只當歷史背景，不當現況。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "JSS is free for readers and authors"
+        min_extracted_chars: 2000
+    snapshot:
+      fetched_at: 2026-10-27
+      last_verified_at: 2026-10-27
+      extracted_sha256: null
+
+  - id: foas_about
+    role: supporting
+    url: https://www.foastat.org/about.html
+    note: FOAS 的法律地位（加州非營利公益法人、501(c)(3)，免稅生效日 2012-09-01）與三位 Officers。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "FOAS is a nonprofit public benefit corporation registered in California"
+        min_extracted_chars: 700
+    snapshot:
+      fetched_at: 2026-10-27
+      last_verified_at: 2026-10-27
+      extracted_sha256: null
+
+  - id: foas_philosophy
+    role: supporting
+    url: https://www.foastat.org/philosophy.html
+    note: FOAS 對 open access 與 reproducible research 的立場；一句話說 JSS 隨每篇文章發布程式碼。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "distributes code along with all of its"
+        min_extracted_chars: 1800
+    snapshot:
+      fetched_at: 2026-10-27
+      last_verified_at: 2026-10-27
+      extracted_sha256: null
+
+  - id: jss_authors
+    role: authoritative
+    url: https://www.jstatsoft.org/authors
+    note: >-
+      Information for Authors：規定本體（Requirements、Software Preparation、Manuscript Preparation、Online Submission、
+      Review Process、Publishing Process）。2026-10-27 官網連不上（見檔頭），內容取自 Internet Archive 於 2026-08-02 的抓取：
+      https://web.archive.org/web/20260802142123id_/https://www.jstatsoft.org/authors
+      導覽列的連結是 https://www.jstatsoft.org/index.php/jss/authors；SCImago 與 DOAJ 仍連到舊路徑 /pages/view/authors
+      （存檔最後一次 200 是 2021-09-22）。
+      本頁比 jss_submission_guide 詳細，兩頁有數處措辭不同（見 warnings）；以本頁為準。
+    fetch:
+      method: browser
+      http_failure_mode: >-
+        2026-10-27 curl 對 www.jstatsoft.org 所有路徑 TCP 連線逾時（不是 bot 挑戰頁；check-host.net 的歐洲探測點也逾時），
+        所以 curl 是否可用未能測試，http_viable 不填。頁面是伺服器端渲染的 OJS 3 頁面，存檔的原始 HTML 含完整內文，
+        官網恢復後請補測 curl。
+      validity:
+        must_contain: "Extensive simulation studies are discouraged"
+        min_extracted_chars: 6000
+    snapshot:
+      fetched_at: 2026-10-27
+      last_verified_at: 2026-10-27
+      extracted_sha256: null
+
+  - id: jss_mission
+    role: authoritative
+    url: https://www.jstatsoft.org/mission
+    note: >-
+      Information on Mission：Scope、Types of Papers、Code、Copyright and Costs。JSS 收什麼、不收什麼寫在這一頁。
+      2026-10-27 官網連不上，內容取自 Internet Archive 於 2026-10-05 的抓取：
+      https://web.archive.org/web/20261005205514id_/https://www.jstatsoft.org/mission
+    fetch:
+      method: browser
+      http_failure_mode: 同 jss_authors（2026-10-27 官網連線逾時，未能測試 curl）。
+      validity:
+        must_contain: "JSS does NOT publish methodological innovations in computational statistics"
+        min_extracted_chars: 4000
+    snapshot:
+      fetched_at: 2026-10-27
+      last_verified_at: 2026-10-27
+      extracted_sha256: null
+
+  - id: jss_submissions
+    role: authoritative
+    url: https://www.jstatsoft.org/about/submissions
+    note: >-
+      OJS 的 Submissions 頁：Submission Preparation Checklist（投稿時逐項勾選）、Copyright Notice、側欄的 Journal Information
+      （Publisher、Editors-in-chief、ISSN、CODEN）與 Support（無作者費用）。
+      2026-10-27 官網連不上，內容取自 Internet Archive 於 2026-08-19 的抓取：
+      https://web.archive.org/web/20260819203345id_/https://www.jstatsoft.org/about/submissions
+    fetch:
+      method: browser
+      http_failure_mode: 同 jss_authors（2026-10-27 官網連線逾時，未能測試 curl）。
+      validity:
+        must_contain: "I/we have prepared the replication materials for all results from the manuscript"
+        min_extracted_chars: 2000
+    snapshot:
+      fetched_at: 2026-10-27
+      last_verified_at: 2026-10-27
+      extracted_sha256: null
+
+  - id: jss_about
+    role: authoritative
+    url: https://www.jstatsoft.org/about
+    note: >-
+      About the Journal：Focus and Scope（只導向 mission 與 authors 兩頁）、Open Access Policy（CC Attribution 3.0 Unported、
+      程式碼用 GPL）、隱私政策（最後修改 2021-09-25；提到 2026-04 中旬起郵件服務改用 mailbox.org）。
+      頁面沒有 peer review policy、publication frequency 之類的 OJS 預設段落。
+      2026-10-27 官網連不上，內容取自 Internet Archive 於 2026-10-05 的抓取：
+      https://web.archive.org/web/20261005205537id_/https://www.jstatsoft.org/about
+    fetch:
+      method: browser
+      http_failure_mode: 同 jss_authors（2026-10-27 官網連線逾時，未能測試 curl）。
+      validity:
+        must_contain: "This journal provides immediate open access to its content"
+        min_extracted_chars: 8000
+    snapshot:
+      fetched_at: 2026-10-27
+      last_verified_at: 2026-10-27
+      extracted_sha256: null
+
+  - id: jss_editorial_team
+    role: authoritative
+    url: https://www.jstatsoft.org/about/editorialTeam
+    note: >-
+      Editorial Team：五位 Editors-in-Chief、Technical Editor、四位 Replication Editors、Editor/Publisher、Book Review Editor、
+      Founding Editor、Junior Editor 與 Editors 名單。頁面沒有說明各職務的職責，也沒有任期。
+      2026-10-27 官網連不上，內容取自 Internet Archive 於 2026-10-05 的抓取：
+      https://web.archive.org/web/20261005205514id_/https://www.jstatsoft.org/about/editorialTeam
+    fetch:
+      method: browser
+      http_failure_mode: 同 jss_authors（2026-10-27 官網連線逾時，未能測試 curl）。
+      validity:
+        must_contain: "Replication Editors"
+        min_extracted_chars: 4500
+    snapshot:
+      fetched_at: 2026-10-27
+      last_verified_at: 2026-10-27
+      extracted_sha256: null
+
+  - id: jss_style
+    role: supporting
+    url: https://www.jstatsoft.org/style
+    note: >-
+      Style Guide 與 FAQ：LaTeX 與 JSS 樣式檔必用、四種範本（article、codesnippet、software review、book review）、
+      R 套件如何註明 JSS 論文、如何引用軟體。
+      2026-10-27 官網連不上，內容取自 Internet Archive 於 2026-09-28 的抓取：
+      https://web.archive.org/web/20260928101024id_/https://www.jstatsoft.org/style
+    fetch:
+      method: browser
+      http_failure_mode: 同 jss_authors（2026-10-27 官網連線逾時，未能測試 curl）。
+      validity:
+        must_contain: "Code snippet contributions are produced in the same way as articles"
+        min_extracted_chars: 10000
+    snapshot:
+      fetched_at: 2026-10-27
+      last_verified_at: 2026-10-27
+      extracted_sha256: null
+
+  - id: jss_submission_guide
+    role: supporting
+    url: https://www.jstatsoft.org/guides/submission
+    note: >-
+      Submission Guide：Types of Papers（五種投稿類型）加 OJS 四步驟投稿流程與修訂稿上傳。
+      這頁的 Requirements、Review Process 段落比 jss_authors 簡短、措辭不同（見 warnings），頁面沒有日期可判斷哪一頁較新；規定以 jss_authors 為準；
+      類型清單與投稿步驟只見於本頁。頁面約 350 KB，多數是內嵌的步驟示意圖，文字約 13,000 字元。
+      2026-10-27 官網連不上，內容取自 Internet Archive 於 2026-08-19 的抓取：
+      https://web.archive.org/web/20260819203345id_/https://www.jstatsoft.org/guides/submission
+    fetch:
+      method: browser
+      http_failure_mode: 同 jss_authors（2026-10-27 官網連線逾時，未能測試 curl）。
+      validity:
+        must_contain: "JSS publishes the following types of original contributions"
+        min_extracted_chars: 8000
+    snapshot:
+      fetched_at: 2026-10-27
+      last_verified_at: 2026-10-27
+      extracted_sha256: null
+
+  - id: jss_style_manual
+    role: supporting
+    url: https://www.jstatsoft.org/public/journals/1/jss-style.zip
+    note: >-
+      jss 文件類別的壓縮檔，內含 jss.pdf（風格手冊，首頁標 Achim Zeileis、April 28, 2026）、jss.cls、jss.bst、README.txt。
+      手冊寫：摘要與關鍵字的宣告（關鍵字至少一個、不大寫）、四種文件類型（article、codesnippet、bookreview、softwarereview）、
+      最終版須含完整原始檔。手冊沒有摘要字數上限或篇幅上限。
+      這是二進位檔：verify.py 的 HTML 抽取器對它只能產生決定性的位元組指紋，不是可讀文字；must_contain 只用來確認拿到的是 zip。
+      2026-10-27 官網連不上，zip 取自 Internet Archive 於 2026-08-19 的抓取（網址帶 id_ 為原始位元組）：
+      https://web.archive.org/web/20260819203430id_/https://www.jstatsoft.org/public/journals/1/jss-style.zip
+      下載後解壓到獨立目錄，用 pdftotext 讀 jss.pdf，沒有執行任何檔案。
+    fetch:
+      method: browser
+      http_failure_mode: 同 jss_authors（2026-10-27 官網連線逾時，未能測試 curl）。
+      validity:
+        must_contain: "jss.cls"
+        min_extracted_chars: 100000
+    snapshot:
+      fetched_at: 2026-10-27
+      last_verified_at: 2026-10-27
+      extracted_sha256: null
+
+  - id: scimago
+    role: supporting
+    url: https://www.scimagojr.com/journalsearch.php?q=12137&tip=sid&clean=0
+    note: >-
+      SCImago（SJR）期刊頁：SJR、分區（三個類別各一）、H-index、Scope、ISSN。sid 12137 由
+      journalsearch.php?q=1548-7660&tip=iss 的搜尋結果取得（搜尋頁只列這一筆）。
+      SCImago 把發行者列為 University of California at Los Angeles，與 JSS 官網及 Crossref 的 Foundation for Open Access Statistics 不同。
+      頁面的 "How to publish in this journal" 連結指向 https://www.jstatsoft.org/pages/view/authors（舊路徑）。
+      SCImago 對 curl 回 403 挑戰頁（2026-10-27 實測 HTTP 403、5586 bytes），本次用 Safari 讀。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "Cloudflare 挑戰頁：curl 對 q=12137 的網址回 HTTP 403、5586 bytes（2026-10-27 實測，標題 Just a moment...）；Safari 可正常讀取（約 24,000 字元）"
+      validity:
+        must_contain: "Journal of Statistical Software"
+        min_extracted_chars: 8000
+    snapshot:
+      fetched_at: 2026-10-27
+      last_verified_at: 2026-10-27
+
+  - id: mjl
+    role: supporting
+    url: https://mjl.clarivate.com/home
+    note: >-
+      Clarivate Master Journal List。JS 單頁應用，結果頁網址不帶查詢字串，無法用網址重現；
+      只能在頁內於 #search-box 填 ISSN、按 #search-button 後讀結果列。
+      本次填 1548-7660，結果頁網址是 https://mjl.clarivate.com/search-results。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "SPA 空殼：curl /home 回 HTTP 200、11,428 bytes（2026-10-27 實測），查詢結果需在頁內操作"
+    snapshot:
+      fetched_at: 2026-10-27
+      last_verified_at: 2026-10-27
+
+# ─────────────────────────────────────────────────────────────
+identity:
+  name: Journal of Statistical Software
+  abbreviation: JSS
+  publisher: Foundation for Open Access Statistics
+  publisher_src: jss_submissions
+  publisher_note: >-
+    JSS 官網側欄 "Publisher:Foundation for Open Access Statistics"。MJL 與 SCImago 把發行者列為 UCLA
+    （MJL 的字串為 "JOURNAL STATISTICAL SOFTWARE , UCLA DEPT STATISTICS, 8130 MATH SCIENCES BLDG, BOX 951554, LOS ANGELES, USA, CA, 90095-1554"；
+    SCImago 為 "University of California at Los Angeles"）。Crossref（2026-10-27 查詢，publisher 字串少一個 s："Foundation for Open Access Statistic"）
+    與 OpenAlex（host organization "Foundation for Open Access Statistics"）都指向 FOAS。FOAS 是加州非營利公益法人（501(c)(3)，見 foas_about）。
+  owner: Foundation for Open Access Statistics
+  owner_src: jss_submissions
+  sponsors:
+    - {name: Universität Innsbruck, src: jss_submissions}
+    - {name: Universität Zürich, src: jss_submissions}
+    - {name: UCLA Statistics, src: jss_submissions}
+  sponsors_note: >-
+    官網側欄 "Universität Innsbruck, Universität Zürich, and UCLA Statistics provide support staff, website maintenance, website hosting,
+    and some graduate student support." 伺服器由 Innsbruck 大學營運（jss_about 隱私政策）。
+  issn: {electronic: "1548-7660", src: [jss_submissions, scimago, mjl]}
+  issn_note: >-
+    官網只列一個 ISSN（"ISSN:1548-7660"），沒有分 print／online。MJL 寫 "ISSN / eISSN: 1548-7660"，SCImago 為 15487660，
+    Crossref（2026-10-27 查詢）記為 electronic。官網另列 CODEN JSSOBK。
+  coden: JSSOBK
+  homepage: https://www.jstatsoft.org/
+  established: 1996
+  established_src: jss_mission
+  established_note: 官網 mission 寫 "committed to electronic open-access publishing since its foundation in 1996"；FOAS 頁面寫 "Established in 1996"。
+  frequency: 連續出版（"Each published article will be a separate issue. Issues are published in volumes."）
+  frequency_src: jss_authors
+  article_types_listed: [Scholarly articles（軟體文章）, Code snippets, Special issues, Book reviews, Reviews and comparisons of closed-source statistical software]
+  open_access: 完全開放取用；作者與讀者皆不付費（官網："JSS charges no author fees or subscription fees"）
+  editors:
+    editors_in_chief:
+      - {name: Bettina Grün, affiliation: "Wirtschaftsuniversität Wien"}
+      - {name: Torsten Hothorn, affiliation: "Universität Zürich"}
+      - {name: Rebecca Killick, affiliation: "Clemson University"}
+      - {name: Nathalie Vialaneix, affiliation: "INRAE (Toulouse)"}
+      - {name: Achim Zeileis, affiliation: "Universität Innsbruck"}
+    technical_editor: {name: Reto Stauffer, affiliation: "Universität Innsbruck"}
+    replication_editors:
+      - {name: Kathrin Gruber, affiliation: "Erasmus University Rotterdam"}
+      - {name: Lucas Kook, affiliation: "Copenhagen Business School"}
+      - {name: Patricia Puchhammer, affiliation: "TU Wien"}
+      - {name: Laura Vana-Gür, affiliation: "TU Wien"}
+    editor_publisher: {name: Katharine Mullen, affiliation: "Foundation for Open Access Statistics"}
+    book_review_editor: {name: Ulrike Groemping, affiliation: "Beuth University of Applied Sciences Berlin"}
+    founding_editor: {name: Jan de Leeuw, affiliation: "UCLA"}
+    src: jss_editorial_team
+    note: >-
+      取自編輯部頁面（Internet Archive 2026-10-05 的抓取），另有一位 Junior Editor 與約六十位 Editors，這裡不逐一列出。
+      頁面沒有標示各職務的職責或任期；"Replication Editors" 負責什麼，本次讀到的頁面都沒有說明。
+      投稿須知側欄 "Editors-in-chief" 的五個名字與本頁一致。
+  external_ids:
+    crossref: "1548-7660"
+    openalex: issn:1548-7660
+    scimago: "12137"
+    doaj: "https://doaj.org/toc/1548-7660"
+  indexing:
+    clarivate_mjl:
+      scie: true
+      ssci: false
+      ahci: false
+      esci: false
+      web_of_science_core_collection: Science Citation Index Expanded
+      additional_indexes: [Essential Science Indicators]
+      checked: 2026-10-27
+      search_issn: "1548-7660"
+      mjl_title_string: "JOURNAL OF STATISTICAL SOFTWARE"
+      mjl_publisher_string: "JOURNAL STATISTICAL SOFTWARE , UCLA DEPT STATISTICS, 8130 MATH SCIENCES BLDG, BOX 951554, LOS ANGELES, USA, CA, 90095-1554"
+      src: mjl
+      note: >-
+        搜尋 1548-7660 得 1 筆 "Exact Match Found"（ISSN / eISSN 1548-7660），Web of Science Core Collection 欄只列
+        Science Citation Index Expanded；沒有 SSCI、AHCI、ESCI。Additional Web of Science Indexes 欄只列 Essential Science Indicators
+        （沒有 Current Contents）。
+    publisher_stated:
+      status: not_published
+      checked: 2026-10-27
+      src: jss_submissions
+      note: >-
+        JSS 官網沒有列收錄清單；側欄 External 區只有連結（American Statistical Association Publications、
+        Current Index to Statistics、SCImago、DOAJ、JSS BibTeX Database (1996-2015)、IDEAS）。收錄以上方 MJL 為準。
+  metrics:
+    impact_factor:
+      status: not_found
+      checked: 2026-10-27
+      src: jss_about
+      note: >-
+        JSS 官網與 FOAS 頁面都沒有列 Impact Factor（官網沒有 "Journal Metrics" 區）。JCR 需登入 Clarivate，本次未查，不猜。
+        MJL 顯示本刊在 SCIE，所以 JCR 應有 IF，但數值本次未取得。
+    quartiles:
+      - {system: SJR, category: Software, subject_area: Computer Science, quartile: Q1, year: 2025, as_of: 2026-10-27, src: scimago,
+         note: SCImago 列此類別 2004 年起除 2005 年（Q2）外每年皆為 Q1；頁面不給名次}
+      - {system: SJR, category: Statistics and Probability, subject_area: Mathematics, quartile: Q1, year: 2025, as_of: 2026-10-27, src: scimago,
+         note: SCImago 列此類別 2010–2025 年皆為 Q1；頁面不給名次}
+      - {system: SJR, category: "Statistics, Probability and Uncertainty", subject_area: Decision Sciences, quartile: Q1, year: 2025, as_of: 2026-10-27, src: scimago,
+         note: SCImago 列此類別 2010–2025 年皆為 Q1；頁面不給名次。subject_area 依頁面「Subject Area and Category」清單的排列判讀}
+    jcr_quartile:
+      status: not_found
+      checked: 2026-10-27
+      note: JCR 各類別的分區與名次需登入 Clarivate JCR，本次未查，不猜。上面 quartiles 清單只收直接從 SCImago 頁面讀到的 SJR 分區；SJR 與 JCR 是不同系統，引用時一定要註明。
+    sjr: {value: 3.677, year: 2025, as_of: 2026-10-27, src: scimago, system: SCImago}
+    h_index: {value: 199, as_of: 2026-10-27, src: scimago, system: SCImago}
+    acceptance_rate:
+      status: not_published
+      checked: 2026-10-27
+      src: [jss_authors, jss_mission, jss_about]
+      note: JSS 官網沒有公布接受率或拒絕率，也沒有公布各年投稿量與錄用量。
+    time_to_first_decision:
+      status: not_published
+      checked: 2026-10-27
+      src: [jss_authors, jss_submission_guide]
+      note: >-
+        官網沒有公布首次決定的天數。只有定性的說法："Due to the steadily increasing number of incoming and accepted submissions and limited volunteer resources,
+        publication times can be rather long." 另寫 "Manuscripts longer than 30 pages typically require much longer review times"，
+        以及用較少人用的語言寫的軟體 "authors might have to accept longer review times"。
+    time_submission_to_acceptance:
+      status: not_published
+      checked: 2026-10-27
+      src: [jss_authors, jss_style_manual]
+      note: >-
+        官網沒有公布投稿到接受的天數。JSS 風格手冊的 \Submitdate 與 \Acceptdate 宣告表示已刊出的 PDF 會印出投稿日與接受日
+        （手冊寫這兩項由技術編輯在接受後加入），所以日後可以用已刊出論文抽樣估計；本次官網連不上，沒有做，
+        現有的 sample_review_times.py preset 也不涵蓋 JSS。
+
+# ─────────────────────────────────────────────────────────────
+requirements:
+  refresh: {check_every: P6M, method: extracted_hash_diff}
+
+  scope:
+    aims: >-
+      發表開源統計軟體以及與之對應、可重現的學術文章；範圍是統計計算軟體的設計、實作、文件、應用、評估、比較、維護與發布。
+      程式碼與文章合在一起審查、合在一起出版。
+    src: jss_mission
+    statement_scope: >-
+      "The Journal of Statistical Software (JSS) publishes open-source software and corresponding reproducible scholarly articles discussing
+      all aspects of the design, implementation, documentation, application, evaluation, comparison, maintenance and distribution of software
+      dedicated to improvement of state-of-the-art in statistical computing in all areas of empirical research. Open-source code and articles
+      are jointly reviewed and published in this journal and should be accessible to a broad community of practitioners, teachers, and
+      researchers in the field of statistics."（jss_mission, Scope）
+    statement_types_of_papers: >-
+      "JSS aims at publishing articles describing comprehensive open-source implementations of broad classes of statistical models and procedures
+      or computational infrastructure upon which such implementations can be built. JSS evaluates and publishes software and articles as a unity.
+      Full reproducibility is mandatory for publication and the source code is published along with the article. Articles describing a specific
+      software implementation must present the scope of the software and the underlying models or concepts such that statistically literate readers
+      can understand what the software does. A careful comparison with other open-source implementations of similar models or procedures should
+      highlight the capabilities of all implementations and the corresponding advantages or disadvantages. A description of the design principles
+      and the actual implementation is at the heart of an JSS article. The general analysis workflow must be illustrated by an enlightening
+      non-trivial case study."（jss_mission, Types of Papers）
+    excluded_methodological_innovation:
+      statement: >-
+        "JSS does NOT publish methodological innovations in computational statistics. Novel models or estimation procedures should be published
+        elsewhere prior to the submission of an article describing an implementation thereof to JSS. A subsequent publication of a corresponding
+        software package in JSS is possible but requires a substantial software innovation. In contrast, JSS does not publish supplementary
+        materials to methodological papers, such as implementations of rather specific models or algorithms (or accompanying documentation,
+        algorithmic details, or simulations). Software WITHOUT a corresponding article documenting and illustrating the implementation and
+        application of this software can not be published in JSS."（jss_mission, Types of Papers）
+      reading: >-
+        這是明文排除，不是附條件的勸告：新模型、新估計方法的方法論貢獻不在 JSS 發表，須先在別處刊出；之後若要在 JSS 發表對應的軟體，
+        軟體本身要有 "substantial software innovation"。針對特定模型或演算法的實作，被視為方法論文章的補充材料，也不收。
+        沒有對應文章的純軟體不收。以上是本記錄對原文的整理，判斷是否適用於某份稿件時請回頭看原文。
+      src: jss_mission
+    theory_vs_software:
+      statement: >-
+        官網沒有任何一句話說接受純理論或純方法論的稿件。mission 與 authors 兩頁描述的每一種稿件都是軟體加文章：
+        mission 頁寫 "JSS evaluates and publishes software and articles as a unity."；authors 頁寫 "All new submissions must provide the following
+        attachments: PDF manuscript in JSS style, source code for the software and replication materials for all results from the manuscript"。
+      reading: >-
+        純理論文章與純方法論文章不在 JSS 範圍（這是本記錄的整理，不是官網的原句）；本記錄在 2026-10-27 讀到的頁面中，沒有任何允許理論稿的條文
+        （對照 asa/jcgs 須知頁有 "Articles of a theoretical nature are appropriate, provided that ..."）。
+      src: [jss_mission, jss_authors]
+    narrower_software_goes_to_code_snippets:
+      statement: >-
+        "Descriptions of open-source software targeting less broad problems, for example compact yet sophisticated code to estimate novel models
+        using existing software infrastructure, can be published as code snippets in JSS."（jss_mission）
+      src: jss_mission
+    encouraged: >-
+      "Articles describing a novel software contribution must cover implementations with a similar scope (including those in other languages and for
+      other statistical software environments), and discuss the advantages and disadvantages of the new contribution compared to existing
+      implementations, when possible and also applicable using empirical illustrations. Extensive simulation studies are discouraged."（jss_authors, Requirements）
+    audience: '"... should be accessible to a broad community of practitioners, teachers, and researchers in the field of statistics."（jss_mission）'
+    package_repository_expectation:
+      required: false
+      statement: >-
+        "If at all possible, submitted software should also be available from a standard repository like CRAN, Bioconductor or PyPI (and not just GitHub,
+        GitLab, etc). For R packages, we encourage inclusion of JSS submissions as vignettes in the package."（jss_authors, Software Preparation）
+        mission 頁較短的說法："If at all possible, software should also be available in a structured format from a standard open-source repository."
+      reading: >-
+        不是投稿條件：兩處都用 "if at all possible"，且 CRAN 只是舉例（Bioconductor、PyPI 並列）。但官方明確偏好標準套件庫，
+        不接受「只放在 GitHub、GitLab」作為首選。投稿本身要附原始碼，不要求投稿時套件已上 CRAN；本記錄沒有找到「須先上架」的明文。
+      packaging: >-
+        "For software environments with package/library systems (e.g., R, Python, Stata, etc.), the code needs to come with formatted help files and be
+        packaged for easy installation."（jss_authors）
+      r_specific: >-
+        "For R packages with functions that create compound objects, a minimum expectation is that R's classes and methods systems are leveraged,
+        e.g., by making use of S3 classes and providing standard methods (such as print, plot, and summary)."（jss_authors）
+      src: [jss_authors, jss_mission]
+    code_languages: >-
+      "Code can be in any interpreted or compiled high-level language, such as S/R, SPSS/Matrix, SAS/IML, MATLAB, Python, and Mathematica, Fortran,
+      C, C++, Java, Common Lisp etc."（jss_mission, Code）；authors 頁："It will be more difficult to find appropriate referees for software written in
+      less popular languages and authors might have to accept longer review times."
+    software_license:
+      required: "GPL-2、GPL-3 或與 GPL 相容的授權"
+      statement: >-
+        "Code distributed with JSS articles uses the GNU General Public License (GPL) version 2 or version 3 or a GPL-compatible license. JSS does NOT
+        consider software distributed under other licenses."（jss_mission, Copyright and Costs）；authors 頁："Code needs to include the GNU General Public
+        Licence (GPL), versions GPL-2 or GPL-3, or a GPL-compatible license for publication in JSS."
+      checklist: 投稿時的 checklist 要勾 "The license(s) of the software is clearly indicated (includes the GPL-2 or GPL-3 or a GPL-compatible license for publication in JSS)."
+      src: [jss_mission, jss_authors, jss_submissions]
+    not_a_repository: >-
+      "Although JSS publishes the source-code alongside with an article, it does NOT serve as a software repository for software distribution.
+      It is not possible to update code or articles once they are published."（jss_mission, Code）
+    special_issues: >-
+      "JSS publishes special issues on topics in statistical computing and statistical software. ... Potential guest editors of such a special issue
+      are welcome to send proposals to the editors-in-chief."（jss_mission）
+    src_all: [jss_mission, jss_authors, jss_submission_guide]
+
+  article_types:
+    - id: article
+      label: Scholarly articles（軟體文章）
+      description: >-
+        "Scholary articles describing statistical software implemented in any language, together with the actual software in human-readable form
+        (peer-reviewed)."（jss_submission_guide，原文 "Scholary" 有誤植）
+      typical_structure: >-
+        "The typical JSS paper will have a section explaining the statistical technique, a section explaining the code, a section with the actual code,
+        and a section with examples. Special emphasis is given to a careful review of existing implementations and a discussion of the advantages and
+        disadvantages of the contribution in comparison to other solutions."（jss_submission_guide）
+      limits: 見 length（沒有頁數上限）
+      src: [jss_submission_guide, jss_mission]
+    - id: code_snippet
+      label: Code snippets
+      description: >-
+        "“Code snippets”: descriptions of smaller code projects in any language (peer-reviewed)."（jss_submission_guide）；
+        mission："Descriptions of open-source software targeting less broad problems, for example compact yet sophisticated code to estimate novel models
+        using existing software infrastructure, can be published as code snippets in JSS."
+      production: 'style 頁："Code snippet contributions are produced in the same way as articles. You only have to switch the from \documentclass[article]{jss} to \documentclass[codesnippet]{jss} in the first line of the LaTeX document."（原文 "switch the from" 有誤植）'
+      limits: {status: not_published, checked: 2026-10-27, src: [jss_submission_guide, jss_style, jss_style_manual], note: 沒有找到 code snippet 的長度規定}
+      src: [jss_submission_guide, jss_mission, jss_style]
+    - id: special_issue
+      label: Special issues
+      description: >-
+        "Special issues on topics in statistical computing and software (by invitation, guest editors, peer-reviewed, suggestions welcome)."（jss_submission_guide）
+        一般作者不能直接投稿特刊；潛在客座編輯把提案寄給 editors-in-chief。
+      src: [jss_submission_guide, jss_mission]
+    - id: book_review
+      label: Book reviews
+      description: >-
+        "Reviews of books on statistical computing and software (by invitation, suggestions welcome)."（jss_submission_guide）；
+        mission："Book reviews published in JSS are overseen and solicited by the book editor."
+      src: [jss_submission_guide, jss_mission]
+    - id: closed_source_software_review
+      label: Reviews and structured comparisons of closed-source statistical software
+      description: >-
+        "Reviews and comparisons of closed-source statistical software (by invitation, suggestions welcome)."（jss_submission_guide）；
+        mission 說 closed-source 指授權與 GPL 不相容的軟體，潛在作者須先聯絡 editors-in-chief；
+        "Assessments or comparisons of open-source software are not within the scope of this section."（開源軟體的比較要用一般文章投稿）
+      src: [jss_submission_guide, jss_mission]
+
+  length:
+    value: 30
+    unit: pages_typeset
+    limit: none_stated_as_unlimited
+    kind: no_limit_review_time_threshold
+    basis: {template: "JSS LaTeX 樣式（jss.cls）排出的 PDF 頁數；官網沒有定義這裡的 page 是哪種版面"}
+    statement: >-
+      "There is no page limit, nor a limit on the number of figures or tables. Manuscripts longer than 30 pages typically require much longer review times.
+      However, more important for the review times incurred might be that the manuscript is carefully written exhibiting high readability."（jss_authors）
+    exceptions: >-
+      value: 30 不是上限，是官網舉出「審查時間會明顯變長」的頁數門檻；上限欄位用 limit: none_stated_as_unlimited 表達。
+      Code snippets 與評論的長度，官網沒有規定。
+    src: [jss_authors, jss_submission_guide]
+
+  abstracts:
+    - id: main
+      required_at: submission
+      max_words:
+        status: not_published
+        checked: 2026-10-27
+        src: [jss_style_manual, jss_authors, jss_submission_guide]
+        note: >-
+          投稿系統第 3 步要求 "title, abstract and list of contributors"（jss_submission_guide）；風格手冊的 \Abstract 宣告沒有字數上限，
+          LaTeX 類別在沒有摘要時會印 "an abstract is required"。官網沒有字數規定。
+      src: [jss_submission_guide, jss_style_manual]
+
+  keywords:
+    min: 1
+    note: >-
+      風格手冊："A comma-separated list of (at least one) keyword(s) which should not be capitalized"，LaTeX 類別在沒有關鍵字時會印
+      "at least one keyword is required"。官網沒有關鍵字上限。
+    src: jss_style_manual
+
+  formatting:
+    language: English（"Manuscripts must be written in English using the LaTeX text processing system."）
+    typesetting_system: >-
+      必須用 LaTeX 與 JSS 樣式檔；"Only PDF files can be submitted."（投稿時只收 PDF 稿）。
+      "Manuscripts not meeting the formal requirements will be returned to the authors immediately. JSS has no resources to help authors with conversions
+      from other typesetting environments..."（jss_authors）
+    style_guide: {name: JSS Style Guide, url: "https://www.jstatsoft.org/style", src: jss_style}
+    templates:
+      - {id: article_tex, file: jss-article-tex.zip, note: 純 LaTeX 範本（article.tex、refs.bib、article.R 與全部樣式檔）}
+      - {id: article_rnw, file: jss-article-rnw.zip, note: R/LaTeX（Sweave 或 knitr）範本，style 頁建議 R 軟體的作者用}
+      - {id: review_tex, file: jss-review-tex.zip, note: 軟體評論與書評範本}
+      - {id: style_manual, file: jss-style.zip, note: jss.cls、jss.bst 與 jss.pdf 手冊}
+    templates_src: jss_style
+    document_class_types: [article, codesnippet, bookreview, softwarereview]
+    style_checklist: [可用 pdfLaTeX 編譯, "\\proglang、\\pkg、\\code 全文一致使用", 參考文獻放 .bib 並用 \\cite 系列指令, 標題用 title style、章節用 sentence style, 圖表與公式用 \\label 與 \\ref, 軟體套件要正確引用]
+    final_version: >-
+      手冊："The final version of JSS papers should be prepared using this JSS style file; the submission of the final version needs to include the full sources
+      (.tex, .bib, and all graphics)."（jss_style_manual）
+    code_in_manuscript: 程式碼以正常文字流呈現，運算子前後與逗號後要有空格；程式碼區塊內不放註解，註解寫在內文（jss_style FAQ）
+    page_layout_changes: 手冊："no packages must be loaded that change the page layout, the font, or font encoding."
+    src: [jss_authors, jss_style, jss_style_manual]
+
+  structure:
+    cover_letter:
+      status: not_published
+      checked: 2026-10-27
+      src: [jss_authors, jss_submission_guide]
+      note: 投稿第 1 步有給編輯的留言欄（"space to add a comment to the editors"），官網沒有要求 cover letter。
+    required_attachments:
+      - PDF manuscript in JSS style
+      - source code for the software
+      - replication materials for all results from the manuscript（最好是單一、有註解的獨立複製腳本）
+    required_attachments_src: [jss_authors, jss_submissions]
+    attachment_size: >-
+      "JSS only allows file uploads up to a maximum size of 50 megabyte (MB). If there is a need for bigger supplementary files, the authors should include
+      a file containing the download instructions with a link to the external data source. If the authors do not have the resources to provide these files
+      on an external server, please contact the JSS editors at editor@jstatsoft.org."（jss_authors）
+    statements_required:
+      - {id: privacy_policy, content: 投稿時勾選 "I/we have read and agree to the Privacy Policy of this journal.", src: jss_submissions}
+      - {id: manuscript_in_jss_style, content: 勾選已備妥 JSS 樣式的 PDF 稿, src: jss_submissions}
+      - {id: source_code, content: 勾選已備妥軟體原始碼, src: jss_submissions}
+      - {id: replication_materials, content: 勾選已備妥所有結果的複製材料（最好是獨立複製腳本）, src: jss_submissions}
+      - {id: license, content: 勾選已清楚標示軟體授權（GPL-2、GPL-3 或與 GPL 相容）, src: jss_submissions}
+    statements_not_required: >-
+      官網沒有要求經費來源聲明、利益衝突聲明、資料可得性聲明或生成式 AI 使用聲明（見 policies 的 not_published）。
+
+  review:
+    type: not_published
+    type_note: >-
+      官網只寫 "The software and manuscript will be peer reviewed by the statistical software community."，沒有說審稿人與作者之間是單匿名、雙匿名還是公開；
+      authors、submission guide、mission、about 四頁都沒有 anonymity 或 blind 的字眼。
+    flow: >-
+      "The editor-in-chief selects a section editor, the section editor selects two reviewers (one of whom can be the section editor)."（jss_authors）
+      jss_submission_guide 的措辭："Following initial review, the editor-in-chief selects a section editor, ..."
+    number_of_reviewers: 2（其中一位可以是 section editor）
+    two_parts: >-
+      "The review has two parts: both the software and the manuscript are reviewed. The software should work as indicated, be clearly documented,
+      and serve a useful purpose. Reviewers are instructed to evaluate both correctness and usefulness. Reviewers are expected to verify that manuscripts
+      are reproducible, and to only recommend conditional acceptance after reproducibility problems have been completely resolved."（jss_authors）
+    decisions:
+      reject: [decline（編輯部退稿，未送審）, reject（審後退稿，可能在修訂之後）]
+      revise: [resubmit for review（回到兩位審稿人與編輯）, revision required（只回到編輯）]
+      accept: ["(conditional) accept"]
+      src: jss_authors
+    revision_rules:
+      - 任何階段的修訂都必須附逐點回覆審稿人與編輯的 point-to-point reply
+      - "要求修訂後六個月內沒有收到修訂稿，視為撤稿（\"considered to be withdrawn\"）"
+      - "有條件接受的稿件一年內沒有整理成最終版，視為撤稿"
+      - "被 JSS 退稿的稿件不能重投（\"Manuscripts rejected by JSS cannot be resubmitted.\"）"
+    revision_rules_src: jss_authors
+    reviewer_selection_by_author:
+      status: not_published
+      checked: 2026-10-27
+      src: [jss_authors, jss_submission_guide]
+      note: 官網沒有說作者能否建議或排除審稿人。
+    replication_editors: >-
+      編輯部名單列有四位 "Replication Editors"（見 identity.editors），但本次讀到的頁面都沒有描述他們在審查流程中的職責或介入時點；
+      官網寫的複製檢查是由審稿人執行（"Reviewers are expected to verify that manuscripts are reproducible"）。
+    publication_times_statement: >-
+      "Due to the steadily increasing number of incoming and accepted submissions and limited volunteer resources, publication times can be rather long.
+      Compliance by authors to JSS standards and instructions typically speeds-up this process considerably."（jss_authors）
+    src: [jss_authors, jss_submission_guide]
+    conditional:
+      - id: closed_source_review_authors
+        optional: true
+        when: 想寫 closed-source 統計軟體的評論或比較
+        requirements:
+          - 須事先聯絡 editors-in-chief，才能開始寫（mission 頁："potential authors of reviews and software comparisons should contact the editors-in-chief prior to engaging in such work"）
+      - id: result_too_large_to_upload
+        optional: true
+        when: 附件超過 50 MB 上傳上限
+        requirements:
+          - 在投稿中說明原因並附外部下載連結；沒有外部空間時寄信給 editor@jstatsoft.org
+
+  openness:
+    code_and_data:
+      expectation: >-
+        "All new submissions must provide the following attachments: PDF manuscript in JSS style, source code for the software and replication materials
+        for all results from the manuscript, preferably via a single, commented standalone replication script. The replication materials must enable
+        reproducibility of all results from the manuscript (see also Review Process). In case the attachments are too large for upload, this should be
+        explained in the submission and a link should be provided."（jss_authors, Requirements）
+      strength: mandatory（投稿時必附；"Full reproducibility is mandatory for publication"，jss_mission）
+      due_at: submission（初次投稿就要附原始碼與複製材料；修訂稿的附件另上傳新檔，檔名加版本號）
+      src: [jss_authors, jss_mission, jss_submissions]
+    reproducibility:
+      required: true
+      what_must_be_submitted:
+        - PDF 稿（JSS 樣式）
+        - 軟體原始碼（ASCII 檔；可讀、有註解；有套件系統的環境要附格式化的說明檔並打包成可輕鬆安裝）
+        - 稿中所有結果的複製材料，最好是單一、有註解的獨立複製腳本
+        - 稿中結果用到的資料（官網沒有逐項列資料，只說複製材料須使軟體可重現全部結果）
+      standard: >-
+        "All figures, tables, and other output presented in the manuscript must be fully and exactly reproducible on at least one platform. Please indicate any
+        platform dependencies with the submission. Make sure to initialize the generator for pseudo random numbers if the results rely on some form of simulation."（jss_authors）
+        jss_submission_guide 另有 "Ideally, reproducibility should be ensured across platforms as well and, if this case cannot be attained, the manuscript should
+        discuss the reasons for such a limitation."
+      runtime_guideline: >-
+        "As a rough guideline, anybody with sufficient technical background should be able to install the software and to run the replication material within
+        reasonable time (one hour on a regular PC). In case there are good reasons that replication should take considerably longer or requires special hardware,
+        the authors should in addition to the “full” replication script supply a script that replicates similar results within reasonable time on a regular PC."（jss_authors）
+      output_file: >-
+        "To facilitate review, authors are strongly encouraged to provide an output file that shows the results from running the single standalone replication script
+        so that this can be compared against the results presented in the manuscript. For R submissions, this should be done by providing a file “code.html” created
+        by running knitr::spin(“code.R”) on the replication script “code.R” which should include a call to sessionInfo() at the end."（jss_authors）
+      check_by_reviewers: >-
+        "Reviewers are expected to verify that manuscripts are reproducible, and to only recommend conditional acceptance after reproducibility problems have been
+        completely resolved."（jss_authors, Review Process）
+      check_at_acceptance: >-
+        "Accept decisions are always conditional on delivering a manuscript that satisfies the JSS style and reproducibility requirements. It is the responsibility of
+        the author to make sure the manuscript conforms with the JSS requirements. Accepted manuscripts that do not satisfy these requirements cannot be published."（jss_authors, Publishing Process）
+      final_version: 接受後交最終版時，須含完整原始檔（.tex、.bib、所有圖；jss_style_manual）
+      published_artifacts: 程式碼隨文章一起出版（"the source code is published along with the article"，jss_mission；FOAS 也寫 "distributes code along with all of its articles"）；已出版的程式碼與文章不能再更新（jss_mission）
+      src: [jss_authors, jss_mission, jss_submissions, jss_style_manual, foas_philosophy]
+    data_availability_statement:
+      status: not_published
+      checked: 2026-10-27
+      src: [jss_authors, jss_submissions, jss_style_manual]
+      note: 官網沒有要求資料可得性聲明；複製材料本身就是必附項目（見 reproducibility）。
+    software_citation:
+      required: true
+      statement: >-
+        style FAQ："Many software packages tell their users how they want to be cited ... If there is no recommended citation, please cite the corresponding manual or
+        webpage." 風格檢查清單："Software packages are \cite{}d properly."
+      r_packages: R 套件先看有沒有官方引用（CRAN 頁面或 citation("foo")）；沒有就用 CRAN 風格的 @Manual 條目
+      src: [jss_style, jss_style_manual]
+    package_reflects_jss_paper: >-
+      style FAQ 建議 R 套件的作者：在說明檔的 \references{} 引用 JSS 論文、加入 inst/CITATION（由 JSS 編輯在最終稿時提供）、
+      並把 JSS 論文改成套件的 vignette（用 jss 類別的 nojss 選項）。
+    license_for_published_article: >-
+      "The Journal of Statistical Software has chosen to apply the Creative Commons Attribution License to all articles we publish in this journal."（jss_submissions）；about 頁指出是 Creative Commons Attribution 3.0 Unported License。
+      作者保留版權（"authors retain ownership of the copyright for their article"）。DOAJ 的記錄列的是 CC BY 4.0，與官網寫的 3.0 不同，以官網為準。
+    src: [jss_mission, jss_about, jss_submissions]
+
+  authorship:
+    taxonomy: {status: not_published, checked: 2026-10-27, src: [jss_authors, jss_style_manual], note: 沒有 CRediT 或作者貢獻聲明的要求}
+    orcid: {required: false, note: '風格手冊："If authors have an ORCID it is recommended to include \usepackage{orcidlink} in the header"', src: jss_style_manual}
+    author_affiliation_format: 手冊：每位作者後面接換行與單位（只寫大學，單行）；作者之間用 \And；至少一位作者提供地址（含 email、URL）
+    contributors_in_system: 投稿者在 OJS 第 3 步輸入 title、abstract 與共同作者名單（系統自動把投稿帳號當第一作者，可修改）
+    account_required: 是；投稿者須註冊並把角色改為 Author（jss_submission_guide）
+    src: [jss_style_manual, jss_submission_guide]
+
+  submission:
+    system: Open Journal Systems（OJS 3，Public Knowledge Project）
+    system_src: [foas_jss, jss_submission_guide]
+    portal:
+      url: https://www.jstatsoft.org/submission/wizard
+      verified: false
+      note: >-
+        取自 Submission Guide 步驟 1 的 "use this link"（相對路徑 /submission/wizard，Internet Archive 2026-08-19 的抓取）；
+        2026-10-27 官網連不上，未實際載入確認，登入後才進得去。註冊網址 https://www.jstatsoft.org/index.php/jss/user/register。
+    steps: [1 選投稿類型並確認條件（可留言給編輯）, 2 上傳 PDF 稿與其他材料（軟體、複製腳本、複製材料、參考材料）, 3 填 title、abstract 與作者名單, 4 確認並按 Finish Submission（再跳一次確認視窗）]
+    file_components: ['PDF Manuscript（稿件）', 'Other（其餘全部：軟體、複製腳本、資料、參考材料）']
+    revisions: 修訂稿在投稿的 REVIEW 頁上傳；補充檔案以新檔上傳並在檔名加版本號；全部傳完後在 add discussion 留言通知編輯。
+    contact: editor@jstatsoft.org
+    similarity_screening: {status: not_published, checked: 2026-10-27, src: [jss_authors, jss_submission_guide]}
+    language: English only
+    src: [jss_submission_guide, jss_submissions]
+
+  fees:
+    submission: 0
+    page_charges: 0
+    publication_fee: 0
+    statement: >-
+      "As a matter of principle, JSS charges no author fees or subscription fees. Our editors, reviewers, and programmers are volunteers."（jss_submissions, Support）；
+      authors 頁："JSS charges no author fees or subscription fees. The journal does expect the same level of commitment from authors seeking to publish in JSS."
+    apc:
+      amount: 0
+      currency: USD
+      mandatory: false
+      note: 無 APC。官網沒有提到彩圖費、超頁費或 waiver。
+      src: [jss_submissions, jss_authors, foas_jss]
+    support_model: >-
+      Support 區："Universität Innsbruck, Universität Zürich, and UCLA Statistics provide support staff, website maintenance, website hosting, and some graduate student support.
+      ... You can support us by becoming a member of the Foundation for Open Access Statistics at www.foastat.org, and by contributing on their donation page."
+    src: [jss_submissions, jss_authors, foas_jss]
+
+  policies:
+    dual_submission: {status: not_published, checked: 2026-10-27, src: [jss_authors, jss_mission, jss_submissions, jss_submission_guide], note: 官網沒有一般性的重複投稿條文}
+    resubmission_after_rejection: forbidden（"Manuscripts rejected by JSS cannot be resubmitted. We hope the review process gives the authors sufficient information to submit to another journal."）
+    prior_publication_of_methods: >-
+      新模型與估計方法須先在別處發表，才能投稿描述其實作的 JSS 文章（見 scope.excluded_methodological_innovation）；這是 scope 條文，不是一般的重複發表政策。
+    preprints: {status: not_published, checked: 2026-10-27, src: [jss_authors, jss_mission, jss_submission_guide, jss_style], note: 官網沒有 preprint 政策}
+    generative_ai: {status: not_published, checked: 2026-10-27, src: [jss_authors, jss_mission, jss_submission_guide, jss_style, jss_style_manual], note: 官網沒有生成式 AI 的使用或聲明規定}
+    conflict_of_interest: {status: not_published, checked: 2026-10-27, src: [jss_authors, jss_submission_guide, jss_style_manual]}
+    plagiarism: {status: not_published, checked: 2026-10-27, src: [jss_authors, jss_submissions]}
+    ethics: {status: not_published, checked: 2026-10-27, src: [jss_authors, jss_about], note: 官網沒有獨立的出版倫理政策頁；about 頁只有隱私政策}
+    copyright: >-
+      作者保留版權；全部文章採 Creative Commons Attribution License（about 頁：3.0 Unported），任何人只要註明原作者與出處即可下載、重用、修改、散布。
+      隨文章發布的程式碼採 GPL-2 或 GPL-3 或與 GPL 相容的授權。
+    withdrawal: 要求修訂後六個月未回、或有條件接受後一年未完成最終版，皆視為撤稿（jss_authors）
+    src: [jss_authors, jss_mission, jss_about, jss_submissions]
+
+  standards:
+    - id: jss-style
+      label: JSS Style Guide 與 jss.cls／jss.bst
+      url: https://www.jstatsoft.org/style
+      required: true
+      level: 投稿 PDF 須依 JSS 樣式；不合形式的稿件會被立刻退回
+    - id: gpl
+      label: GNU General Public License（GPL-2、GPL-3）或與 GPL 相容的授權
+      url: https://gnu.org/licenses/license-list.html#GPLCompatibleLicenses
+      required: true
+      level: 軟體授權條件
+    - id: rOpenSci-stats-review
+      label: rOpenSci Statistical Software Peer Review book
+      required: false
+      level: 官網："It is not necessary for a JSS submission to fully conform with all the standards described there, though."（只是建議作者與審稿人參考）
+
+# ─────────────────────────────────────────────────────────────
+cycle:
+  applies_to: null
+  rolling_calls: []
+  note: >-
+    2026-10-27 沒有找到開放中的特刊徵稿：Internet Archive 2026-08-19 抓取的 Announcements 頁最新一則是 2021-09-27。
+    官網說特刊的客座編輯提案可寄給 editors-in-chief（jss_mission）。
+
+# ─────────────────────────────────────────────────────────────
+warnings:
+  - 【scope 是最大風險】JSS 明文不收方法論創新："JSS does NOT publish methodological innovations in computational statistics. Novel models or estimation procedures should be published elsewhere prior to the submission"；對應的軟體之後可投，但須有 "substantial software innovation"；針對特定模型或演算法的實作視為方法論文章的補充材料，也不收；沒有對應文章的軟體不收。目標是「廣泛類別的統計模型與程序的完整開源實作，或其運算基礎設施」，較窄的用 code snippet
+  - 理論稿不在範圍：2026-10-27 讀到的頁面中沒有任何允許純理論或純方法論稿件的條文（與 asa/jcgs 允許附條件的理論稿不同）
+  - 套件不需要已上 CRAN 才能投稿，但官方偏好標準套件庫：「if at all possible」應同時放 CRAN、Bioconductor 或 PyPI，「not just GitHub, GitLab」；R 套件的複合物件至少要用 S3 類別與 print、plot、summary 方法
+  - 可重現性在初次投稿就必附：PDF 稿、原始碼、所有結果的複製材料（最好是單一獨立腳本）；結果須在至少一個平台上完全可重現；建議在一般 PC 上一小時內跑完，否則另附快速版腳本；審稿人要驗證可重現性，有條件接受之前要解決所有可重現性問題；接受是有條件的，最終稿不符樣式與可重現要求就不出版
+  - 軟體授權限 GPL-2、GPL-3 或與 GPL 相容；"JSS does NOT consider software distributed under other licenses."；已出版的程式碼與文章不能更新，JSS 不是軟體庫
+  - 稿件須用 LaTeX 與 JSS 樣式檔、只收 PDF；官網不協助從 Word 等轉檔；不符形式的稿件立刻退回；沒有頁數上限但超過 30 頁審查時間明顯變長；"Extensive simulation studies are discouraged."
+  - 被 JSS 退稿的稿件不能重投
+  - 官網沒有公布 IF、接受率、首次決定天數、投稿到接受天數；只有定性說法 "publication times can be rather long"（志工營運）。JCR 的 IF 與分區需登入，本次未查（not_found）；SJR 分區（SCImago，2025）三個類別皆為 Q1，不是 JCR
+  - 官網沒有寫審稿是單匿名、雙匿名或公開；也沒有 preprint、生成式 AI、利益衝突、重複投稿、倫理的政策條文（查過 authors、mission、about、submissions、guides/submission、style 六頁）
+  - 【來源狀態】2026-10-27 jstatsoft.org 連不上（TCP 逾時，五個國家的探測點也逾時），所有 JSS 頁面取自 Internet Archive 的存檔（抓取日 2026-08-02 至 2026-10-05，各 source 的 note 有網址），不是官網現場；官網恢復後要用 Safari 重讀確認規定沒有變
+  - jss_authors 與 jss_submission_guide 兩頁的措辭不同：authors 頁較詳，寫審稿人要驗證可重現性、一小時建議、code.html 與 CRAN 等標準套件庫偏好；guide 頁較簡短，另有跨平台可重現的敘述；頁面都沒有日期，哪一頁較新無從判斷，本記錄以 authors 頁為準
+  - SCImago 與 MJL 把發行者列為 UCLA，JSS 官網與 Crossref 的發行者是 Foundation for Open Access Statistics；官網側欄的支持單位是 Innsbruck、Zürich 與 UCLA Statistics
+  - 官網導覽列的路徑是 /index.php/jss/authors 等，SCImago 與 DOAJ 仍連到舊路徑 /pages/view/authors；舊路徑存檔最後一次回 200 是 2021-09，現在是否導向新路徑本次未能測試

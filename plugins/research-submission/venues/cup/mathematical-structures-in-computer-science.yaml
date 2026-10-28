@@ -1,0 +1,982 @@
+--- # research-submission venue record
+# 內容擷取自 Cambridge Core 的期刊頁面（出版：Cambridge University Press）、ScholarOne 投稿入口的登入頁、SCImago 與
+# Clarivate Master Journal List，全部 2026-10-25。Cambridge 各子頁、ScholarOne、SCImago、MJL 經 Safari 讀頁面文字
+# （document.body.innerText）；latest-issue 頁的一句編輯按語與 measuring-impact 頁的 Clarivate 指標說明，Safari 的 innerText
+# 讀不到（前者在收合的摘要裡，後者內文不出現），改用 curl 取得的原始 HTML 抽出文字，見各 source 的 note。
+# 出刊頻率與特刊的判斷另參考 Cambridge 的 All issues 與 Collections 頁，這兩頁只用 curl 取得的 HTML，沒有用 Safari 讀，也沒有列為 source。
+# Cambridge 的頁面對 curl 都回正常內容（沒有 bot 挑戰頁），所以各 Cambridge source 的 fetch.method 記 http。
+# ScholarOne 與 SCImago 對 curl 回 HTTP 403 的 Cloudflare 挑戰頁，只能用 Safari 讀，記 method: browser。
+# MSCS 的須知集中在 Cambridge 的 Author instructions 底下四頁（首頁的 Editorial policy、Preparing your materials、
+# Submitting your materials、Fees and pricing），沒有像 JSL 那樣分散到學會網站。期刊首頁連到
+# .../information/instructions-contributors，該網址 2026-10-25 轉址到 .../information/author-instructions。
+# 另外讀過但內容不足以成為 source 的頁面：contact-details（只有 Cambridge 通用的聯絡指引）、post-publication-impact
+# （Altmetric 與分享的通用說明）、reviewer-benefits 沒有讀。
+
+schema_version: 1
+id: cup/mathematical-structures-in-computer-science
+kind: journal
+family: logic-journals
+status: active
+
+# ─────────────────────────────────────────────────────────────
+# 來源與 provenance。所有 Cambridge 網址皆由期刊首頁與 Journal information 選單的連結取得，非推測。
+# ─────────────────────────────────────────────────────────────
+sources:
+  - id: cup_instructions
+    role: authoritative
+    url: https://www.cambridge.org/core/journals/mathematical-structures-in-computer-science/information/author-instructions
+    note: >-
+      Author instructions 首頁，頁內小標 "Editorial policy"：本刊範圍的官方敘述（五段），是範圍的本體，比首頁的一段長得多。
+      另有 "Article Type Publication Costs" 小標，只有一段 APC 豁免的文字，沒有文章類型表。
+      期刊首頁的連結 .../information/instructions-contributors 轉址到這一頁。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "The journal aims to bridge the gap between theoretical contributions and software design"
+        min_extracted_chars: 3000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: cup_preparing
+    role: authoritative
+    url: https://www.cambridge.org/core/journals/mathematical-structures-in-computer-science/information/author-instructions/preparing-your-materials
+    note: >-
+      Cambridge 的 "Preparing your materials"：檔案格式（PDF，LaTeX 另附）、版面（雙行距、摘要不超過 300 字）、圖、編號、Harvard 參考文獻格式、
+      作者單位、競爭利益聲明、ORCID（通訊作者必填）、先前發表政策、補充材料、AI 工具聲明、無障礙要求。沒有頁數或字數上限。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Papers should begin with an abstract of not more than 300 words"
+        min_extracted_chars: 10000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: cup_submitting
+    role: authoritative
+    url: https://www.cambridge.org/core/journals/mathematical-structures-in-computer-science/information/author-instructions/submitting-your-materials
+    note: >-
+      投稿入口（ScholarOne，https://mc.manuscriptcentral.com/mscs）、投稿即表示未曾發表也未在別處審查、LaTeX 版本在錄取時須交、ORCID、licence to publish。
+      頁內顯示的網址文字被截成 "http://mc.manuscriptcentral.co..."，實際 href 為 http://mc.manuscriptcentral.com/mscs（頁內另有 "Proceed to submission system"
+      按鈕連到 https://mc.manuscriptcentral.com/mscs）。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Papers must be submitted as a PDF via the following online submission system"
+        min_extracted_chars: 3500
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: cup_fees
+    role: authoritative
+    url: https://www.cambridge.org/core/journals/mathematical-structures-in-computer-science/information/author-instructions/fees-and-pricing
+    note: APC 的金額表（GBP、USD）。頁面沒有彩色費、頁費或投稿費。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Article Processing Charges for this journal"
+        min_extracted_chars: 1800
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: cup_oa
+    role: authoritative
+    url: https://www.cambridge.org/core/journals/mathematical-structures-in-computer-science/information/journal-policies/open-access-options
+    note: 開放取用選項、機構協議、Green OA（沒有寫禁運月數）、Plan S、preprint 政策。頁面沒有申請 APC 豁免的辦法（見 warnings）。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "This journal allows preprints to be posted anywhere at any time"
+        min_extracted_chars: 3500
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: cup_review
+    role: authoritative
+    url: https://www.cambridge.org/core/journals/mathematical-structures-in-computer-science/information/peer-review-information/review-process
+    note: 審稿模式（單匿名）；全頁只有一段，沒有申訴辦法（申訴見 cup_ethics）。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "single-anonymized model of peer review"
+        min_extracted_chars: 1400
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: cup_ethics
+    role: authoritative
+    url: https://www.cambridge.org/core/journals/mathematical-structures-in-computer-science/information/journal-policies/publishing-ethics
+    note: >-
+      Cambridge 的出版倫理政策在本刊的版本：作者資格與通訊作者責任、剽竊、重複發表、文字重用、論文改寫、審稿（至少兩位獨立審稿人、單匿名）、
+      補充材料不審查、競爭利益、申訴。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "This journal usually requires a minimum of two independent peer reviewers"
+        min_extracted_chars: 9000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: cup_transparency
+    role: authoritative
+    url: https://www.cambridge.org/core/journals/mathematical-structures-in-computer-science/information/journal-policies/research-transparency
+    note: Research transparency（資料與程式碼政策）：只是鼓勵，沒有強制條文。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "We encourage the use of Data Availability Statements"
+        min_extracted_chars: 2000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: cup_home
+    role: supporting
+    url: https://www.cambridge.org/core/journals/mathematical-structures-in-computer-science
+    note: 期刊首頁：ISSN、主編、範圍一段、News（最新一則 2020-11-10）、導覽選單。各子頁連結從 Journal information 選單取得。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "publishes work that uses mathematical structures to advance the theory and practice of computer science"
+        min_extracted_chars: 2400
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: cup_about
+    role: supporting
+    url: https://www.cambridge.org/core/journals/mathematical-structures-in-computer-science/information/about-this-journal
+    note: ISSN、出刊頻率（"1 issue per year"）、範圍一段（與首頁相同）、數位典藏。沒有寫擁有者或代表哪個學會出版。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Frequency: 1 issue per year"
+        min_extracted_chars: 2000
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: cup_latest
+    role: supporting
+    url: https://www.cambridge.org/core/journals/mathematical-structures-in-computer-science/latest-issue
+    note: >-
+      最新一期（Volume 34, Special Issue 10，2024 年 11 月）。該期 Editorial Preface 的摘要欄有一句
+      "Last issue of MSCS before moving to continuous publishing"，是本刊改為連續出版的官方說法。這句在收合的摘要裡，
+      Safari 的 innerText 讀不到，本記錄引用的是 curl 取得的原始 HTML 抽出的文字。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Last issue of MSCS before moving to continuous publishing"
+        min_extracted_chars: 5000
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: cup_collections
+    role: supporting
+    url: https://www.cambridge.org/core/journals/mathematical-structures-in-computer-science/collections
+    note: >-
+      本刊的 Collections 頁，2026-10-25 列四個專輯：Rosolini Festschrift: Effectiveness and Continuity in Categorical Logic；
+      Differential Structures in Computer Science and in Mathematics；WoLLIC 2023；LSFA 2021 and LSFA 2022。頁面只有標題清單，沒有徵稿說明。
+      這一頁 Safari 沒有讀，只用 curl 取得的 HTML。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Differential Structures in Computer Science and in Mathematics"
+        min_extracted_chars: 1200
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: cup_collection_differential
+    role: supporting
+    url: https://www.cambridge.org/core/journals/mathematical-structures-in-computer-science/collections/differential-structures-in-computer-science-and-in-mathematics
+    note: >-
+      專輯 "Differential Structures in Computer Science and in Mathematics" 的文章清單：8 篇，刊出日期 2024-10-21 至 2026-04-07，
+      含一篇 Foreword for the special issue（2025-10-27，署名 Cockett、Cruttwell、Kerjean、Lemay）。
+      文章標題與摘要來自 curl 取得的 HTML；Safari 的 innerText 只讀到前兩篇（原因未查），標題與日期以 curl 為準。
+      這一頁是本刊已刊出文章的紀錄，不是範圍條款，也不是徵稿。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Foreword for the special issue"
+        min_extracted_chars: 8000
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: cup_pubproc
+    role: supporting
+    url: https://www.cambridge.org/core/journals/mathematical-structures-in-computer-science/information/author-instructions/publication-process-after-acceptance
+    note: 錄取後流程：Author Information Form、製作、FirstView（線上先行發表，之後不可再修訂）、更正。沒有寫校樣或上線時程。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "uses the FirstView system"
+        min_extracted_chars: 2800
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: cup_agreement
+    role: supporting
+    url: https://www.cambridge.org/core/journals/mathematical-structures-in-computer-science/information/author-instructions/publishing-agreement
+    note: Publishing agreement：Gold OA 用非專屬授權，非 Gold OA 用專屬授權，著作權歸屬不變。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Before Cambridge can publish a journal article"
+        min_extracted_chars: 4000
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: cup_rights
+    role: supporting
+    url: https://www.cambridge.org/core/journals/mathematical-structures-in-computer-science/information/journal-policies/rights-and-permissions
+    note: 開放取用內容用 Creative Commons 授權、文字與資料探勘政策、元資料 CC0。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Text and Data Mining (TDM)"
+        min_extracted_chars: 2200
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: cup_metrics
+    role: supporting
+    url: https://www.cambridge.org/core/journals/mathematical-structures-in-computer-science/information/about-this-journal/journal-metrics
+    note: >-
+      Cambridge 的 Journal metrics 表：2 年與 5 年 Impact Factor、Eigenfactor、Article Influence、CiteScore、SJR、SNIP，
+      以及去年發表篇數。頁面沒有標年度，也沒有分區或名次。表中的值照頁面顯示：Impact Factor ".9" 與 "1"，Eigenfactor ".0008"（省略前導的 0）。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Scimago Journal Rank (SJR)"
+        min_extracted_chars: 1500
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: cup_metrics_guide
+    role: supporting
+    url: https://www.cambridge.org/core/services/authors/measuring-impact
+    note: >-
+      Journal metrics 頁的 "Measuring impact" 連結目標。用途是確認 Cambridge 表中的 Impact Factor 指的是 Clarivate Journal Citation Reports
+      的 Journal Impact Factor。2026-10-25 Safari 的 innerText 只顯示頁首與回饋視窗，內文沒有出現；本記錄引用的內容是從 curl 取得的原始 HTML 抽出的
+      （抽取後約 14,000 字，含 "Metrics provided by Clarivate Analytics" 一段），Safari 讀不到內文的原因未查。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Metrics provided by Clarivate Analytics"
+        min_extracted_chars: 8000
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: cup_abstracting
+    role: supporting
+    url: https://www.cambridge.org/core/journals/mathematical-structures-in-computer-science/information/about-this-journal/abstracting-and-indexing
+    note: 出版社自述的收錄清單。Web of Science 的收錄已用 Master Journal List 核對（見 mjl），其他項目沒有另外核對。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Science Citation Index Expanded"
+        min_extracted_chars: 2200
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: cup_board
+    role: supporting
+    url: https://www.cambridge.org/core/journals/mathematical-structures-in-computer-science/information/about-this-journal/editorial-board
+    note: >-
+      編輯名單（姓名、所屬機構與各編輯自列的關鍵字；本記錄不收 email）。頁首有一段 "The new editorial board of MSCS is in construction"，
+      所以名單可能正在更替。Cockett 的關鍵字在頁面上就是斷在 "differential and tangent" 之後，沒有右括號。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "The new editorial board of MSCS is in construction"
+        min_extracted_chars: 4500
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: cup_reviewers
+    role: supporting
+    url: https://www.cambridge.org/core/journals/mathematical-structures-in-computer-science/information/peer-review-information/instructions-for-peer-reviewers
+    note: 給審稿人的說明：審稿保密，稿件與審稿意見不得交給公開平台或 AI 工具。對作者的意義是稿件在審稿中不會被丟進 AI 工具。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "neither the manuscript under review"
+        min_extracted_chars: 2000
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: cup_why
+    role: supporting
+    url: https://www.cambridge.org/core/journals/mathematical-structures-in-computer-science/information/about-this-journal/why-choose-this-journal
+    note: >-
+      "Why choose this journal?" 頁 2026-10-25 只有標題，沒有內文（Safari innerText 與 curl 原始 HTML 都只有標題與選單）。
+      收錄這一頁是為了記錄「查過，沒有」；日後有內文時 hash 會變動。must_contain 只能用標題，所以這個斷言擋不住錯誤頁，
+      靠 min_extracted_chars 與 hash 差異監看。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Why choose this journal"
+        min_extracted_chars: 1500
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: scholarone
+    role: supporting
+    url: https://mc.manuscriptcentral.com/mscs
+    note: >-
+      ScholarOne Manuscripts 的 MSCS 登入頁（"Log In"、"Create An Account"、"Instructions & Forms"）。頁上沒有投稿規定，
+      只證明投稿系統是 ScholarOne，網址代碼為 mscs。本記錄沒有登入，也沒有建立帳號。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 回 HTTP 403 + 5437 bytes 的 Cloudflare 挑戰頁（title 為 'Just a moment...'）"
+      validity:
+        must_contain: "ScholarOne Manuscripts"
+        min_extracted_chars: 300
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: scimago
+    role: supporting
+    url: https://www.scimagojr.com/journalsearch.php?q=5000157801&tip=sid&clean=0
+    note: >-
+      SCImago（SJR）期刊頁：SJR、分區（1999–2025 逐年）、H-index、涵蓋年份、Scope、每年文獻數。網址的 q=5000157801 是 SCImago 的 source id，
+      由 ISSN 搜尋結果頁（journalsearch.php?q=09601295&tip=iss&clean=0）唯一的結果連結取得。
+      頁面上 "How to publish in this journal" 列了一位人士的 email，本記錄不收。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 回 HTTP 403 + 5580 bytes 的 Cloudflare 挑戰頁（title 為 'Just a moment...'）"
+      validity:
+        must_contain: "Subject Area and Category"
+        min_extracted_chars: 8000
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: mjl
+    role: supporting
+    url: https://mjl.clarivate.com/home
+    note: >-
+      Clarivate Master Journal List。JS 單頁應用，結果頁網址不帶查詢字串，無法用網址重現；只能在頁內於 #search-box 填 ISSN
+      （本次填 0960-1295）、按 #search-button 後讀結果列。結果列的 "View profile page" 需登入（"* Requires free login."），所以 JCR 的類別與分區沒有取得。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "200 但只有 SPA 空殼，查詢結果需在頁內操作"
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25}
+
+# ─────────────────────────────────────────────────────────────
+identity:
+  name: Mathematical Structures in Computer Science
+  abbreviation: MSCS
+  abbreviation_note: 'cup_instructions 寫 "Mathematical Structures in Computer Science (MSCS)"；ScholarOne 網址代碼為 mscs（來源 cup_submitting）'
+  publisher: Cambridge University Press
+  publisher_evidence: >-
+    SCImago 出版社欄 "Cambridge University Press"，國別 United Kingdom；MJL 出版社欄
+    "CAMBRIDGE UNIV PRESS , EDINBURGH BLDG, SHAFTESBURY RD, CAMBRIDGE, ENGLAND, CB2 8RU"。
+    Cambridge 的 About 頁沒有寫擁有者，也沒有寫代表哪個學會出版（與 JSL 的 "on behalf of the owners" 不同）。
+  issn: {print: "0960-1295", electronic: "1469-8072", src: cup_home}
+  issn_cross_check: >-
+    cup_about 同；SCImago 頁 "ISSN 09601295, 14698072"；MJL 搜尋 0960-1295 得 "ISSN / eISSN: 0960-1295 / 1469-8072"。四處一致。
+  homepage: https://www.cambridge.org/core/journals/mathematical-structures-in-computer-science
+  hosting_platform: {name: Cambridge Core, url: "https://www.cambridge.org/core/journals/mathematical-structures-in-computer-science"}
+  subject_area:
+    value: Theoretical computer science（以數學結構與數理邏輯為基礎）
+    scimago: "Computer Science → Computer Science Applications；Mathematics → Mathematics (miscellaneous)"
+    src: [cup_instructions, scimago]
+  frequency:
+    value: continuous publishing
+    src: [cup_about, cup_latest]
+    note: >-
+      cup_about 寫 "Frequency: 1 issue per year"。cup_latest 的最新一期是 2024 年 11 月的 Volume 34 Special Issue 10，其 Editorial Preface 摘要寫
+      "Last issue of MSCS before moving to continuous publishing"。Cambridge 的 All issues 頁 2025 年（Volume 35）與 2026 年（Volume 36）各只有一個卷條目，
+      沒有分期；2024 年（Volume 34）有 10 期。所以 2025 年起是連續出版，「1 issue per year」指每年一卷。
+  founded: {value: 1990, src: cup_board, note: 'Editorial board 頁的悼念文字 "Phil served as associate editor for MSCS ever since the creation of the journal in 1990"；SCImago 的涵蓋年份起自 1991'}
+  coverage: {value: "1991-2026", src: scimago, note: SCImago 頁面所列涵蓋年份}
+  external_ids:
+    scimago: "5000157801"
+    crossref: "0960-1295"
+    openalex: issn:0960-1295
+  open_access:
+    value: hybrid
+    src: [cup_oa, cup_fees]
+    note: '"This is a hybrid journal, which means it provides authors with options to make their articles open access."'
+  editors:
+    editor_in_chief: {name: Pierre-Louis Curien, affiliation: "IRIF, pôle PPS, équipe Picube, CNRS, Université Paris Cité and Inria, France", role: Editor-in-Chief, self_described_areas: "Categorical, denotational and operational semantics, operads, homotopical algebra", src: [cup_home, cup_board]}
+    list_src: cup_board
+    board_status: >-
+      cup_board 頁首："The new editorial board of MSCS is in construction. It will consist of 15 editors, including the editor-in-chief and the two associate editors.
+      Editors will have a 3 years term, possibly renewable once." 頁面同時列出 2 位 Associate Editor 與 26 位 Editorial Board 成員，比 15 位多，
+      所以列出的名單可能是過渡期的舊名單與新名單並存；頁面沒有說明哪些是新任。
+    associate_editors:
+      - {name: Sandra Alves, affiliation: "University of Porto, Portugal", self_described_areas: "Lambda calculus, linear logic, type theory, rewriting theory"}
+      - {name: Christina Tasson, affiliation: "Supaéro-ISAE in Toulouse", self_described_areas: "Denotational semantics, Linear Logic, Probabilistic programming, Categorical semantics"}
+      - {name: Philip J. Scott, affiliation: "University of Ottawa, Canada", self_described_areas: "Categorical logic and algebra, logics (higher-order, constructive, many-valued), foundations of computing", note: 'Editorial board 頁在姓名前加 †，並寫他已於 2023 年 12 月過世'}
+    members:
+      - {name: Richard Blute, affiliation: "University of Ottawa, Canada", self_described_areas: "Categorical proof theory, linear logic, monoidal categories"}
+      - {name: Cristian S. Calude, affiliation: "University of Auckland, New Zealand", self_described_areas: "Algorithmic and quantum information theories, quantum theories of computing and randomness"}
+      - {name: Robin Cockett, affiliation: "University of Calgary, Canada", self_described_areas: "Categorical programming and foundations (quantum, partial maps, differential and tangent", note: 關鍵字在頁面上就斷在這裡，沒有右括號}
+      - {name: Thierry Coquand, affiliation: "University of Gothenburg, Sweden", self_described_areas: "Type theory, constructive mathematics, functional programming"}
+      - {name: Ugo Dal Lago, affiliation: "University of Bologna, Italy", self_described_areas: "Lambda-calculus, type systems, program equivalences, implicit computational complexity, probabilistic and quantum computation"}
+      - {name: Vincent Danos, affiliation: "CNRS and Ecole Normale Supérieure, France", self_described_areas: "Domain-specific modeling/programming languages, probabilistic models"}
+      - {name: Rocco De Nicola, affiliation: "IMT Lucca, Italy", self_described_areas: "Foundations of distributed computing"}
+      - {name: Thomas Ehrhard, affiliation: "IRIF, CNRS and Université Paris Cité, France", self_described_areas: "Categorical semantics, linear logic, lambda-calculus"}
+      - {name: Yuxi Fu, affiliation: "Shanghai Jiaotong University, China", self_described_areas: "Process calculi, expressiveness, theory of interaction"}
+      - {name: Richard Garner, affiliation: "Macquarie University, Sydney, Australia", self_described_areas: "Categorical logic, type theory, enriched categories, semigroups, algebra and coalgebra in computer science"}
+      - {name: Masahito Hasegawa, affiliation: "Kyoto University, Japan", self_described_areas: "Programming languages, semantics, category theory"}
+      - {name: Ekaterina Komendantskaya, affiliation: "Heriot-Watt University, UK", self_described_areas: "Functional and logic programming, theorem proving, verification of AI, logic and statistical learning theory"}
+      - {name: Barbara König, affiliation: "Universität Duisburg - Essen, Germany", self_described_areas: "Semantics and verification, graph transformation systems, category theory and coalgebra, fixed-point theory"}
+      - {name: Stephen Lack, affiliation: "Macquarie University, Australia", self_described_areas: "Category theory and its applications to computer science"}
+      - {name: Dan Licata, affiliation: "Wesleyan University, USA", self_described_areas: "Type theory, categorical semantics"}
+      - {name: Philippe Malbos, affiliation: "Université Lyon 1, France", self_described_areas: "Homological algebra, algebraic topology, higher-dimensional rewriting"}
+      - {name: Paulo Oliva, affiliation: "Queen Mary College, London, UK", self_described_areas: "Structural proof theory, applications to proof mining, connections to game theory"}
+      - {name: Luke Ong, affiliation: "University of Oxford, UK", self_described_areas: "Statistical, differentiable, and probabilistic programming, game semantics, higher-order verification and model checking"}
+      - {name: Prakash Panangaden, affiliation: "McGill University, Canada", self_described_areas: "Probabilistic programming, foundations of machine learning, probabilistic bisimulation, metrics, logic and bisimulation"}
+      - {name: Damien Pous, affiliation: "Ecole Normale Supérieure de Lyon, France", self_described_areas: "Coalgebra, coinduction, universal algebra, proof assistants, calculus of relations"}
+      - {name: Aleksy Schubert, affiliation: "Warsaw University, Poland", self_described_areas: "Proof theory, object-oriented languages, formalisation"}
+      - {name: Pawel Sobocinski, affiliation: "Tallin University of Technology, Estonia", self_described_areas: "Category theory, compositionality, concurrency theory, semantics of programming languages, verification"}
+      - {name: Thomas Streicher, affiliation: "University of Darmstadt, Germany", self_described_areas: "Categorical semantics, type theory, program verification"}
+      - {name: Glynn Winskel, affiliation: "University of Stratchclyde, UK", self_described_areas: "Concurrency, causality and interaction, mathematical theory of games"}
+      - {name: Nobuko Yoshida, affiliation: "Queen Mary College, London, UK", self_described_areas: "Concurrency theory, type theory, programming languages, distributed systems, process calculi"}
+      - {name: Steve Zdancewic, affiliation: "University of Pennsylvania, USA", self_described_areas: "Security in programming languages and type systems, (Coq-based) formal verification"}
+    note: >-
+      姓名、所屬與關鍵字照 cup_board 頁面的拼寫（含 "Tallin"、"Stratchclyde" 兩處頁面上的原樣）。自述領域是各編輯在頁面上列的 "Keywords"，不是本刊的範圍條款。
+      本記錄不收 email。官網沒有說明投稿時由誰指定編輯：Submitting your materials 與 ScholarOne 登入頁都沒有提到編輯選擇，ScholarOne 登入後的步驟未讀。
+  metrics:
+    impact_factor:
+      value: 0.9
+      system: JCR
+      provider: Clarivate
+      label: 2-year Impact Factor
+      as_of: 2026-10-25
+      src: cup_metrics
+      year_note: Cambridge 的 Journal metrics 頁沒有標示這個值對應哪一年的 Journal Citation Reports
+      note: >-
+        頁面顯示 ".9"（省略前導 0），這裡記為 0.9。系統名稱出自 cup_metrics_guide：Cambridge 的指標說明把 Impact Factor 列在
+        "Metrics provided by Clarivate Analytics" 底下的 "Journal Impact Factor (JIF)"，即 Journal Citation Reports 的 JIF。
+        cup_metrics 頁本身只寫 "2-year Impact Factor"，沒有寫 Clarivate。本次沒有登入 JCR 核對。
+    impact_factor_5yr:
+      value: 1.0
+      system: JCR
+      provider: Clarivate
+      label: 5-year Impact Factor
+      as_of: 2026-10-25
+      src: cup_metrics
+      note: 頁面顯示 "1"（沒有小數位，無法得知是 1.0 還是四捨五入後的整數）。年度未標示，同 impact_factor。
+    eigenfactor: {value: 0.0008, as_of: 2026-10-25, src: cup_metrics, note: 頁面顯示 ".0008"；年度未標示}
+    article_influence: {value: 0.549, as_of: 2026-10-25, src: cup_metrics, note: 頁面顯示 ".549"；年度未標示}
+    citescore:
+      value: 1.5
+      as_of: 2026-10-25
+      src: cup_metrics
+      note: Cambridge 表中的 CiteScore，年度未標示；本次沒有到 Scopus 核對。
+    sjr:
+      value: 0.512
+      year: 2025
+      as_of: 2026-10-25
+      src: [scimago, cup_metrics]
+      note: SCImago 頁面標 "SJR 2025 0.512"；Cambridge 表的 SJR 也是 0.512，相符。
+    snip: {value: 1.131, as_of: 2026-10-25, src: cup_metrics, note: 年度未標示}
+    h_index: {value: 50, as_of: 2026-10-25, src: scimago, note: SCImago 頁面所列}
+    quartiles:
+      - {system: SJR, category: Computer Science Applications, quartile: Q2, year: 2025, as_of: 2026-10-25, src: scimago,
+         note: "SCImago 頁面逐年分區：2025 與 2019–2022 為 Q2，2023、2024 為 Q3，2014–2018 為 Q3，2005–2008 為 Q1；頁面不給名次"}
+      - {system: SJR, category: Mathematics (miscellaneous), quartile: Q2, year: 2025, as_of: 2026-10-25, src: scimago,
+         note: "SCImago 頁面逐年分區：2017–2018 為 Q3，2016 為 Q4，2019–2025 皆 Q2；頁面不給名次"}
+    jcr_quartile:
+      status: not_found
+      checked: 2026-10-25
+      note: >-
+        JCR 的類別、分區與名次需登入 Clarivate JCR，本次未查；MJL 結果列的 "View profile page" 也要求登入（"* Requires free login."）。
+        Cambridge 的 Journal metrics 頁只列數值，沒有分區。上方 quartiles 是 SJR 分區，不是 JCR。
+    indexing:
+      clarivate_mjl:
+        scie: true
+        ssci: false
+        esci: false
+        ahci: false
+        web_of_science_core_collection: Science Citation Index Expanded
+        additional_indexes: [Current Contents Engineering, Computing & Technology, Essential Science Indicators]
+        checked: 2026-10-25
+        search_issn: "0960-1295"
+        mjl_publisher_string: "CAMBRIDGE UNIV PRESS , EDINBURGH BLDG, SHAFTESBURY RD, CAMBRIDGE, ENGLAND, CB2 8RU"
+        src: mjl
+        note: >-
+          搜尋 0960-1295 得 1 筆 "Exact Match Found"（MATHEMATICAL STRUCTURES IN COMPUTER SCIENCE，ISSN / eISSN 0960-1295 / 1469-8072），
+          Web of Science Core Collection 欄只列 Science Citation Index Expanded；沒有 SSCI、AHCI、ESCI。
+          搜尋時頁面的篩選條件為預設的四項（Active Filters 列 SCIE、SSCI、AHCI、ESCI 皆勾選），所以其他三項的缺席是有效的負面結果。
+      publisher_stated:
+        list: [MathSciNet, Current Contents, Science Citation Index Expanded, Web of Science, EBSCOhost 系列, Inspec, Ei Compendex, Scopus, OCLC 系列, Ovid, ProQuest 系列, Zentralblatt MATH, Referativnyi Zhurnal]
+        src: cup_abstracting
+        note: >-
+          Abstracting and indexing 頁的清單，是出版社自述，節錄主要項目。SCIE 一項已用 MJL 核對相符；
+          Scopus 與其他資料庫沒有另外核對。
+    acceptance_rate:
+      status: not_published
+      checked: 2026-10-25
+      src: cup_metrics
+      note: Cambridge 的期刊首頁、About、Journal metrics、Author instructions 各頁、Review process 都沒有錄取率；也沒有拒絕率。Why choose this journal 頁沒有內文。
+    time_to_first_decision:
+      status: not_published
+      checked: 2026-10-25
+      src: cup_metrics
+      note: Cambridge 的 Journal metrics 與 Review process、Preparing／Submitting your materials、Author instructions 都沒有首次決定時間（無實際統計，也無時程目標）。
+    time_submission_to_acceptance:
+      status: not_published
+      checked: 2026-10-25
+      src: cup_metrics
+      note: >-
+        同上，官方無投稿到接受的統計。本記錄沒有做自行抽樣估計（sample_review_times.py 沒有 Cambridge Core 的 preset，
+        且本次範圍只收官方數字）。
+    published_volume:
+      value: 35
+      as_of: 2026-10-25
+      src: cup_metrics
+      note: >-
+        Cambridge 表 "Total number of articles last year 35"（其中 OA 23 篇、訂閱支持 12 篇）；"last year" 是哪一年未標示。
+        SCImago 頁的 Total Documents 表 2025 年為 39（含所有文件類型），2024 年為 50。
+
+# ─────────────────────────────────────────────────────────────
+# SLOW — 數年不變。驗證用 hash diff 即可。
+# ─────────────────────────────────────────────────────────────
+requirements:
+  refresh: {check_every: P6M, method: extracted_hash_diff}
+
+  scope:
+    aims_verbatim: >-
+      Mathematical Structures in Computer Science (MSCS) is a journal of theoretical computer science which focuses on the application of ideas from
+      the structural side of mathematics and mathematical logic to computer science. The journal aims to bridge the gap between theoretical
+      contributions and software design, publishing original papers or broad surveys with original perspectives in all areas of computing, provided that
+      ideas or results from logic, algebra, geometry, category theory or other areas of logic and mathematics form a basis for the work. The journal also
+      welcomes applications to computing based on the use of specific mathematical structures (e.g. topological and order-theoretic structures) as well as
+      on proof-theoretic notions or results.
+    aims_verbatim_src: cup_instructions
+    aims_short_verbatim: >-
+      The journal Mathematical Structures in Computer Science publishes work that uses mathematical structures to advance the theory and practice of computer
+      science. Mathematical structures should be understood broadly, and may include ideas and tools from logic, algebra, category theory, topology or geometry,
+      from probability theory, from information theory, etc., insofar as there is an eye to improving our understanding of computer science and its
+      mathematical foundations, or conversely to the transfer of conceptual knowledge or methods acquired in area(s) of computer science to various areas
+      of mathematics.
+    aims_short_verbatim_src: [cup_home, cup_about]
+    aims_note: >-
+      Editorial policy（cup_instructions）與首頁／About 的一段是兩份不同的文字，互補而不衝突：前者講「結構面的數學與數理邏輯應用到電腦科學」並列出條件與歡迎的稿件類型，
+      後者講「數學結構」要從寬理解，並加上反向（從電腦科學移轉到數學）。SCImago 的 Scope 是 Editorial policy 前兩段的節錄，個別措辭略有出入
+      （"original papers of a high standard and broad surveys" 對 Cambridge 的 "original papers or broad surveys with original perspectives"）。
+    areas:
+      - id: structural_math_and_logic_applied_to_cs
+        statement: '"focuses on the application of ideas from the structural side of mathematics and mathematical logic to computer science"（原文）'
+        src: cup_instructions
+      - id: bridge_theory_and_software_design
+        statement: '"aims to bridge the gap between theoretical contributions and software design, publishing original papers or broad surveys with original perspectives in all areas of computing, provided that ideas or results from logic, algebra, geometry, category theory or other areas of logic and mathematics form a basis for the work"（原文）'
+        src: cup_instructions
+        reading: 條件是 "provided that"：論文的基礎須是邏輯、代數、幾何、範疇論等；領域本身是 "all areas of computing"
+      - id: specific_structures_and_proof_theory
+        statement: '"welcomes applications to computing based on the use of specific mathematical structures (e.g. topological and order-theoretic structures) as well as on proof-theoretic notions or results"（原文）'
+        src: cup_instructions
+      - id: broad_mathematical_structures
+        statement: '"Mathematical structures should be understood broadly, and may include ideas and tools from logic, algebra, category theory, topology or geometry, from probability theory, from information theory, etc."（原文）'
+        src: [cup_home, cup_about]
+      - id: transfer_from_cs_to_mathematics
+        statement: '"or conversely to the transfer of conceptual knowledge or methods acquired in area(s) of computer science to various areas of mathematics"（原文）'
+        src: [cup_home, cup_about]
+      - id: quantum
+        statement: '"The journal will also accept contributions in new interdisciplinary fields bridging computer science, quantum physics, mathematics and information theory. In particular, papers on quantum information processing and communication, as well as on the related issues in quantum language design will be considered."（原文）'
+        src: cup_instructions
+      - id: expository_and_introductory
+        statement: '"In order to promote the use of methods from mathematics and physics in computer science, expository and introductory papers are also welcome, with the specific aim of turning the (sometimes excessively) technical jargon of specialized communities to a commonly understood language for as many working computer scientists as possible."（原文）'
+        src: cup_instructions
+      - id: foundations_of_cs_methodological_philosophical
+        statement: '"Equally, discussions of methodological or philosophical nature concerning the foundation of Computer Science are of interest for the journal."（原文）'
+        src: cup_instructions
+      - id: pure_mathematics_with_cs_connection
+        statement: '"Articles in other areas of pure mathematics may be considered as well provided that there is a clear connection to computational issues or they investigate mathematical structures whose relevance to computer science is well established."（原文）'
+        src: cup_instructions
+        reading: 用語是 may be considered ... provided that，不是歡迎；純數學稿件要有明確的計算面連結，或研究的是與電腦科學的關聯已確立的數學結構
+    named_topics_check:
+      status: not_published
+      checked: 2026-10-25
+      src: [cup_instructions, cup_home, cup_about, cup_preparing, scimago]
+      note: >-
+        官方範圍文字（cup_instructions 的 Editorial policy、首頁與 About 的一段、SCImago 的 Scope）逐字檢查：沒有出現 "semantics"、"programming language(s)"、
+        "differential"、"differentiation"、"derivative"、"gradient"、"calculus" 這些詞。範疇論只以 "category theory" 與 "categorical ... language" 出現：
+        "ideas or results from logic, algebra, geometry, category theory or other areas of logic and mathematics form a basis for the work" 與
+        "The use of logic, categorical or algebraic language just as a unifying tool for a variety of applications is appreciated"。
+        與「範疇語意、可微範疇、微分、程式語言語意」相關的證據只在編輯名單各編輯自列的關鍵字（identity.editors）：
+        Curien "Categorical, denotational and operational semantics"；Tasson "Denotational semantics ... Categorical semantics"；Ehrhard "Categorical semantics, linear logic, lambda-calculus"；
+        Cockett "Categorical programming and foundations (quantum, partial maps, differential and tangent"（斷在此）；
+        Ong "Statistical, differentiable, and probabilistic programming, game semantics"；Hasegawa "Programming languages, semantics, category theory"；
+        Sobocinski "semantics of programming languages"。這是編輯的自述，不是範圍條款。首頁 News 另有 2020 年的特刊公告
+        "Logical and Semantic Frameworks with Applications"，是已結案的特刊，不是現行徵稿。
+    published_work_evidence:
+      statement: >-
+        本刊 Collections 頁有一個專輯 "Differential Structures in Computer Science and in Mathematics"（cup_collections、cup_collection_differential）：8 篇，
+        2024-10-21 至 2026-04-07 線上刊出，編輯為 Cockett、Cruttwell、Kerjean、Lemay（Foreword 署名）。標題（原文）：
+        "From differential linear logic to coherent differentiation"（Ehrhard，頁面摘要自稱 survey，2026-04-07）；
+        "Pseudolimits for tangent categories with applications to equivariant algebraic and differential geometry"（2025-11-27）；
+        "The Grothendieck construction in the context of tangent categories"（2025-07-29）；
+        "Differentiable causal computations via delayed trace (extended version)"（2025-04-22）；
+        "Coherent Taylor expansion as a bimonad"（2025-04-11）；
+        "An axiomatics and a combinatorial model of creation/annihilation operators"（2025-04-10）；
+        "Automatic differentiation for ML-family languages: Correctness via logical relations"（2024-10-21）；
+        以及該專輯的 Foreword（2025-10-27）。另有專輯 "Rosolini Festschrift: Effectiveness and Continuity in Categorical Logic"（標題，內容未讀）。
+      src: [cup_collections, cup_collection_differential]
+      note: >-
+        這是已刊出文章的紀錄，證明本刊近年確實刊出可微範疇、切範疇、微分線性邏輯、自動微分的正確性等主題，但不是範圍條款，也不構成現行徵稿
+        （頁面沒有截止日或徵稿說明）。
+    acceptance_criteria:
+      statement: >-
+        原文 "The purpose of the journal is to increase the circulation of new very high standard results in fast growing areas which are currently
+        influencing various aspects of actual computing."——期待新的、高標準的結果，所在領域須是正在影響實際計算的快速成長領域。
+        另寫 "this journal is not meant to be only a 'theory journal' but, by choosing as a theme the use of mathematical methods of Computer Science
+        independently of their area of application, it aims to highlight connections among different topics and to encourage applications of theoretical contributions."
+      src: cup_instructions
+    out_of_scope_hints:
+      - case: 與電腦科學沒有明確計算面連結的純數學稿件
+        statement: >-
+          "Articles in other areas of pure mathematics may be considered as well provided that there is a clear connection to computational issues or they
+          investigate mathematical structures whose relevance to computer science is well established. However, these contributions should be directed to
+          the broad audience of computer scientists to which this journal is addressed."
+        src: cup_instructions
+        reading: 用語是 may be considered ... provided that；並要求寫給廣泛的電腦科學讀者，不是寫給純數學專家
+      - case: 只面向狹窄專門社群的稿件
+        statement: >-
+          "However, these contributions should be directed to the broad audience of computer scientists to which this journal is addressed."（上一條的後半）；
+          expository 稿件的目的是 "turning the (sometimes excessively) technical jargon of specialized communities to a commonly understood language for as many working computer scientists as possible"
+        src: cup_instructions
+        reading: 這兩句都沒有明文排除專門稿件，但表明本刊讀者是廣泛的電腦科學家
+      - case: 只把邏輯、範疇或代數語言當作統一工具而沒有實驗或應用連結
+        statement: >-
+          "The use of logic, categorical or algebraic language just as a unifying tool for a variety of applications is appreciated, in particular if linked with
+          relevant experimental activity."
+        src: cup_instructions
+        reading: 這句是 appreciated（受歡迎），with 實驗活動為佳；不是排除，也沒有說沒有實驗活動就不收
+      - case: 純理論期刊的定位
+        statement: >-
+          "this journal is not meant to be only a 'theory journal' but, by choosing as a theme the use of mathematical methods of Computer Science independently
+          of their area of application, it aims to highlight connections among different topics and to encourage applications of theoretical contributions."
+        src: cup_instructions
+        reading: 本刊自述不是只收純理論；沒有明文排除純理論稿件
+    explicit_exclusions:
+      status: not_published
+      checked: 2026-10-25
+      src: [cup_instructions, cup_home, cup_about, cup_preparing, cup_submitting]
+      note: >-
+        各頁都沒有 "we do not publish X" 形式的主題排除句。最接近的是上列 "provided that"、"may be considered"、"should be directed to the broad audience" 的措辭。
+        Cambridge 的 Author instructions 也沒有列出被拒的稿件類型。
+
+  article_types:
+    status: not_published
+    checked: 2026-10-25
+    src: [cup_instructions, cup_preparing, cup_submitting]
+    note: >-
+      官網沒有列出文章類型清單。Editorial policy 提到的稿件形式有：original papers、broad surveys with original perspectives、
+      expository and introductory papers、discussions of methodological or philosophical nature concerning the foundation of Computer Science（均為原文用語，
+      不是官方的類型名稱或投稿類別）。cup_instructions 有 "Article Type Publication Costs" 小標，但底下只有 APC 豁免的一段，沒有類型表。
+      ScholarOne 登入後的步驟是否有類型選單，本記錄無法得知。
+
+  length_policy:
+    status: not_published
+    checked: 2026-10-25
+    src: [cup_preparing, cup_submitting, cup_instructions]
+    note: >-
+      官網沒有頁數、字數、圖表數或參考文獻數的上限。cup_preparing 只有版面規定："Papers should be typewritten in double spacing throughout, on one side of the paper.
+      Please avoid footnotes if possible. Papers should begin with an abstract of not more than 300 words and should end with a brief concluding section."
+      （"typewritten ... on one side of the paper" 在 PDF 投稿下的實際意義，頁面沒有說明。）
+
+  abstracts:
+    - id: main
+      max_words: {value: 300, basis: not more than, src: cup_preparing}
+      required_at: submission
+      rules:
+        - 'cup_preparing："Papers should begin with an abstract of not more than 300 words and should end with a brief concluding section."'
+      note: 官網只寫「論文開頭要有不超過 300 字的摘要」，沒有說明摘要格式（結構化與否）或關鍵字。
+      src: cup_preparing
+  keywords:
+    free_keywords: {status: not_published, checked: 2026-10-25, src: [cup_preparing, cup_submitting], note: 官網沒有關鍵字或 MSC／ACM CCS 分類號的要求；ScholarOne 登入後的欄位未讀}
+
+  formatting:
+    submission_file: PDF（ScholarOne 上傳）；有的話另附 LaTeX 版本
+    statement: >-
+      cup_preparing："Papers must be submitted as a PDF. If it is possible, please also include a LaTeX version of the paper at the point of submission."
+      cup_submitting："Papers must be submitted as a PDF via the following online submission system".
+    latex_at_acceptance:
+      required: true
+      statement: >-
+        cup_preparing："while PDFs are required at initial submission, the publisher requires a LaTeX version at the point of acceptance."
+        cup_submitting："After a paper has been accepted for publication, authors should also use this system to upload the final pdf of the accepted version of their paper and the source files that were used to create it."
+      conflict: 'cup_submitting 另寫 "The publisher requires submission of papers written in LaTeX, possibly using the MSCS LaTeX style file"，與「投稿時只需 PDF、LaTeX 於錄取時才必交」的說法不一致。見 warnings。'
+      src: [cup_preparing, cup_submitting]
+    template:
+      class: mscs
+      files: [mscs.sty, mscguid.tex, readme.txt, mscs.all]
+      note: >-
+        cup_preparing："MSCS LaTeX style file" 是一個 zip（readme.txt、mscs.sty、mscguid.tex 與合併檔 mscs.all）；"While use of the MSCS LaTeX style file is preferred,
+        ordinary LaTeX or plain TeX files can also be accepted." 求助信箱見該頁（本記錄不收）。zip 本身沒有下載。
+      src: [cup_preparing, cup_submitting]
+    references_style: >-
+      Harvard system：內文 "(Smith 1983; Jones and Jones 1985; Hunter 1986a,b)"，三位以上作者用第一位加 et al.；文末依字母序列出，
+      期刊名依 World List of Scientific Periodicals（第 4 版）縮寫。來源 cup_preparing
+    figures: >-
+      cup_preparing："Figures should be drawn in black ink on good quality white paper or produced by computer to comparable quality ... A list of captions should be attached separately."
+      圖一律稱 "Figures"，表與圖須編號並附標題；程式碼片段、圖解等也須標號。
+    numbering: 'cup_preparing："For items in propositions or other numbered lists, (1), (2), (3) should be used rather than 1., 2., 3."'
+    language: 官網沒有明文限定英文，但所有說明與英語語言編修服務的說明都以英文稿件為前提（cup_preparing："have their English-language manuscripts checked"）
+    orcid: >-
+      cup_preparing 與 cup_submitting："We require all corresponding authors to identify themselves using ORCID when submitting a manuscript to this journal."
+      （必填；可在 ScholarOne 帳號內註冊或連結）
+    competing_interests: >-
+      cup_preparing："All authors must include a competing interest declaration in their main manuscript file." 範例措辭："Competing interests: The author(s) declare none"。
+      多位作者時由投稿者代填所有作者的聲明。
+    author_affiliations: 'cup_preparing：單位須是研究進行、支持或核准的機構；非研究內容則寫作者目前的單位。'
+    final_version_extras:
+      - LaTeX 版本與原始檔（見 latex_at_acceptance）
+      - 所有圖、表與多媒體的無障礙說明（alt-text）；可自行寫（Accessibility Descriptions Submission Form），沒交的由系統機器產生並在校樣階段供檢查
+    src: [cup_preparing, cup_submitting]
+
+  supplementary_material:
+    role: 與文章無關鍵關係但可能有讀者興趣的材料
+    separate_file: true
+    typeset: false
+    rules:
+      - '"Material that is not essential to understanding or supporting a manuscript, but which may nonetheless be relevant or interesting to readers, may be submitted as supplementary materials."'
+      - 與文章一起線上發表，不放在期刊頁面中
+      - 視為正式學術紀錄的一部分，只能透過更正程序修改或撤回
+      - 不排版也不 copyedit，須以最終呈現的樣子提供
+      - 類型包括附錄、額外的表圖、資料集、影片、音檔（"not limited to"）
+      - '"It should be assumed that supplementary materials will not be peer-reviewed."（cup_ethics）'
+    repository_encouragement: '"Where relevant we encourage authors to publish additional qualitative or quantitative research outputs in an appropriate repository, and cite these in manuscripts."'
+    src: [cup_preparing, cup_ethics]
+
+  reproducibility:
+    code_and_data_sharing_mandate:
+      status: not_published
+      checked: 2026-10-25
+      src: cup_transparency
+      note: >-
+        Research transparency 頁只有鼓勵，沒有強制：Where possible we encourage authors to make evidence, data, code, and other materials that underpin their findings
+        available to readers. We encourage the use of Data Availability Statements ... 沒有資料或程式碼公開的強制條文。
+    data_availability_statement:
+      required: false
+      statement: '"We encourage the use of Data Availability Statements to describe whether the materials that underpin research findings have been made available to readers, and if so, where."'
+      src: cup_transparency
+    reporting_standards: {status: not_published, checked: 2026-10-25, src: cup_transparency, note: '只說 "Reporting guidelines for many study designs ... can be found in the EQUATOR Network"，鼓勵遵循，沒有指定任何標準（無 TOP、JARS）'}
+    formalization_or_proof_checking:
+      status: not_published
+      checked: 2026-10-25
+      src: [cup_preparing, cup_transparency, cup_instructions]
+      note: 官網沒有關於形式化驗證（proof assistant）稿件、附形式化檔案或證明檢查的規定。
+
+  review:
+    type: single_anonymized
+    statement: >-
+      cup_review："This journal uses a single-anonymized model of peer review. The author does not know the identity of the reviewers,
+      but the reviewers know the identity of the author." cup_ethics 同義（用語為 single-anonymous）。稿件不需遮蔽作者資訊。
+    reviewers_minimum:
+      value: 2
+      statement: 'cup_ethics："This journal usually requires a minimum of two independent peer reviewers to peer review manuscripts for consideration in the journal."'
+      src: cup_ethics
+      note: 用語是 usually，不是保證每篇都有兩位。
+    src: [cup_review, cup_ethics]
+    stages:
+      status: not_published
+      checked: 2026-10-25
+      src: [cup_review, cup_ethics]
+      note: 官網沒有說明初篩、輪次或各階段時程；ScholarOne 登入後的步驟未讀。
+    timeline_targets: {status: not_published, checked: 2026-10-25, src: [cup_review, cup_ethics]}
+    appeals:
+      statement: >-
+        cup_ethics："Appeals of editorial decisions will only be considered if they refer to a specific manuscript and must be based on evidence that either
+        (1) an editor or reviewer made a significant factual error/a major misunderstanding of a manuscript, or (2) the integrity of the editorial decision making
+        process was compromised. In general, only one appeal per manuscript per decision stage will be considered."
+        cup_ethics 另指 "please refer to this journal's peer review information" 看申訴辦法，但 Review process 頁沒有申訴辦法。
+      src: [cup_ethics, cup_review]
+    author_may_suggest_reviewers: {status: not_found, checked: 2026-10-25, src: [cup_preparing, cup_submitting, scholarone], note: 公開頁面沒有提到；ScholarOne 登入後的步驟未讀}
+    authors_as_referees: {status: not_found, checked: 2026-10-25, src: [cup_preparing, cup_submitting, cup_review], note: 沒有看到作者須擔任審稿人的規定}
+    reviewer_confidentiality_and_ai:
+      statement: >-
+        cup_reviewers："neither the manuscript under review, whether whole or in part, nor the review of that manuscript should be shared with any public platform
+        or artificial intelligence (AI) tool." 審稿人的 AI 使用限於 "minimal, non-generative uses such as those enabled by integrated spelling and grammar-checking tools"。
+      src: cup_reviewers
+
+  submission:
+    portal: https://mc.manuscriptcentral.com/mscs
+    system: ScholarOne Manuscripts（頁面稱 "ScholarOne"；cup_submitting 稱 "online submission system"）
+    file: PDF（有的話另附 LaTeX）
+    conditions:
+      - '"Submission of a paper is taken to imply that it has not been previously published and that it is not being considered for publication elsewhere."（cup_submitting）'
+      - '"The paper should be accompanied by the author''s address, telephone, fax number, and email address."（cup_submitting）'
+      - 通訊作者須有 ORCID（見 formatting.orcid）
+      - 作者競爭利益聲明須寫在主稿檔內（見 formatting.competing_interests）
+      - 錄取後要簽 licence to publish（cup_submitting）
+    corresponding_author: >-
+      cup_ethics："The corresponding author is responsible for communicating with co-authors." 責任包括稿件更正與校對、修訂與重投、代表共同作者簽出版協議、
+      必要時安排 APC 付款（通訊作者的單位用來判定 read and publish 協議下的 APC 折扣或豁免），以及出版後的各種詢問。
+      "Requests to change the corresponding author after submission will be subject to scrutiny and a formal process."
+    portal_steps_read: 登入頁（Log In／Create An Account／Instructions & Forms）only
+    steps_not_read: 全部登入後的步驟（作者資料、cover letter、檔案上傳、建議審稿人等欄位）未讀；本記錄沒有建立帳號
+    technical_help: 'ScholarOne 登入頁有 "Site Support"、"FAQs & User Guides"、"Instructions & Forms" 連結；本記錄不收聯絡信箱'
+    src: [cup_submitting, scholarone]
+
+  fees:
+    submission: {status: not_published, checked: 2026-10-25, src: [cup_fees, cup_submitting], note: Cambridge 的 Fees and pricing 與 Submitting your materials 都沒有提投稿費}
+    apc:
+      amount: 3655
+      currency: USD
+      amounts:
+        - {currency: GBP, amount: 2610}
+        - {currency: USD, amount: 3655}
+      mandatory: false
+      excludes: "taxes（原文 additional taxes may apply）"
+      applies_to: 本頁沒有分文章類型，表為 "Article Processing Charges for this journal"
+      wording: >-
+        cup_fees 的表："Article Processing Charges for this journal — Currency: GBP (£) APC: 2610; USD ($) APC: 3655"，
+        前有 "(additional taxes may apply)"。
+      conditions: >-
+        APC 只適用於選 Gold Open Access 且沒有被機構協議涵蓋的情況："For articles that are not published Gold Open Access, costs of
+        publishing Gold OA are not applicable."（cup_fees、cup_oa）
+      waivers_and_agreements: >-
+        Cambridge 與 2,000 多個機構有開放取用協議，通訊作者所屬機構在名單內時 "in the majority of cases these agreements cover the full costs"；
+        Cambridge Open Equity Initiative 補助 100 多個中低收入國家的通訊作者。資格在錄取流程中自動判定（cup_oa）。
+        cup_instructions 另寫 "For authors not covered by an agreement, and without APC funding, please see this journal's open access options for instructions on how
+        to request an APC waiver"，但 cup_oa 頁沒有申請豁免的說明（見 warnings）。
+      src: [cup_fees, cup_oa, cup_instructions]
+    color_print: {status: not_published, checked: 2026-10-25, src: [cup_fees, cup_preparing], note: Fees and pricing 只列 APC，沒有彩色費；Preparing your materials 的圖說明也沒有彩色費}
+    page_charges: {status: not_published, checked: 2026-10-25, src: cup_fees, note: Fees and pricing 只列 APC，沒有頁費}
+
+  open_access:
+    options: [Gold Open Access（hybrid，付 APC 或由機構協議涵蓋）, 訂閱制（作者不付費）]
+    licenses_offered: {status: not_published, checked: 2026-10-25, src: [cup_oa, cup_agreement], note: "cup_oa 與 cup_agreement 只寫 'a Creative Commons licence'，沒有列出可選的 CC 版本"}
+    green_oa:
+      embargo_months:
+        status: not_published
+        checked: 2026-10-25
+        src: cup_oa
+        note: >-
+          cup_oa 只寫 "Under this journal's Green Open Access policy, authors can make pre-published versions of their articles available in institutional or other repositories,
+          or on their personal or departmental websites, under certain conditions"，並指向 Cambridge 的 Green OA policy 頁下載試算表；本頁沒有寫禁運月數。
+          （同一出版社的 JSL 頁寫了六個月，本刊頁面沒有這句，不比照填。）
+      statement: >-
+        "Under this journal's Green Open Access policy, authors can make pre-published versions of their articles available in institutional or other repositories, or on their
+        personal or departmental websites, under certain conditions. This allows authors to comply with the open access mandates of many funders and institutions before the
+        final article is published as Gold Open Access."
+      src: cup_oa
+    plan_s:
+      statement: >-
+        cup_oa："This journal is registered with cOAlition S as a Transformative Journal, and articles subject to Plan S as a result of funding by
+        cOAlition S should be published as Gold Open Access. This journal's Green Open Access policy does not meet the open access requirements of Plan S."
+      src: cup_oa
+    social_sharing: 'cup_oa："This journal participates in Cambridge Core Share"（已出版版本的唯讀分享連結）'
+    src: [cup_oa, cup_rights]
+
+  policies:
+    dual_submission: forbidden
+    dual_submission_wording: >-
+      cup_submitting："Submission of a paper is taken to imply that it has not been previously published and that it is not being considered for publication elsewhere."
+      cup_preparing："these manuscripts should not be under consideration, accepted for publication or in press within a different journal, book or similar entity,
+      unless explicit permission or agreement has been sought from all entities involved."
+    duplicate_and_redundant_publication: >-
+      cup_ethics："We do not support substantial overlap between publications, unless: it is felt that editorially this will strengthen the academic discourse; and we have clear
+      approval from the original publication; and we include citation of the original source." 文字重用（text recycling）依 COPE 指引個案判斷，不可接受時稿件可被拒。
+    conference_versions: {status: not_published, checked: 2026-10-25, src: [cup_preparing, cup_submitting, cup_ethics], note: 沒有專門針對會議論文集擴充版的規定；適用上面的重複發表與先前發表政策}
+    thesis_based: >-
+      cup_ethics："Any manuscript based on a thesis should be a reworking of the material in the thesis and written to conform to this journal's style guide ...
+      The relevant editor should be informed that the manuscript draws on a thesis in the cover letter."
+    preprints:
+      allowed: true
+      statement: '"This journal allows preprints to be posted anywhere at any time, including before submission to the journal."（cup_oa）'
+      not_prior_publication: >-
+        cup_preparing："deposition of a preprint on the author's personal website, in an institutional repository, or in a preprint archive
+        shall not be viewed as prior or duplicate publication."
+      src: [cup_oa, cup_preparing, cup_ethics]
+    copyright:
+      transfer_required: false
+      statement: >-
+        cup_agreement："Under the agreement, certain rights are granted to the journal owner which allow publication of the article. The original ownership of the copyright
+        in the article remains unchanged." Gold OA 用非專屬授權並選 Creative Commons 授權；非 Gold OA 用專屬授權。錄取後透過 Author Information Form 與 Ironclad 數位簽署，沒有簽約文章不能進製作。
+      src: [cup_agreement, cup_submitting]
+    generative_ai:
+      author_listing: 'cup_preparing："generative AI tools such as ChatGPT should not be listed as authors on any submitted content."'
+      disclosure: >-
+        cup_preparing：用 AI 工具產生文字或圖像（含翻譯來源或自己的稿件），或用來分析、擷取資料，須聲明並描述；基本的拼字或語言檢查、單字或短語的採用、
+        轉粗體之類的格式調整等「minimal and non-generative uses」不需聲明。聲明的位置：產生文字寫在 acknowledgments 或腳註，資料分析寫在方法段，
+        圖像寫在圖說。描述須含工具名稱與版本、使用日期、取得方式、完整使用說明、第三方輸出的引用，視情況加專屬資訊、對工具的修改、競爭利益或偏見。
+      src: cup_preparing
+    ethics:
+      statement: >-
+        本刊依 Cambridge University Press 的研究出版倫理指引出版（cup_ethics）：作者資格依 ICMJE 標準；關於作者資格的爭議依 COPE 流程；Cambridge 保留用工具檢查所有稿件剽竊的權利，
+        疑似剽竊的稿件會被退稿；疑慮可向編輯或 Cambridge 的出版倫理信箱反映（信箱見 cup_ethics，本記錄不收）。
+      src: cup_ethics
+    conflict_of_interest:
+      author_disclosure:
+        required: true
+        statement: 'cup_preparing 與 cup_ethics："All authors must include a competing interest declaration" 在主稿檔內；聲明由編輯審查，可能刊出。'
+        src: [cup_preparing, cup_ethics]
+    language_editing: >-
+      cup_preparing：英語語言編修服務是選配、自費，使用不保證錄取（"voluntary ... at the author's own expense"）。
+
+  standards: []
+
+# ─────────────────────────────────────────────────────────────
+# FAST — 期刊無年度週期。
+# ─────────────────────────────────────────────────────────────
+cycle:
+  applies_to: null
+  rolling_calls: []
+  special_issues:
+    status: not_published
+    checked: 2026-10-25
+    src: [cup_home, cup_collections]
+    note: >-
+      期刊首頁 News 區 2026-10-25 列的三則特刊公告都已過時（最新一則 2020-11-10 的 "Confluence"，另兩則為 2020 年與 2019 年）。
+      Collections 頁列四個專輯（含 "Differential Structures in Computer Science and in Mathematics"，見 scope.published_work_evidence），
+      只有標題與已刊出文章，沒有截止日或徵稿說明。latest issue（2024 年 11 月）是特刊 LSFA 2021 and LSFA 2022 的第一部分。
+      沒有看到現行的徵稿公告。
+
+# ─────────────────────────────────────────────────────────────
+warnings:
+  - >-
+    本刊範圍的官方敘述集中在 Author instructions 首頁的 Editorial policy（cup_instructions），不在期刊首頁那一段；兩者互補。官方範圍文字沒有出現 semantics、programming language、
+    differential 這些詞；範疇論以 "category theory" 與 "categorical ... language" 出現。與範疇語意、可微範疇、程式語言語意相關的證據有兩種，都不是範圍條款：
+    編輯名單的自述關鍵字（名單可能正在更替），以及本刊 Collections 頁的專輯 "Differential Structures in Computer Science and in Mathematics"（已刊出 8 篇，
+    2024-10 至 2026-04，含 tangent categories、differential linear logic、automatic differentiation 的文章；見 scope.published_work_evidence）。
+  - >-
+    範圍條款中明確收窄的措辭：純數學稿件只有在 "a clear connection to computational issues" 或研究 "mathematical structures whose relevance to computer science is well established" 時
+    "may be considered"，且須 "directed to the broad audience of computer scientists"；本刊自述 "not meant to be only a 'theory journal'"；單把邏輯、範疇或代數語言當統一工具的稿件，
+    "in particular if linked with relevant experimental activity" 才受歡迎。這些都是 expected／may／appreciated 的措辭，官網沒有明文排除任何主題。
+  - >-
+    投稿檔案格式的說法不一致：cup_preparing 與 cup_submitting 前段都寫「投稿用 PDF、LaTeX 在錄取時必交」，但 cup_submitting 後段另寫
+    "The publisher requires submission of papers written in LaTeX"。實際投稿時是否必須附 LaTeX，以 ScholarOne 的畫面為準（本記錄沒有登入）。
+  - >-
+    cup_instructions 寫申請 APC 豁免的辦法在 open access options 頁，但 cup_oa 頁 2026-10-25 沒有申請豁免的說明，只有機構協議與 Cambridge Open Equity Initiative 的自動資格判定。
+    沒有機構協議、也沒有 APC 經費的作者，若不選 Gold OA 就不用付 APC（Green OA 路線，禁運與條件未在本頁寫明）。
+  - >-
+    官方沒有公布錄取率、首次決定時間、投稿到接受時間、審稿階段時程；沒有頁數或字數上限（只有摘要不超過 300 字、雙行距）；沒有文章類型清單；沒有資料或程式碼公開的強制規定（只有鼓勵）。
+  - >-
+    指標：Cambridge 的 Impact Factor 沒有標示年度，頁面顯示 ".9"（2 年）與 "1"（5 年）；JCR 分區需登入，本記錄沒有；記錄中的 Q2 是 SJR 分區（Computer Science Applications、Mathematics (miscellaneous)），
+    不是 JCR。Web of Science 只收錄在 SCIE（MJL 核對），不在 SSCI、AHCI、ESCI。
+  - >-
+    出刊頻率：Cambridge 的 About 頁寫 "1 issue per year"，實際是連續出版（latest issue 頁："Last issue of MSCS before moving to continuous publishing"，2024 年 11 月），
+    2025 年起每年一卷、不分期；與 2024 年以前每年約 10 期的做法不同。
+  - >-
+    編輯名單頁首寫新編輯委員會 "is in construction" 且將由 15 位編輯組成，但頁面列了 2 位 Associate Editor 與 26 位 Editorial Board 成員；其中一位 Associate Editor 已過世（頁面註明）。
+    自述領域的證據以編輯名單為依據時，要預期名單會變動。
+  - >-
+    ScholarOne 只讀到登入頁（沒有登入，也沒有建立帳號）。登入後的投稿步驟、欄位與額外聲明未讀；Cambridge 公開頁面沒有說明是否須建議審稿人、是否須指定編輯。

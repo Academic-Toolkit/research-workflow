@@ -1,0 +1,1201 @@
+--- # research-submission venue record
+# 內容擷取自 Cambridge Core 的期刊頁面（出版：Cambridge University Press，代表 Association for Symbolic Logic）、
+# ASL 自己的網站（aslonline.org）、EditFlow 投稿入口（ef.msp.org）、SCImago 與 Clarivate Master Journal List，
+# 全部 2026-10-27 經 Safari 讀頁面文字（document.body.innerText）取得；例外是 cup_metrics_guide 與 cup_green_oa 兩頁，
+# Safari 只顯示頁首頁尾（內文是動態載入），所以只讀了 HTTP 抽取後的文字（見各自的 note）。
+# RSL 的須知分散在三處：Cambridge 的 Author instructions（Preparing your materials 含本刊文字）、
+# ASL 網站的 RSL 頁與 RSL Submission Guidelines（投稿規定的本體）、EditFlow 的 Step 0（篇幅與年錄取量的說明、作者聲明）。
+# 與同一學會的 BSL、JSL 不同：RSL 的官方文字只描述一種稿件（一般投稿），沒有 Communications、Reviews、Thesis Abstracts 等類型，
+# 但有明文的篇幅預設值（初投 25 頁、修訂時可到 30 頁）與每年錄取量的預設值（25–30 篇）。三處文字有出入的地方見 warnings。
+# 注意 ASL 網站上 RSL 頁的網址是 /journals/the-review-of-symbolic/（沒有 "-logic"），不是依 BSL 網址樣式可以推得的。
+# Cambridge 與 ASL 的頁面對 curl 都回正常內容（沒有 bot 挑戰頁），所以各 source 的 fetch.method 記 http。
+
+schema_version: 1
+id: asl/review-of-symbolic-logic
+kind: journal
+family: logic-journals
+status: active
+
+# ─────────────────────────────────────────────────────────────
+# 來源與 provenance。所有網址皆由 Cambridge 期刊首頁的導覽、頁內連結，或 ASL 網站的 Journals 頁連結取得，非推測。
+# 例外：Cambridge 頁面內有截斷的連結顯示文字，見 cup_submitting 與 cup_ethics 的 note。
+# ─────────────────────────────────────────────────────────────
+sources:
+  - id: cup_preparing
+    role: authoritative
+    url: https://www.cambridge.org/core/journals/review-of-symbolic-logic/information/author-instructions/preparing-your-materials
+    note: >-
+      Cambridge 的 "Preparing your materials"。全頁包含：範圍（與期刊首頁逐字相同的四項領域清單）、LaTeX 與 RSL 類別檔、
+      "Manuscripts should begin with an abstract of no more than 300 words"、圖、ORCID、英文編修服務、無障礙要求與補充材料。
+      頁面沒有篇幅規定（篇幅在 cup_about、asl_guidelines、editflow），也沒有先前發表或審稿模式的規定。
+      頁面的 "Illustrations" 一段（墨水手繪圖、紙本圖）是舊式文字，與 asl_guidelines 的 PDF 投稿規定並存，見 warnings。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Manuscripts should begin with an abstract of no more than 300 words"
+        min_extracted_chars: 8900
+    snapshot:
+      fetched_at: 2026-10-27
+      last_verified_at: 2026-10-27
+      extracted_sha256: null
+
+  - id: cup_submitting
+    role: authoritative
+    url: https://www.cambridge.org/core/journals/review-of-symbolic-logic/information/author-instructions/submitting-your-materials
+    note: >-
+      投稿入口（EditFlow）、licence to publish、ORCID。頁內顯示文字 "https://ef.msp.org/submit/asl_..." 被截斷；
+      Preparing your materials 頁的 "Proceed to submission system" 實際連到 https://ef.msp.org/submit/asl_rsl。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Papers must be submitted electronically via the journal"
+        min_extracted_chars: 3900
+    snapshot:
+      fetched_at: 2026-10-27
+      last_verified_at: 2026-10-27
+      extracted_sha256: null
+
+  - id: cup_fees
+    role: authoritative
+    url: https://www.cambridge.org/core/journals/review-of-symbolic-logic/information/author-instructions/fees-and-pricing
+    note: APC 與彩色費的金額表（GBP、USD）。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Article Processing Charges for this journal"
+        min_extracted_chars: 3400
+    snapshot:
+      fetched_at: 2026-10-27
+      last_verified_at: 2026-10-27
+      extracted_sha256: null
+
+  - id: cup_oa
+    role: authoritative
+    url: https://www.cambridge.org/core/journals/review-of-symbolic-logic/information/journal-policies/open-access-options
+    note: 開放取用選項、機構協議、Green OA、preprint 政策、Plan S（Transformative Journal）。這頁沒有寫 Green OA 的禁運期長度。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "This journal allows preprints to be posted anywhere at any time"
+        min_extracted_chars: 4900
+    snapshot:
+      fetched_at: 2026-10-27
+      last_verified_at: 2026-10-27
+      extracted_sha256: null
+
+  - id: cup_review
+    role: authoritative
+    url: https://www.cambridge.org/core/journals/review-of-symbolic-logic/information/peer-review-information/review-process
+    note: 審稿模式（單匿名）與申訴辦法；全頁只有兩段。與 asl_guidelines 的雙匿名選項並存，見 warnings。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "single-anonymized model of peer review"
+        min_extracted_chars: 2200
+    snapshot:
+      fetched_at: 2026-10-27
+      last_verified_at: 2026-10-27
+      extracted_sha256: null
+
+  - id: asl_rsl
+    role: authoritative
+    url: https://aslonline.org/journals/the-review-of-symbolic/
+    note: >-
+      ASL 網站的 RSL 頁（asl_guidelines 稱之為 "the general description of the RSL"，並指示 "for the types of material published in the Review" 看這頁）。
+      範圍的官方敘述（五項領域，Cambridge 版把最後一項併在第四項後面）、投稿須知與倫理政策的連結、Cambridge 取得存取資訊的指引。
+      頁面沒有日期。頁面沒有列出任何稿件類型，只列領域。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Logical results addressing foundational issues in the sciences"
+        min_extracted_chars: 2100
+    snapshot:
+      fetched_at: 2026-10-27
+      last_verified_at: 2026-10-27
+      extracted_sha256: null
+
+  - id: asl_guidelines
+    role: authoritative
+    url: https://aslonline.org/journals/the-review-of-symbolic/the-review-of-symbolic-logic-submission-guidelines/
+    note: >-
+      ASL 網站的 RSL Submission Guidelines（頁面日期 October 5, 2023），從 ASL 的 RSL 頁 "RSL Guidelines" 連入。
+      作者資格、AI 使用、一稿多投、會議論文版本、篇幅與年錄取量的預設值、雙匿名審稿選項、英文限定、PDF 與灰階、原始檔、
+      摘要與 MSC、授權與開放取用都在這一頁，是投稿規定的本體。頁內有幾處沿用 JSL 的措辭（例如 "The Journal is now a hybrid publication"），
+      本記錄照原文引用。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "the new default is a 25-page limit for the initial submission"
+        min_extracted_chars: 8300
+    snapshot:
+      fetched_at: 2026-10-27
+      last_verified_at: 2026-10-27
+      extracted_sha256: null
+
+  - id: asl_staff
+    role: authoritative
+    url: https://aslonline.org/journals/the-review-of-symbolic/rsl-editorial-staff/
+    note: >-
+      RSL 編輯群與各編輯列出的領域（頁面只列領域名稱，不是自述句）。頁面只寫 "See the RSL Guidelines for information on how to submit an article"，
+      沒有 BSL 頁那種 "one (and only one)" 編輯的規定。本記錄不收 email 與通訊地址。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Formal approaches to metaphysics"
+        min_extracted_chars: 2800
+    snapshot:
+      fetched_at: 2026-10-27
+      last_verified_at: 2026-10-27
+      extracted_sha256: null
+
+  - id: asl_ethics
+    role: authoritative
+    url: https://aslonline.org/journals/publication-ethics-policy/
+    note: >-
+      ASL Publication Ethics Policy（頁面日期 December 1, 2021），ASL 各刊共用。從 RSL 頁 "Publication Ethics Policy" 連入。
+      Cambridge 的 Publishing ethics 頁寫的連結 "http://aslonline.org/journals/..." 被截斷，沒有直接取得。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "relies on its editorial boards to determine whether there has been a potential violation"
+        min_extracted_chars: 4900
+    snapshot:
+      fetched_at: 2026-10-27
+      last_verified_at: 2026-10-27
+      extracted_sha256: null
+
+  - id: asl_appeals
+    role: authoritative
+    url: https://aslonline.org/journals/publication-ethics-policy/appeals-of-editorial-decisions/
+    note: ASL 各刊共用的申訴規定（頁面日期 January 15, 2024），從 Cambridge 的 Review process 頁連入。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Their decisions about such matters are not subject to appeal"
+        min_extracted_chars: 2500
+    snapshot:
+      fetched_at: 2026-10-27
+      last_verified_at: 2026-10-27
+      extracted_sha256: null
+
+  - id: editflow
+    role: authoritative
+    url: https://ef.msp.org/submit/asl_rsl
+    note: >-
+      EditFlow 投稿入口的 Step 0（Article Submission）。2026-10-27 curl 轉址到 https://ef.msp.org/submit_new.php?j=asl_rsl（Safari 讀的是轉址後的網址）。
+      含新投稿 vs 修訂稿的區分、通訊作者與開放取用資格、Plan S 注意事項、"Note on length of submissions"（25 頁、年錄取量 25–30 篇、
+      "Notes for Editors" 在 Step 4）、"Note on format and sources"，以及按 "I accept" 前的 Author Agreement。
+      本記錄只讀到 Step 0，沒有按 "I accept"，所以後續步驟（作者資料、雙匿名選項的欄位、稿件類型選單、Notes for Editors、檔案上傳等）未讀。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Proceed only if this is an entirely new submission"
+        min_extracted_chars: 4900
+    snapshot:
+      fetched_at: 2026-10-27
+      last_verified_at: 2026-10-27
+      extracted_sha256: null
+
+  - id: cup_home
+    role: supporting
+    url: https://www.cambridge.org/core/journals/review-of-symbolic-logic
+    note: >-
+      期刊首頁：ISSN、編輯（Coordinating Editor）、範圍、篇幅註記（Note on length of submissions）、導覽選單、最新文章列表（內容會隨時間變動）。
+      本記錄把首頁的 "Recently published articles" 當作 scope.observed_recent_articles 的觀察證據（不是投稿規定）。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "The Review began publication in June 2008"
+        min_extracted_chars: 3900
+    snapshot: {fetched_at: 2026-10-27, last_verified_at: 2026-10-27, extracted_sha256: null}
+
+  - id: cup_about
+    role: supporting
+    url: https://www.cambridge.org/core/journals/review-of-symbolic-logic/information/about-this-journal
+    note: ISSN、出刊頻率（4 issues per year）、範圍、篇幅註記、數位典藏、擁有者與出版者的關係。期刊首頁的 Journal information 連結導到這一頁。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "managed and published by Cambridge University Press on behalf of the owners, The Association for Symbolic Logic"
+        min_extracted_chars: 3500
+    snapshot: {fetched_at: 2026-10-27, last_verified_at: 2026-10-27, extracted_sha256: null}
+
+  - id: cup_authorinstr
+    role: supporting
+    url: https://www.cambridge.org/core/journals/review-of-symbolic-logic/information/author-instructions
+    note: >-
+      Author instructions 首頁：範圍複述，以及 APC 豁免或折扣的一句話。這頁的最後一段寫 "For each research article accepted by the JSL"，
+      指的是另一本期刊（JSL），疑為複製貼上的殘留，見 warnings。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Certain article types (for example, Research Articles) may be eligible for APC waivers"
+        min_extracted_chars: 3200
+    snapshot: {fetched_at: 2026-10-27, last_verified_at: 2026-10-27, extracted_sha256: null}
+
+  - id: cup_pubproc
+    role: supporting
+    url: https://www.cambridge.org/core/journals/review-of-symbolic-logic/information/author-instructions/publication-process-after-acceptance
+    note: 錄取後流程：Author Information Form、Accepted Manuscript（48 小時內上線的目標）、校樣時間。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "We aim to publish the Accepted Manuscript within 48 hours of final acceptance"
+        min_extracted_chars: 5200
+    snapshot: {fetched_at: 2026-10-27, last_verified_at: 2026-10-27, extracted_sha256: null}
+
+  - id: cup_agreement
+    role: supporting
+    url: https://www.cambridge.org/core/journals/review-of-symbolic-logic/information/author-instructions/publishing-agreement
+    note: Licence to publish 的種類（Gold OA 非專屬授權；非 Gold OA 專屬授權）與各版本表單的選擇表。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Before Cambridge can publish a journal article"
+        min_extracted_chars: 5900
+    snapshot: {fetched_at: 2026-10-27, last_verified_at: 2026-10-27, extracted_sha256: null}
+
+  - id: cup_metrics
+    role: supporting
+    url: https://www.cambridge.org/core/journals/review-of-symbolic-logic/information/about-this-journal/journal-metrics
+    note: >-
+      Cambridge 的 Journal metrics 表：2 年與 5 年 Impact Factor、Eigenfactor、Article Influence、CiteScore、SJR、SNIP，
+      以及 "last year" 的發表篇數（不標年度）。表沒有標 Impact Factor 等指標的年度，也沒有分區或名次。表中數值照頁面顯示：
+      2 年 Impact Factor 為 ".7"，5 年為 ".8"（省略前導的 0）。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Scimago Journal Rank (SJR)"
+        min_extracted_chars: 2700
+    snapshot: {fetched_at: 2026-10-27, last_verified_at: 2026-10-27, extracted_sha256: null}
+
+  - id: cup_metrics_guide
+    role: supporting
+    url: https://www.cambridge.org/core/services/authors/journals/measuring-impact
+    note: >-
+      Journal metrics 頁 "guide to journal-level metrics" 連結的目標（Safari 轉址到 /core/services/authors/measuring-impact）。
+      用途是確認 Cambridge 表中的 Impact Factor 指的是 Clarivate Journal Citation Reports 的 Journal Impact Factor，
+      並確認 JCR 約在每年年中發布。Safari 打開這頁只顯示頁首與頁尾（內文是動態載入），所以本記錄是用 verify.py 同款的 HTTP 抽取器讀這頁
+      （抽取後約 14,000 字），沒有用 Safari 讀。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Metrics provided by Clarivate Analytics"
+        min_extracted_chars: 11800
+    snapshot: {fetched_at: 2026-10-27, last_verified_at: 2026-10-27, extracted_sha256: null}
+
+  - id: cup_abstracting
+    role: supporting
+    url: https://www.cambridge.org/core/journals/review-of-symbolic-logic/information/about-this-journal/abstracting-and-indexing
+    note: 出版社自述的收錄清單。Web of Science 的收錄已用 Master Journal List 核對（見 mjl），其他項目沒有另外核對。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Science Citation Index Expanded"
+        min_extracted_chars: 2300
+    snapshot: {fetched_at: 2026-10-27, last_verified_at: 2026-10-27, extracted_sha256: null}
+
+  - id: cup_board
+    role: supporting
+    url: https://www.cambridge.org/core/journals/review-of-symbolic-logic/information/about-this-journal/editorial-board
+    note: >-
+      編輯名單（Editors 一組，Jon Litland 為 Coordinating Editor）。本記錄只收姓名、職稱與所屬機構，不收 email。
+      名單比 asl_staff 多一人（Paul Shafer），見 warnings。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Jon Litland (Coordinating Editor)"
+        min_extracted_chars: 2400
+    snapshot: {fetched_at: 2026-10-27, last_verified_at: 2026-10-27, extracted_sha256: null}
+
+  - id: cup_peerinfo
+    role: supporting
+    url: https://www.cambridge.org/core/journals/review-of-symbolic-logic/information/peer-review-information
+    note: >-
+      Peer review information 首頁：兩句話，寫 "single-anonymous peer review model"，並寫有審稿問題要聯絡 "the Editor-in-Chief"
+      （本刊的頭銜是 Coordinating Editor，沒有 Editor-in-Chief；見 warnings）。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "This journal uses a single-anonymous peer review model"
+        min_extracted_chars: 2300
+    snapshot: {fetched_at: 2026-10-27, last_verified_at: 2026-10-27, extracted_sha256: null}
+
+  - id: cup_ethics
+    role: supporting
+    url: https://www.cambridge.org/core/journals/review-of-symbolic-logic/information/journal-policies/publishing-ethics
+    note: 全頁只有一句，指向 ASL 的倫理原則（連結顯示文字被截斷，見 asl_ethics）。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Please refer to the ASL guidelines here"
+        min_extracted_chars: 2300
+    snapshot: {fetched_at: 2026-10-27, last_verified_at: 2026-10-27, extracted_sha256: null}
+
+  - id: cup_transparency
+    role: supporting
+    url: https://www.cambridge.org/core/journals/review-of-symbolic-logic/information/journal-policies/research-transparency
+    note: Research transparency（資料與程式碼政策）頁全頁只有一句，指向 ASL；證明 Cambridge 端沒有資料可得性規定。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "For any policy relating to the Review please refer to the ASL page here"
+        min_extracted_chars: 2000
+    snapshot: {fetched_at: 2026-10-27, last_verified_at: 2026-10-27, extracted_sha256: null}
+
+  - id: cup_green_oa
+    role: supporting
+    url: https://www.cambridge.org/core/services/open-access-policies/open-access-journals/green-open-access-policy-for-journals
+    note: >-
+      cup_oa 頁 "Green Open Access" 連結的目標：Cambridge 通用的 Green OA 政策頁。寫 "standard Green OA policy ... zero embargo periods",
+      少數期刊有較嚴的非標準政策，列在頁底的下載試算表（"Non-standard Green Open Access journal policies"，檔名 CUPA-Green-OA-Policies-2026-10.xlsx，
+      標示 "Updated October 2026"）。本記錄於 2026-10-27 下載該試算表，用期刊名稱與縮寫查，RSL（Review of Symbolic Logic）不在名單內，
+      名單內約 15 本期刊（例如 Philosophy of Science、Canadian Journal of Mathematics）；見 requirements.open_access.green_oa。
+      Safari 打開這頁只顯示頁首與頁尾，所以本記錄是用 verify.py 同款的 HTTP 抽取器讀這頁，沒有用 Safari 讀。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "zero embargo periods for sharing Accepted Manuscripts"
+        min_extracted_chars: 8000
+    snapshot: {fetched_at: 2026-10-27, last_verified_at: 2026-10-27, extracted_sha256: null}
+
+  - id: asl_resources
+    role: supporting
+    url: https://aslonline.org/journals/author-resources/
+    note: >-
+      asl.cls / asl.bst 等 TeX 檔案的下載頁（一個 zip）。頁面說明只提到 JSL 與 BSL（"including The Journal of Symbolic Logic and The Bulletin of Symbolic Logic"），
+      沒有提到 RSL；RSL 的 asl_guidelines 卻指示到這一頁取得 ASL 樣式檔，Cambridge 的 Preparing 頁則稱 "RSL LaTeX class file"。見 warnings。本記錄沒有下載 zip。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "The files needed to make it possible to create TEX-files in the style used by the publications of the Association for Symbolic Logic"
+        min_extracted_chars: 1400
+    snapshot: {fetched_at: 2026-10-27, last_verified_at: 2026-10-27, extracted_sha256: null}
+
+  - id: asl_journals
+    role: supporting
+    url: https://aslonline.org/journals/
+    note: ASL 三本期刊的一句話定位（JSL、Review of Symbolic Logic、Bulletin of Symbolic Logic）。用於判斷稿件該投 ASL 的哪一本。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Published quarterly, The Review focuses on original scholarly work"
+        min_extracted_chars: 2000
+    snapshot: {fetched_at: 2026-10-27, last_verified_at: 2026-10-27, extracted_sha256: null}
+
+  - id: asl_subscriptions
+    role: supporting
+    url: https://aslonline.org/journals/subscriptions/
+    note: >-
+      訂閱方式與 2026 年定價（RSL 單獨賣，機構版與個人版；JSL 與 BSL 只賣套裝）。作者不需要，只用來回答存取模式。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Subscriptions to the ASL journals are available for libraries and other non-members"
+        min_extracted_chars: 2800
+    snapshot: {fetched_at: 2026-10-27, last_verified_at: 2026-10-27, extracted_sha256: null}
+
+  - id: scimago
+    role: supporting
+    url: https://www.scimagojr.com/journalsearch.php?q=19800188078&tip=sid&clean=0
+    note: >-
+      SCImago（SJR）期刊頁：SJR、分區（2009–2025 逐年，三個類別）、H-index、涵蓋年份、Scope。網址的 q=19800188078 是 SCImago 的 source id，
+      由 ISSN 搜尋結果頁（journalsearch.php?q=17550203&tip=iss&clean=0）唯一的結果連結取得。
+      頁面最上方的 "SJR 2025 0.713 Q1" 的 Q1 是各學科類別中最好的一個；本刊 2025 年三個類別（Logic、Mathematics (miscellaneous)、Philosophy）都是 Q1，見 identity.metrics.quartiles。
+      頁面上 "How to publish in this journal" 的內容本記錄不收。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 回 HTTP 403 + 約 5.6 KB 的 Cloudflare 挑戰頁（title 為 'Just a moment...'）"
+      validity:
+        must_contain: "Subject Area and Category"
+        min_extracted_chars: 8000
+    snapshot: {fetched_at: 2026-10-27, last_verified_at: 2026-10-27, extracted_sha256: null}
+
+  - id: mjl
+    role: supporting
+    url: https://mjl.clarivate.com/home
+    note: >-
+      Clarivate Master Journal List。JS 單頁應用，結果頁網址（https://mjl.clarivate.com/search-results）不帶查詢字串，無法用網址重現；
+      只能在頁內於 #search-box 填 ISSN（本次填 1755-0203）、按 #search-button 後讀結果列。結果列的 "View profile page" 需要登入
+      （頁面註明 "* Requires free login."），所以 JCR 的類別與分區沒有取得。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "200 + 約 11 KB，但抽取後文字為 0 字（SPA 空殼），查詢結果需在頁內操作"
+    snapshot: {fetched_at: 2026-10-27, last_verified_at: 2026-10-27}
+
+# ─────────────────────────────────────────────────────────────
+identity:
+  name: The Review of Symbolic Logic
+  name_note: >-
+    Cambridge Core 與 ASL 寫 "The Review of Symbolic Logic"；SCImago 寫 "Review of Symbolic Logic"；MJL 為大寫 "REVIEW OF SYMBOLIC LOGIC"。
+  abbreviation: RSL
+  abbreviation_note: 投稿入口網址與 EditFlow 的期刊代碼用 asl_rsl（ef.msp.org/submit/asl_rsl）。來源 cup_preparing、editflow
+  publisher: Cambridge University Press
+  owner: Association for Symbolic Logic
+  publisher_evidence: >-
+    cup_about："This journal is managed and published by Cambridge University Press on behalf of the owners, The Association for Symbolic Logic."
+    MJL 出版社欄 "CAMBRIDGE UNIV PRESS , EDINBURGH BLDG, SHAFTESBURY RD, CAMBRIDGE, ENGLAND, CB2 8RU"；
+    SCImago 出版社欄 "Cambridge University Press"，國別 United Kingdom。
+  issn: {print: "1755-0203", electronic: "1755-0211", src: [cup_home, cup_about]}
+  issn_cross_check: >-
+    SCImago 頁 "ISSN 17550203, 17550211"；MJL 搜尋 1755-0203 得 "ISSN / eISSN: 1755-0203 / 1755-0211"。三處一致。
+  homepage: https://www.cambridge.org/core/journals/review-of-symbolic-logic
+  asl_page: https://aslonline.org/journals/the-review-of-symbolic/
+  hosting_platform: {name: Cambridge Core, url: "https://www.cambridge.org/core/journals/review-of-symbolic-logic"}
+  subject_area:
+    value: 邏輯、哲學與科學交界的研究（官網原文："research on the borders of logic, philosophy, and the sciences"）
+    scimago: "Arts and Humanities → Philosophy；Mathematics → Logic；Mathematics → Mathematics (miscellaneous)"
+    src: [cup_about, asl_rsl, scimago]
+  frequency: {value: quarterly, src: [cup_about, asl_journals], note: 'Cambridge 寫 "Frequency: 4 issues per year"；ASL 寫 "Published quarterly"'}
+  founded: {value: 2008, src: [cup_about, asl_rsl], note: '"The Review began publication in June 2008"'}
+  coverage: {value: "2008-2026", src: scimago, note: SCImago 頁面所列涵蓋年份}
+  external_ids:
+    scimago: "19800188078"
+    crossref: "1755-0203"
+    openalex: issn:1755-0203
+  sibling_journals:
+    - {name: The Journal of Symbolic Logic, src: asl_journals, positioning: 'Published quarterly, The Journal focuses on original research in mathematical logic and its applications. It is the leading research journal in the field.（原文）'}
+    - {name: The Bulletin of Symbolic Logic, src: asl_journals, positioning: 'Published quarterly, The Bulletin publishes articles of general interest to the logic community in all the areas of logic as well as communications of important new developments. It also includes reviews of important books and articles in all areas of the discipline, abstracts of doctoral theses in logic, obituaries and meeting reports and other notices of the Association.（原文）'}
+  positioning_in_asl: >-
+    asl_journals："Published quarterly, The Review focuses on original scholarly work in philosophical and non-classical logics and their applications,
+    history and philosophy of logic, and philosophy and methodology of mathematics."
+  open_access:
+    value: hybrid
+    src: [cup_oa, cup_fees]
+    note: >-
+      "This is a hybrid journal, which means it provides authors with options to make their articles open access, including the option to publish
+      Gold Open Access under a Creative Commons licence."（cup_fees）；cup_oa 另寫本刊是 cOAlition S 登記的 Transformative Journal
+  access:
+    model: 訂閱制為主（RSL 單獨訂閱，機構版與個人版）；作者可選 Gold OA（付 APC 或由機構協議涵蓋）
+    statement: 'asl_subscriptions 有 "Review of Symbolic Logic (for Institutions)" 與 "(for Individuals)" 兩張 2026 年價目表；JSL 與 BSL 才是只賣套裝。'
+    src: asl_subscriptions
+  editors:
+    coordinating: {name: Jon Litland, affiliation: "University of Texas at Austin, USA", role: Coordinating Editor, src: [cup_home, cup_board, asl_staff], note: 'cup_home 寫 "Editor: Jon Litland (Coordinating Editor)"；asl_staff 寫 "Jon Litland, Coordinating Editor"'}
+    list_src: [cup_board, asl_staff]
+    members:
+      - {name: Rohan French, affiliation: "University of California, Davis, USA", listed_areas: "Philosophical logic; Philosophy of logic; Non-classical logic; Modal logic"}
+      - {name: Silvio Ghilardi, affiliation: "Università degli Studi di Milano, Italy", listed_areas: "Modal and non-classical logics; Algebraic and categorical logic; Computational logic and automated reasoning"}
+      - {name: Luca Incurvati, affiliation: "University of Amsterdam, The Netherlands", listed_areas: "Philosophy of mathematics; Philosophy of language; Philosophical logic; Philosophy of logic"}
+      - {name: Graham E. Leigh, affiliation: "University of Gothenburg, Sweden", listed_areas: "Proof theory; Modal and temporal logic; Formal theories of truth"}
+      - {name: Jon Litland, affiliation: "University of Texas at Austin, USA", listed_areas: "Philosophical logic; Philosophy of language; Philosophy of logic; Philosophy of mathematics"}
+      - {name: Judit Madarász, affiliation: "Alfréd Rényi Institute of Mathematics, Hungary", listed_areas: "Algebraic logic; Definability theory; Axiomatic methods"}
+      - {name: Marko Malink, affiliation: "New York University, USA", listed_areas: "History of logic from antiquity through the 20th century; Algebraic tradition in logic; Philosophy of logic"}
+      - {name: Gil Sagi, affiliation: "University of Haifa, Israel", listed_areas: "Philosophy of logic; Philosophy of mathematics; Philosophy of language"}
+      - {name: Zeynep Soysal, affiliation: "University of Rochester, USA", listed_areas: "Philosophy of mathematics; Philosophy of language; Philosophy of set theory; Epistemic logic"}
+      - {name: Gabriel Uzquiano, affiliation: "University of Southern California, USA", listed_areas: "Philosophical logic; Philosophy of logic; Philosophy of mathematics; Formal approaches to metaphysics"}
+      - {name: Francesca Zaffora Blando, affiliation: "Carnegie Mellon University, USA", listed_areas: null}
+      - {name: Paul Shafer, affiliation: "University of Leeds, UK", listed_areas: null, note: "只出現在 cup_board，asl_staff 沒有列"}
+    note: >-
+      listed_areas 是 asl_staff 頁各編輯名下列出的領域名稱（頁面只列名稱，不是自述句）。asl_staff 頁 Zaffora Blando 名下沒有列領域。
+      Cambridge 名單 12 人，ASL 名單 11 人（少 Paul Shafer）；見 warnings。官網沒有說明作者是否挑選編輯：asl_guidelines 只寫
+      "The managing editor will assign a handling editor to your article"（在雙匿名審稿那一段）。
+  metrics:
+    impact_factor:
+      value: 0.7
+      system: JCR
+      provider: Clarivate
+      label: 2-year Impact Factor
+      as_of: 2026-10-27
+      src: [cup_metrics, cup_metrics_guide]
+      year_note: Cambridge 的 Journal metrics 頁沒有標示這個值對應哪一年的 Journal Citation Reports
+      note: >-
+        頁面（原始 HTML 的表格儲存格）只顯示 ".7"，沒有前導的 0 和第二位小數；這裡記為 0.7，真實的小數位數未知，本次沒有登入 JCR 核對。
+        系統名稱出自 cup_metrics_guide：Cambridge 的指標說明把 Impact Factor 列在
+        "Metrics provided by Clarivate Analytics" 底下的 "Journal Impact Factor (JIF)"，並寫 JCR "typically published in the middle of the calendar year"。
+        cup_metrics 頁本身只寫 "2-year Impact Factor"，沒有寫 Clarivate，也沒有寫年度。
+        參考：同一張表的 SJR（0.713）與 SCImago 2025 年的值相同，但這只能佐證 SJR 的年度，不能推出 Impact Factor 的年度。
+    impact_factor_5yr:
+      value: 0.8
+      system: JCR
+      provider: Clarivate
+      label: 5-year Impact Factor
+      as_of: 2026-10-27
+      src: [cup_metrics, cup_metrics_guide]
+      note: 頁面顯示 ".8"（省略前導 0）。年度未標示，同 impact_factor。
+    eigenfactor: {value: 0.00108, as_of: 2026-10-27, src: cup_metrics, note: 頁面顯示 ".00108"；年度未標示}
+    article_influence: {value: 0.655, as_of: 2026-10-27, src: cup_metrics, note: 頁面顯示 ".655"；年度未標示}
+    citescore:
+      value: 2.0
+      as_of: 2026-10-27
+      src: cup_metrics
+      note: Cambridge 表中的 CiteScore，年度未標示；本次沒有到 Scopus 核對。
+    sjr:
+      value: 0.713
+      year: 2025
+      as_of: 2026-10-27
+      src: [scimago, cup_metrics]
+      note: >-
+        SCImago 頁面標 "SJR 2025 0.713"；Cambridge 表的 SJR 也是 0.713，相符。SCImago 的歷年 SJR：2024 為 0.999、2023 為 0.754、2022 為 0.557、
+        2021 為 0.919、2020 為 0.682、2019 為 1.261（2014 年曾到 2.475）。
+    snip: {value: 1.339, as_of: 2026-10-27, src: cup_metrics, note: 年度未標示}
+    h_index: {value: 36, as_of: 2026-10-27, src: scimago, note: SCImago 頁面所列}
+    quartiles:
+      - {system: SJR, category: Logic, quartile: Q1, year: 2025, as_of: 2026-10-27, src: scimago,
+         note: "SCImago 頁面（學科領域 Mathematics → Logic）逐年分區：2025、2024、2023、2021、2012–2019 為 Q1；2022、2020、2011 為 Q2；2010 為 Q4、2009 為 Q3；頁面不給名次"}
+      - {system: SJR, category: Mathematics (miscellaneous), quartile: Q1, year: 2025, as_of: 2026-10-27, src: scimago,
+         note: "SCImago 頁面（學科領域 Mathematics → Mathematics (miscellaneous)）逐年分區：2025、2024、2023、2021、2019、2014–2017、2012 為 Q1；2022、2020、2018、2013、2011 為 Q2；2010、2009 為 Q3；頁面不給名次"}
+      - {system: SJR, category: Philosophy, quartile: Q1, year: 2025, as_of: 2026-10-27, src: scimago,
+         note: "SCImago 頁面（學科領域 Arts and Humanities → Philosophy）；2011–2025 每年都是 Q1（2010 為 Q2、2009 為 Q1）；頁面不給名次"}
+    jcr_quartile:
+      status: not_found
+      checked: 2026-10-27
+      note: >-
+        JCR 的類別、分區與名次需登入 Clarivate JCR，本次未查；MJL 結果列的 "View profile page" 也需登入（"* Requires free login."）。
+        Cambridge 的 Journal metrics 頁只列數值，沒有分區。上方 quartiles 是 SJR 分區，不是 JCR。
+    indexing:
+      clarivate_mjl:
+        scie: true
+        ssci: false
+        esci: false
+        ahci: true
+        web_of_science_core_collection: Science Citation Index Expanded | Arts & Humanities Citation Index
+        additional_indexes: [Current Contents Arts & Humanities, Essential Science Indicators]
+        checked: 2026-10-27
+        search_issn: "1755-0203"
+        mjl_publisher_string: "CAMBRIDGE UNIV PRESS , EDINBURGH BLDG, SHAFTESBURY RD, CAMBRIDGE, ENGLAND, CB2 8RU"
+        src: mjl
+        note: >-
+          搜尋 1755-0203 得 1 筆 "Exact Match Found"（REVIEW OF SYMBOLIC LOGIC，ISSN / eISSN 1755-0203 / 1755-0211），
+          Web of Science Core Collection 欄列 "Science Citation Index Expanded | Arts & Humanities Citation Index"；沒有 SSCI、ESCI。
+          搜尋時頁面的 Active Filters 為預設的四項（SCIE、SSCI、AHCI、ESCI 皆啟用），所以 SSCI 與 ESCI 的缺席是有效的負面結果。
+          比較表（venue_table.py）只顯示 SCIE 與 SSCI，所以本刊在表上顯示為 "SCIE"，AHCI 要看這個欄位。
+      publisher_stated:
+        list: [MathSciNet, Arts & Humanities Citation Index, Current Contents, Science Citation Index Expanded, Web of Science, "EBSCOhost（Academic Search 系列、TOC Premier）", Scopus, "OCLC（ArticleFirst、Electronic Collections Online）", Zentralblatt MATH (Online)]
+        src: cup_abstracting
+        note: >-
+          Abstracting and indexing 頁的清單，是出版社自述。AHCI 與 SCIE 兩項已用 MJL 核對相符；
+          Scopus 與其他資料庫沒有另外核對。
+    acceptance_rate:
+      status: not_published
+      checked: 2026-10-27
+      src: [cup_home, cup_about, cup_metrics, cup_preparing, asl_rsl, asl_guidelines, editflow]
+      note: >-
+        Cambridge 的期刊首頁、About、Journal metrics、Preparing your materials 與 ASL 的 RSL 頁、Submission Guidelines、EditFlow Step 0 都沒有錄取率，也沒有拒絕率。
+        官方只公布每年錄取量的預設值（annual_acceptance_target，見下）。
+    annual_acceptance_target:
+      value: "25–30"
+      unit: papers per year
+      statistic: target
+      as_of: 2026-10-27
+      src: [asl_guidelines, editflow]
+      basis: >-
+        這是目標（預設值），不是統計，也不是錄取率。asl_guidelines："Due to an increasing number of submissions, RSL is for now limiting both the number of total papers
+        accepted and the length of papers accepted. The new default for total papers accepted per year is 25-30"；editflow 同義（"the journal has begun limiting both ..."）。
+        "for now" 表示是暫時性措施，官網沒有說何時檢討。
+    time_to_first_decision:
+      status: not_published
+      checked: 2026-10-27
+      src: [cup_metrics, cup_review, cup_peerinfo, cup_preparing, asl_guidelines, editflow]
+      note: >-
+        Cambridge 的 Journal metrics、Review process、Peer review information、Preparing your materials 與 ASL 的 Submission Guidelines、EditFlow Step 0
+        都沒有首次決定時間（無實際統計，也無時程目標）。
+    time_submission_to_acceptance:
+      status: not_published
+      checked: 2026-10-27
+      src: [cup_metrics, cup_review, cup_peerinfo, cup_preparing, asl_guidelines, editflow]
+      note: >-
+        同上，官方無投稿到接受的統計。本記錄沒有做自行抽樣估計（sample_review_times.py 沒有 Cambridge Core 的 preset，
+        且本次範圍只收官方數字）。
+    time_acceptance_to_online:
+      value: 2
+      unit: days
+      statistic: target
+      as_of: 2026-10-27
+      src: cup_pubproc
+      basis: >-
+        這是目標，不是統計：'We aim to publish the Accepted Manuscript within 48 hours of final acceptance, provided we have received
+        all final files and a completed publishing agreement.' 另寫校樣約在錄取後兩週寄出（"Proofs will be sent to you around two weeks after acceptance."）。
+    published_volume:
+      value: 17
+      year: null
+      as_of: 2026-10-27
+      src: cup_metrics
+      note: >-
+        Cambridge 表 "Published articles" 之下 "Total number of articles last year 17"（OA 9 篇、訂閱支持 8 篇）。頁面只寫 "last year"，沒有標年度。
+        SCImago 的 Total Documents 計入所有文件類型，2024 年為 43、2025 年為 46；asl_guidelines 的年錄取量預設值是 25–30 篇。
+        三個數字口徑不同，不可互比（見 warnings）。
+
+# ─────────────────────────────────────────────────────────────
+# SLOW — 數年不變。驗證用 hash diff 即可。
+# ─────────────────────────────────────────────────────────────
+requirements:
+  refresh: {check_every: P6M, method: extracted_hash_diff}
+
+  scope:
+    aims_verbatim: >-
+      The Review of Symbolic Logic is designed to cultivate research on the borders of logic, philosophy, and the sciences, and to support substantive
+      interactions between these disciplines. The journal welcomes submissions in any of the following areas, broadly construed:
+    areas_verbatim_cup:
+      - "The general study of logical systems and their semantics, including non-classical logics and algebraic logic;"
+      - "Philosophical logic and formal epistemology, including interactions with decision theory and game theory;"
+      - "The history, philosophy, and methodology of logic and mathematics, including the history of philosophy of logic and mathematics;"
+      - "Applications of logic to the sciences, such as computer science, cognitive science, and linguistics; and logical results addressing foundational issues in the sciences."
+    areas_verbatim_asl:
+      - "The general study of logical systems and their semantics, including non-classical logics and algebraic logic"
+      - "Philosophical logic and formal epistemology, including interactions with decision theory and game theory"
+      - "The history, philosophy, and methodology of logic and mathematics, including the history of philosophy of logic and mathematics"
+      - "Applications of logic to the sciences, such as computer science, cognitive science, and linguistics"
+      - "Logical results addressing foundational issues in the sciences"
+    aims_closing_verbatim: "The Review welcomes submissions in all these areas. The Review began publication in June 2008."
+    aims_verbatim_note: >-
+      aims_verbatim 與 areas_verbatim_cup 是 cup_preparing 的文字（項目符號 "- " 在此拆成清單；cup_about 與 cup_home 的第一項在 "semantics," 之後沒有空格，其餘相同；
+      cup_authorinstr 同）。areas_verbatim_asl 是 asl_rsl 的文字：領域清單相同，只是把 Cambridge 的第四項拆成兩項（"Applications of logic to the sciences ..." 與
+      "Logical results addressing foundational issues in the sciences"），ASL 版的引言句是 "The Review welcomes submissions in any of the following areas, broadly construed:"
+      （沒有 "The journal welcomes" 那一句）。aims_closing_verbatim 在 cup_about、cup_preparing、cup_home 出現；asl_rsl 只有 "The Review began publication in June 2008."
+    src: [cup_about, cup_home, cup_preparing, cup_authorinstr, asl_rsl, scimago]
+    audience:
+      statement: >-
+        "designed to cultivate research on the borders of logic, philosophy, and the sciences, and to support substantive interactions between these disciplines."
+        官網沒有寫 "accessible to a wide audience" 之類的要求（BSL 才有）。
+      src: [cup_about, asl_rsl]
+      reading: >-
+        讀者是跨越邏輯、哲學與科學邊界的研究者；官網沒有要求稿件寫給整個邏輯社群讀（與 BSL 不同），也沒有要求是數學或哲學的某一邊。
+    submission_invitation:
+      statement: >-
+        asl_guidelines："All papers should be submitted via the RSL EditFlow Management System. Authors should follow the specific procedures indicated there."
+        cup_preparing：入口 "Proceed to submission system"（https://ef.msp.org/submit/asl_rsl）。
+      src: [asl_guidelines, cup_preparing, editflow]
+      reading: >-
+        官網寫成一般主動投稿，沒有任何一頁寫 RSL 是邀稿制，也沒有要求投稿前先詢問編輯。
+        （唯一的 "invited" 出現在 EditFlow：被拒稿件的修訂版除非 "explicitly invited to re-submit"，不得重投。）
+    areas:
+      - id: logical_systems_and_semantics
+        statement: '"The general study of logical systems and their semantics, including non-classical logics and algebraic logic"（原文）'
+        src: [cup_about, asl_rsl]
+      - id: philosophical_logic_and_formal_epistemology
+        statement: '"Philosophical logic and formal epistemology, including interactions with decision theory and game theory"（原文）'
+        src: [cup_about, asl_rsl]
+      - id: history_philosophy_methodology_of_logic_and_mathematics
+        statement: '"The history, philosophy, and methodology of logic and mathematics, including the history of philosophy of logic and mathematics"（原文）'
+        src: [cup_about, asl_rsl]
+      - id: applications_to_the_sciences
+        statement: '"Applications of logic to the sciences, such as computer science, cognitive science, and linguistics"（原文）'
+        src: [cup_about, asl_rsl]
+      - id: foundational_logical_results_in_the_sciences
+        statement: '"logical results addressing foundational issues in the sciences"（cup_about，併在上一項之後）／"Logical results addressing foundational issues in the sciences"（asl_rsl，獨立一項）'
+        src: [cup_about, asl_rsl]
+    mathematical_vs_philosophical:
+      statement: >-
+        官網沒有任何一句話說明純數學的邏輯稿件與哲學稿件各自適不適合 RSL，也沒有說比例。最接近的官方敘述有三處：
+        (a) asl_journals 對三本期刊的定位——RSL："focuses on original scholarly work in philosophical and non-classical logics and their applications,
+        history and philosophy of logic, and philosophy and methodology of mathematics"，JSL："focuses on original research in mathematical logic and its applications"。
+        (b) 範圍清單第 1 項含 "non-classical logics and algebraic logic"，第 4 項含 "logical results addressing foundational issues in the sciences"；
+        (c) asl_appeals："The editors of ASL journals have wide discretion about ... the appropriateness of the subject matter for our journal ... Their decisions about such matters are not subject to appeal."
+      src: [asl_journals, cup_about, asl_appeals]
+      reading: >-
+        範圍清單同時包含邏輯系統與語意（含代數邏輯）的一般研究，以及哲學與歷史方向；官網沒有排除數學性的稿件，也沒有保證收。
+        asl_staff 頁各編輯名下列出的領域中，哲學方向最多（Philosophical logic、Philosophy of logic／mathematics／language 等），
+        也有數學方向（Algebraic logic、Definability theory、Axiomatic methods、Proof theory、Algebraic and categorical logic、Modal and temporal logic），見 identity.editors.members。
+        這是對編輯名單的觀察，不是官方的收稿規則。
+    observed_recent_articles:
+      as_of: 2026-10-27
+      src: cup_home
+      note: >-
+        不是投稿規定：期刊首頁 "Recently published articles"（First View）當日列出的八篇標題，用來看實際刊出的主題範圍；"Most read" 與 "Most cited" 各列一篇。
+        首頁內容會隨時間變動。
+      first_view_titles:
+        - "RECONSIDERING GÖDEL'S DOCTRINE: INDEPENDENCE RESULTS（Patrick J. Ryan）"
+        - "THE CARDINALITIES OF INTERVALS OF EQUATIONAL THEORIES AND LOGICS（Juan Aguilera, Nick Bezhanishvili, Tenyo Takahashi）"
+        - "ON THE CHOICE OF GÖDEL NUMBERINGS（Léon Probst）"
+        - "THE PROOF IS IN THE CHECKING（Nicholas J. J. Smith）"
+        - "ON SELF-DISOBEDIENT LOGICS（Bas Kortenbach）"
+        - "KRIPKE COMPLETENESS FOR PREDICATE MODAL LOGICS OF BOUNDED ALTERNATIVITY: FIRST STEPS（Valentin Shehtman, Dmitry Shkatov）"
+        - "MAXIMAL NEIGHBORHOOD UNSOUND CONGRUENTIAL MODAL LOGICS（Krzysztof Aleksander Krawczyk）"
+        - "WHEN DO BIRKHOFF OBJECTS SEPARATE?（Francisco Marmolejo, Matías Menni）"
+      most_read: "SATISFACTION IS NOT ABSOLUTE（Joel David Hamkins, Ruizhi Yang），Volume 19, Issue 1"
+      most_cited: "THE LOGIC OF JUSTIFICATION（Sergei Artemov），Volume 1, Issue 4"
+    acceptance_criteria:
+      statement: >-
+        官網沒有給明確的錄取判準。與錄取有關的官方文字只有：(1) 篇幅與年錄取量的限制（見 length 與 identity.metrics.annual_acceptance_target）；
+        (2) 較長的稿件 "will in general be judged by higher standards"；(3) asl_appeals 的編輯裁量條款（"the basic expository level of the submission and its intelligibility
+        to our audience, the appropriateness of the subject matter for our journal and the quality or importance of the results presented"）。
+      src: [asl_guidelines, editflow, cup_about, asl_appeals]
+    out_of_scope_hints:
+      - case: 重複投稿被判在範圍外、由 AI 大量生成的稿件、宣稱解決重大公開問題卻沒有新方法或沒有處理現有文獻的稿件
+        statement: >-
+          "If your submissions repeatedly are outside the scope of the journal or do not meet scholarly standards, your ability to submit
+          might be limited or suspended. This includes (for example) manuscripts generated largely by AI and manuscripts asserting
+          resolutions of major open problems without valid new methods or proper engagement with the current research literature."
+        src: editflow
+        reading: >-
+          這是 EditFlow Step 0 的 Author Agreement，寫的是後果（repeatedly 才限制投稿資格），並以 "for example" 舉例；
+          不是範圍條款，但屬於官方明文勸阻的稿件類型
+      - case: 編輯對主題是否適合本刊的裁量
+        statement: >-
+          "The editors of ASL journals have wide discretion about general concerns such as the basic expository level of the submission and
+          its intelligibility to our audience, the appropriateness of the subject matter for our journal and the quality or importance of
+          the results presented. ... Their decisions about such matters are not subject to appeal."
+        src: asl_appeals
+        reading: 主題適不適合、呈現層次、對讀者的可懂程度、結果的品質與重要性，編輯有廣泛裁量，且不可申訴
+      - case: 與會議論文集版本差異不大的完整版
+        statement: >-
+          "Full versions of important papers that have previously been published in conference proceedings are eligible for publication,
+          provided that the submitted paper extends the prior publication in a significant way."
+        src: asl_guidelines
+        reading: 是條件（significantly extend），不是排除
+      - case: 非英文稿件
+        statement: '"As of January 1, 2023 only papers in English will be considered for publication."'
+        src: asl_guidelines
+        reading: 明文限定英文
+      - case: 超過預設篇幅的稿件
+        statement: >-
+          "longer submissions will be considered, although longer submissions will in general be judged by higher standards. Contributors are given the opportunity
+          to explain, in the cover letter, if the rationale for the longer submission relates to specifics of the content, topic, or area."
+        src: asl_guidelines
+        reading: 不是排除，是更高的標準；見 length
+    explicit_exclusions:
+      status: not_published
+      checked: 2026-10-27
+      src: [cup_about, cup_preparing, asl_rsl, asl_guidelines, editflow]
+      note: >-
+        各頁都沒有 "we do not publish X" 形式的主題排除句。最接近的是上列的 may be limited or suspended／higher standards／provided that 措辭，
+        以及 EditFlow 對 AI 大量生成稿件與宣稱解決重大公開問題稿件的警告。
+    related_asl_journals:
+      statement: >-
+        ASL 另有兩本期刊定位不同：Journal of Symbolic Logic 收 "original research in mathematical logic and its applications"；
+        Bulletin of Symbolic Logic 收 "articles of general interest to the logic community in all the areas of logic as well as communications of important new developments"。
+        RSL 的定位是 "original scholarly work in philosophical and non-classical logics and their applications, history and philosophy of logic, and philosophy and methodology of mathematics"。
+      src: asl_journals
+
+  # RSL 的官方文字只描述一種稿件。ASL 的 Guidelines 寫 "See the general description of the RSL for the types of material published in the Review"，
+  # 而該 general description（asl_rsl）只列領域，沒有列稿件類型。
+  article_types:
+    - id: article
+      label: 一般投稿（官網稱 "submission"、"papers"、"article"；Cambridge 的 Author instructions 首頁提到 "Research Articles" 一詞）
+      what_it_is_expected_to_be:
+        asl_guidelines: >-
+          "See the general description of the RSL for the types of material published in the Review."　（RSL 頁 asl_rsl 只列範圍的領域清單，沒有列稿件類型）
+        cup_authorinstr: >-
+          "Certain article types (for example, Research Articles) may be eligible for APC waivers or discounts under one of the agreements Cambridge University Press has made
+          to support open access."
+        reading: >-
+          官網沒有定義 RSL 的稿件類型：沒有 Communications、survey、expository、short note、Reviews、Thesis Abstracts 或會議報告等欄目，
+          也沒有說明 "research article" 與其他類型的區別。「投稿 RSL」在官方文字上就是投一篇落在範圍清單內的論文。
+        src: [asl_guidelines, asl_rsl, cup_authorinstr]
+      invited_or_submitted: 可主動投稿。官網沒有寫邀稿制，也沒有要求先詢問編輯；投稿方式是用 EditFlow（https://ef.msp.org/submit/asl_rsl）。
+      invited_src: [asl_guidelines, cup_preparing, editflow]
+      length:
+        value: 25
+        unit: pages_typeset
+        basis: >-
+          單位是 schema 列舉中最接近的選項，不是來源定義的：來源寫 "25 pages (using the RSL style)"（cup_about、cup_home）與 "a 25-page limit for the initial submission"
+          （asl_guidelines、editflow），沒有說明字體、行距或版面。cup_about 的 "using the RSL style" 暗示用 RSL（ASL）的 LaTeX 樣式排出來的頁數。
+        wording: >-
+          cup_about："The default length of the initial submission is 25 pages (using the RSL style.) Papers may go up to 30 pages during revisions). Longer submissions will be considered,
+          although contributors should bear in mind that longer submissions will in general be judged by higher standards."
+        revision_max: {value: 30, unit: pages_typeset, note: '"with the option to go up to 30 during revisions"（asl_guidelines）'}
+        src: [cup_about, cup_home, asl_guidelines, editflow]
+      abstract_and_keywords: 見 requirements.abstracts 與 requirements.keywords（摘要 300 字以內；定稿須有 MSC 2020 分類號與關鍵字）
+      submission: 用 EditFlow（https://ef.msp.org/submit/asl_rsl）；PDF ＋ 原始檔；只收英文。細節見 requirements.submission
+      review: 單匿名同行審查（cup_review），作者可在投稿時選雙匿名（asl_guidelines）。官網沒有說明審稿人數、輪次或時程
+      src: [asl_guidelines, asl_rsl, cup_about, cup_review]
+    - id: other_types
+      label: Articles 以外的稿件類型（Communications、Reviews、Thesis Abstracts、會議報告、survey 專欄等）
+      status: not_published
+      checked: 2026-10-27
+      src: [cup_about, cup_preparing, cup_authorinstr, asl_rsl, asl_guidelines, editflow]
+      note: 官網沒有列出任何其他稿件類型，也沒有 "other high quality submissions" 之類的寄給 managing editor 的規定（BSL 才有）。
+
+  article_type_labels_observed:
+    labels: [Article]
+    src: cup_home
+    as_of: 2026-10-27
+    note: >-
+      這是已刊出文章在 Cambridge Core 首頁列表上的標籤，不是投稿規定：首頁 "Recently published articles"、"Most read"、"Most cited" 每篇都標為 "Article"。
+
+  length:
+    value: 25
+    unit: pages_typeset
+    basis:
+      note: >-
+        單位是 schema 列舉中最接近的選項，不是來源定義的：來源寫 "25 pages (using the RSL style)" 與 "a 25-page limit for the initial submission"，
+        沒有說明字體、行距或版面。這是初次投稿的預設值；修訂時可到 30 頁；更長的稿件 "will be considered" 但標準較高。
+    wording: >-
+      asl_guidelines："the new default is a 25-page limit for the initial submission (with the option to go up to 30 during revisions). However, longer submissions will be considered,
+      although longer submissions will in general be judged by higher standards. Contributors are given the opportunity to explain, in the cover letter, if the rationale for the longer
+      submission relates to specifics of the content, topic, or area."
+    exceptions: >-
+      超過 25 頁的稿件仍會被考慮（"longer submissions will be considered"），所以是軟性上限，沒有給更高的硬上限。修訂時可到 30 頁。
+      較長稿件的理由要寫在 cover letter（asl_guidelines）或 EditFlow Step 4 的 "Notes for Editors"（editflow）；兩處說法不同，見 warnings。
+    includes_note:
+      status: not_published
+      checked: 2026-10-27
+      note: 官網未說明 25 頁是否含參考文獻、附錄、圖表，也沒有字數上限。
+    revision_max: {value: 30, unit: pages_typeset}
+    src: [cup_about, cup_home, asl_guidelines, editflow]
+
+  abstracts:
+    - id: main
+      applies_to: [article]
+      max_words: 300
+      required_at: final_version
+      rules:
+        - 'cup_preparing："Manuscripts should begin with an abstract of no more than 300 words."'
+        - 'asl_guidelines："Note that abstracts are now required for final versions of all papers."'
+      note: >-
+        Cambridge 的 Layout of manuscripts 要求稿件以不超過 300 字的摘要開頭；ASL 的 Guidelines 另說定稿（final version）必須有摘要。
+        ASL 沒有寫字數；300 字上限只出現在 Cambridge 的 Preparing 頁。Cambridge 的措辭是稿件版面（layout）規定，沒有明說初投是否必須，所以 required_at 只記 ASL 明文的定稿。
+      src: [cup_preparing, asl_guidelines]
+
+  keywords:
+    msc_classification:
+      required_for_final_version: true
+      statement: '"AMS classification numbers (MSC 2020) and keywords are also required."（asl_guidelines，指定稿）'
+      acm_ccs: '"If appropriate, ACM CCS designators are strongly recommended."'
+      src: asl_guidelines
+    free_keywords: {max: {status: not_published, checked: 2026-10-27, src: [asl_guidelines, cup_preparing]}}
+
+  formatting:
+    submission_file: PDF（EditFlow 上傳）；另須上傳原始檔
+    statement: >-
+      asl_guidelines："All submissions must be PDF documents. Color is not allowed. We also do not generally allow hand-drawn figures or
+      diagrams. Exceptions may be made e.g., for professionally drawn diagrams. Please consult with your editor if this is necessary."
+      editflow："Your submission must be a PDF file with no use of colors other than grayscale."
+    typesetting: >-
+      TeX 最佳（"It is by far best to prepare manuscripts in some version of TeX."）。其他格式在數學符號全部使用公式模式
+      （Word）或 MathType 時可接受。cup_preparing："The publisher encourages submission of manuscripts in LaTeX which can be used for direct typesetting.
+      Authors using LaTeX should use the RSL LaTeX class file. ... While use of the RSL LaTeX file is preferred, plain LaTeX or TeX files can also be accepted."
+    source_file_at_submission:
+      required: true
+      statement: >-
+        asl_guidelines："The source file (e.g. .doc or .docx) will also be required at submission. For submissions prepared in TeX,
+        the .tex file is sufficient."（editflow 寫 "The source file (e.g., .doc or .docx) must also be uploaded now."）
+      conflict: 'cup_preparing 沒有寫投稿時要附原始檔。以 asl_guidelines 與 EditFlow 為準（實際投稿用的是 EditFlow）。'
+      src: [asl_guidelines, editflow, cup_preparing]
+    template:
+      class: "RSL（cup_preparing 稱 RSL LaTeX class file）／asl（asl_guidelines 稱 ASL style files）"
+      files: [asl.cls, asl.bst]
+      src: [cup_preparing, asl_guidelines, asl_resources]
+      note: >-
+        cup_preparing："Authors using LaTeX should use the RSL LaTeX class file. This, along with related files, can be found here (zip file download). If you have difficulties obtaining these files
+        please contact [Cambridge 的 texline 信箱，本記錄不收 email]."　asl_guidelines："The relevant ASL style files can be found at our Author Resources page and can be used for submissions."
+        檔名 asl.cls、asl.bst 是 BSL 與 JSL 記錄沿用的；RSL 的來源頁沒有寫檔名，所以這裡的 files 是推測，不是來源所寫。見 warnings。
+    language: 英文限定（2023-01-01 起）。來源 asl_guidelines
+    authors_identifiable: >-
+      每位作者都必須是可辨識的人，不接受匿名作者；允許筆名，但編輯須收到完整正確的姓名與聯絡資料（asl_guidelines）。
+    orcid: >-
+      asl_guidelines："We strongly encourage that submitted manuscripts include ORCID identifiers for all authors."；
+      cup_preparing 與 cup_submitting："We encourage authors to identify themselves using ORCID"
+    author_web_urls: 'cup_preparing："Please supply Web URLs for the home page of each of the authors of the paper."'
+    final_version_extras:
+      - 摘要、MSC 2020 分類號與關鍵字（見上）
+      - 每位作者具機構隸屬者，須附研究進行處的完整郵寄地址（asl_guidelines）
+      - 所有圖、表與其他顯示材料的說明文字（alt-text）；可自行寫，或在校樣階段檢查 Cambridge 系統產生的版本（asl_guidelines、cup_preparing）
+    labelling: '圖一律稱 "Figures"，表與圖須編號並附標題；程式碼片段、圖解等也須標號（cup_preparing）'
+    src: [asl_guidelines, cup_preparing, editflow]
+
+  supplementary_material:
+    role: 與文章無關鍵關係但可能有讀者興趣的材料
+    separate_file: true
+    typeset: false
+    rules:
+      - '"Material that is not essential to understanding or supporting a manuscript ... may be submitted as supplementary material."'
+      - 須經編輯同意才會與文章一起線上發表，不放在期刊頁面中（"With the approval of the editors"）
+      - 不排版也不 copyedit，須以最終呈現的樣子提供（"supplied exactly as they are to appear online"）
+      - 類型包括附錄、額外的表圖、資料集、影片、音檔（"not limited to"）
+    repository_encouragement: '"Where relevant we encourage authors to publish additional qualitative or quantitative research outputs in an appropriate repository"'
+    src: cup_preparing
+
+  reproducibility:
+    code_and_data_sharing_mandate:
+      status: not_published
+      checked: 2026-10-27
+      src: [cup_transparency, asl_guidelines, cup_preparing]
+      note: >-
+        Cambridge 的 Research transparency 頁全頁只寫 "For any policy relating to the Review please refer to the ASL page here."；
+        ASL 的 RSL Submission Guidelines 與倫理政策頁都沒有資料或程式碼公開、資料可得性聲明的條文。
+    reporting_standards: {status: not_published, checked: 2026-10-27, src: [asl_guidelines, cup_preparing], note: 無 TOP、JARS 或其他報告標準要求}
+    formalization_or_proof_checking:
+      status: not_published
+      checked: 2026-10-27
+      src: [asl_guidelines, cup_preparing]
+      note: 官網沒有關於形式化驗證（proof assistant）稿件、附形式化檔案或證明檢查的規定。
+
+  review:
+    type: single_anonymized
+    statement: >-
+      cup_review："This journal uses a single-anonymized model of peer review. The author does not know the identity of the reviewers,
+      but the reviewers know the identity of the author."　cup_peerinfo 同義（"single-anonymous peer review model"）。
+      但 asl_guidelines 另給作者一個雙匿名選項（見 conditional）；官網沒有說明兩者如何調和，預設應是 Cambridge 所寫的單匿名。
+    applies_to: 全刊（兩處頁面都沒有按稿件類型區分；RSL 官網只描述一種稿件）。
+    src: [cup_review, cup_peerinfo, asl_guidelines]
+    conditional:
+      - id: double_anonymous_option
+        optional: true
+        when: 作者希望雙匿名審稿，並在投稿時選此選項（asl_guidelines）
+        requirements:
+          - 稿件須照雙匿名準備（asl_guidelines："invited to prepare their papers accordingly"）；官網沒有說明要遮蔽哪些內容
+          - 投稿時選此選項（"choose this option upon submission"）；EditFlow Step 0 之後的欄位本記錄未讀
+          - 流程：managing editor 指派 handling editor；編輯知道作者身分，審稿人不知道（"The editors will know the identity of the authors, but the referees will not."）
+          - 不論哪種模式，作者都不會被告知審稿人身分（"In any case, authors are not informed of the identity of the reviewers."）
+        src: asl_guidelines
+    editorial_decision:
+      status: not_published
+      checked: 2026-10-27
+      src: [asl_rsl, cup_review, cup_peerinfo, asl_guidelines]
+      note: >-
+        官網沒有寫誰做錄取決定（handling editor 個人或編輯委員會）。asl_guidelines 只寫 managing editor 指派 handling editor。
+    stages:
+      status: not_published
+      checked: 2026-10-27
+      src: [cup_review, cup_peerinfo, asl_guidelines, editflow]
+      note: 官網沒有說明初篩、審稿人人數、輪次或各階段時程。
+    timeline_targets: {status: not_published, checked: 2026-10-27, src: [cup_review, asl_guidelines, editflow], note: 只有錄取後的出版目標（Accepted Manuscript 48 小時內，見 identity.metrics.time_acceptance_to_online）}
+    appeals:
+      statement: >-
+        可申訴的只有兩種：編輯或審稿人的具體事實性陳述在決定中扮演關鍵角色，或基於具體個人／機構關係的偏見或利益衝突主張；
+        對主題適不適合、呈現層次、結果品質的決定不可申訴。申訴交給期刊的 managing 或 coordinating editor
+        （若他同時是該稿的 handling editor 則交給 ASL Publications Advisory Committee 主席），之後不再有進一步申訴。
+      src: asl_appeals
+    rejected_elsewhere_in_asl: >-
+      asl_guidelines："If a paper has been previously rejected by one of the editors, this fact must be disclosed to any new editor to whom it,
+      or a revised version, is being submitted."
+    author_may_suggest_reviewers: {status: not_found, checked: 2026-10-27, src: [asl_guidelines, cup_preparing, editflow], note: Step 0 之前的頁面沒有提到；EditFlow 後續步驟未讀}
+    authors_as_referees: {status: not_found, checked: 2026-10-27, src: [asl_guidelines, cup_preparing, editflow], note: 沒有看到作者須擔任審稿人的規定}
+    revisions_link: >-
+      修訂稿不要走新投稿入口：editflow 寫 "If you are trying to upload a revision of a previously submitted article (which had not been rejected),
+      use instead the status link from the email you received from us about your original submission."
+      被拒稿的修訂版不得重新投稿，除非編輯委員會明確邀請（"unless explicitly invited to re-submit"）。
+
+  submission:
+    portal: https://ef.msp.org/submit/asl_rsl
+    system: EditFlow（MSP 的編輯管理平台；ASL 稱 "RSL EditFlow Management System"）
+    applies_to: [article]
+    file: PDF ＋ 原始檔（TeX 或 doc／docx）
+    conditions:                     # editflow 的 Author Agreement；按 "I accept" 即表示同意
+      - 稿件（或高度相似的稿件）目前沒有在別處審查中，審查期間也不會投到別處，且尚未在同行審查期刊發表或被接受
+      - 稿件不是本刊先前被拒稿件的修訂版，除非編輯委員會明確邀請重投
+      - 每位共同作者都知道此投稿以其名義送出，且各有只屬於本人的有效 email
+      - 沒有共同作者冒用身分或誤導身分
+      - 使用 AI 工具進行研究或準備稿件，符合 RSL 的指引與倫理政策，並向編輯（投稿流程稍後）與讀者（Acknowledgements 段）完整說明
+    corresponding_author: >-
+      開放取用資格取決於通訊作者的身分；通訊作者負責所有往來（審稿報告、修訂、校樣）。投稿流程中須指定，且 "difficult if not impossible
+      to change the designation later"（editflow）。
+    cover_letter_and_notes: >-
+      asl_guidelines："Contributors are given the opportunity to explain, in the cover letter, if the rationale for the longer submission relates to specifics of the content, topic, or area."；
+      editflow："please communicate this clearly in the 'Notes for Editors', on Step 4 of this submission process."
+    portal_steps_read: Step 0 only
+    steps_not_read: 作者資料、雙匿名審稿選項的欄位、稿件類型選單（有沒有類型選項未知）、Notes for Editors（Step 4）、cover letter、檔案上傳、建議審稿人等欄位未讀（需按 "I accept" 才會進入，本記錄沒有開始投稿）
+    technical_help: 'EditFlow 問題寫信 editflow@msp.org；asl_guidelines 另指 "technical help resources at EditFlow"，並說更全面的問題寄給出版者代表 Steffen Lempp（asl_guidelines 列有其信箱，本記錄不收）'
+    src: [editflow, cup_submitting, cup_preparing, asl_guidelines]
+
+  fees:
+    submission: {status: not_published, checked: 2026-10-27, src: [cup_fees, editflow, asl_guidelines], note: Cambridge 的 Fees and pricing、EditFlow Step 0 與 ASL 的 Submission Guidelines 都沒有提投稿費}
+    apc:
+      amount: 3655
+      currency: USD
+      amounts:
+        - {currency: GBP, amount: 2610}
+        - {currency: USD, amount: 3655}
+      mandatory: false
+      excludes: "taxes（原文 additional taxes may apply）"
+      applies_to: 本頁沒有分文章類型，表為 "Article Processing Charges for this journal"；cup_authorinstr 另寫 "Certain article types (for example, Research Articles) may be eligible for APC waivers or discounts"
+      wording: >-
+        cup_fees 的表："Article Processing Charges for this journal — Currency: GBP (£) APC: 2610; USD ($) APC: 3655"，
+        前有 "(additional taxes may apply)"。
+      conditions: >-
+        APC 只適用於選 Gold Open Access 且沒有被機構協議涵蓋的情況："For articles that are not published Gold Open Access, costs of
+        publishing Gold OA are not applicable."
+      waivers_and_agreements: >-
+        Cambridge 與 2,000 多個機構有開放取用協議，通訊作者所屬機構在名單內時"in the majority of cases these agreements cover the full costs"；
+        Cambridge Open Equity Initiative 補助 100 多個中低收入國家的通訊作者；EditFlow 另提到 Research4Life 國家。資格在錄取流程中自動判定。
+        'asl_guidelines 同樣寫 Gold OA "is available for a fee (APC) or in accordance with (read and) publish agreements ... and for corresponding authors in certain countries."'
+      src: [cup_fees, cup_oa, cup_authorinstr, editflow, asl_guidelines]
+    color_print:
+      amount: 320
+      currency: USD
+      amounts:
+        - {currency: GBP, amount: 200}
+        - {currency: USD, amount: 320}
+      src: cup_fees
+      note: >-
+        cup_fees 列出 "Colour Charges for this journal"。但 asl_guidelines 與 editflow 都規定投稿 PDF 不得用灰階以外的顏色
+        （"Color is not allowed"），這筆費用實際適用於什麼情況，官網沒有說明。見 warnings。
+    page_charges: {status: not_published, checked: 2026-10-27, src: cup_fees, note: Fees and pricing 只列 APC 與彩色費，沒有頁費}
+
+  open_access:
+    options: [Gold Open Access（hybrid，付 APC 或由機構協議涵蓋）, 訂閱制（作者不付費）]
+    licenses_offered: {status: not_published, checked: 2026-10-27, src: [cup_oa, cup_agreement], note: "cup_oa 與 cup_agreement 只寫 'a Creative Commons licence'，沒有列出可選的 CC 版本。asl_guidelines 建議不需要無限制 CC-BY 的作者選 CC-BY-NC-ND"}
+    gold_oa_licence_suggestion: >-
+      asl_guidelines："If you are eligible for gold open access publishing and your funder or institution does not require an unrestricted
+      version of the CC-By license, we suggest that you choose one that does not automatically allow commercial use or distribution,
+      i.e., the CC-By-NC-ND one."
+    green_oa:
+      embargo_months: {status: not_published, checked: 2026-10-27, src: [cup_oa, asl_guidelines, cup_green_oa], note: "本刊自己的頁面（cup_oa、asl_guidelines）沒有寫禁運期；通用政策頁見 standard_policy_inference"}
+      statement: >-
+        cup_oa 只寫 "Under this journal's Green Open Access policy, authors can make pre-published versions of their articles available in institutional or other
+        repositories, or on their personal or departmental websites, under certain conditions."，沒有寫禁運期長度。
+        asl_guidelines 寫 "All publications are eligible for the science journal version of CUP's Green Open Access."
+      standard_policy_inference:
+        statement: >-
+          cup_green_oa（Cambridge 通用政策頁）寫標準 Green OA 政策是 "zero embargo periods for sharing Accepted Manuscripts"，只有少數期刊有較嚴的非標準政策，
+          列在頁底的試算表（"Non-standard Green Open Access journal policies"，標示 "Updated October 2026"）。2026-10-27 下載該試算表，
+          以期刊名稱（Review of Symbolic Logic）與縮寫（RSL）查，RSL 不在名單內（名單約 15 本，例如 Philosophy of Science、Canadian Journal of Mathematics、
+          British Journal of Nutrition）。
+        reading: >-
+          所以依 Cambridge 通用政策，RSL 適用標準 Green OA 政策（Accepted Manuscript 零禁運）。這是由官方頁面與官方名單的缺席推得的，
+          RSL 自己的頁面並沒有明說；要引用禁運期長度時請直接引 cup_green_oa 並註明這個推論。
+        checked: 2026-10-27
+        src: cup_green_oa
+      src: [cup_oa, asl_guidelines, cup_green_oa]
+    plan_s:
+      statement: >-
+        cup_oa："This journal is registered with cOAlition S as a Transformative Journal, and articles subject to Plan S as a result of funding by
+        cOAlition S should be published as Gold Open Access. This journal's Green Open Access policy does not meet the open access requirements of Plan S."
+      editflow_note: >-
+        editflow：Plan S 受資助者 "After acceptance, choose the journal's Gold Open Access option, which is compliant with Plan S"；
+        簽署本刊的出版協議後 "you will not be able to use the Green OA (self-archiving) route to Plan S compliance"。
+      src: [cup_oa, editflow]
+    src: [cup_oa, asl_guidelines, editflow]
+
+  policies:
+    dual_submission: forbidden
+    dual_submission_wording: >-
+      asl_guidelines："the same work (1) has not been published elsewhere; (2) is not presently submitted or accepted for publication elsewhere;
+      and (3) will not be submitted elsewhere unless the manuscript is either withdrawn from or rejected by the RSL first."
+    prior_publication: >-
+      editflow："The submitted article has not already been published or accepted for publication in a peer-reviewed journal."；
+      asl_guidelines："the same work (1) has not been published elsewhere"。
+    conference_versions: >-
+      會議論文集中已發表的重要論文的完整版可投稿，但須 extend the prior publication in a significant way；投稿時必須提供對先前出版品的精確引用，
+      並說明與會議版本有何不同（asl_guidelines）。已投稿 RSL 的稿件想另投會議縮短版時，須通知編輯並附上會議版本與差異說明；
+      會議版先被接受時要通知期刊編輯，期刊版先被接受時會議版要註明完整版已被接受（asl_guidelines）。
+    preprints:
+      allowed: true
+      statement: '"This journal allows preprints to be posted anywhere at any time, including before submission to the journal."'
+      editflow_note: >-
+        editflow："We encourage the use of pre-print repositories such as arXiv. Pre-review, submitted manuscripts can be posted as CC-BY but
+        post-review, accepted manuscripts should be deposited only using a CC-BY-NC-ND licence or a 'non-exclusive licence to distribute'."
+        （上下文是 Plan S 受資助者的段落）
+      not_prior_publication:
+        status: not_found
+        checked: 2026-10-27
+        src: [cup_oa, cup_preparing, asl_guidelines, editflow]
+        note: >-
+          RSL 的 Preparing 頁與 asl_guidelines 都沒有「預印本不算先前發表或重複發表」的明文；
+          只有 cup_oa 的 "This journal allows preprints to be posted anywhere at any time, including before submission to the journal."
+      src: [cup_oa, editflow]
+    copyright:
+      transfer_required: false
+      statement: >-
+        asl_guidelines："Authors retain copyright in published articles but before publication they will be required to sign a license to publish
+        agreement with the Association for Symbolic Logic. The Journal is now a hybrid publication and so there will be a choice of the type
+        of license." cup_agreement：Gold OA 用非專屬授權，非 Gold OA 用專屬授權，著作權歸屬不變。
+      src: [asl_guidelines, cup_agreement]
+    generative_ai:
+      author_listing: 'asl_guidelines："no Artficial Intelligence (AI) tool can be listed as an author of any submission."（原文 "Artficial" 為拼字錯誤）'
+      disclosure: >-
+        asl_guidelines："any use of such tools in the research for, or the preparation of, the submission should be in compliance with the general
+        guidelines mentioned above and must be fully acknowledged and described to both the editors and readers where relevant in the submission and
+        in a general way in the Acknowledgements section of the paper. Similarly, the use of other general aids, human or machine, in translation,
+        writing or editing should be acknowledged in the Acknowledgements section of the submission. This last requirement does not apply to standard
+        word processing or translation programs."
+      warning: 'editflow："manuscripts generated largely by AI" 列為可能導致投稿資格被限制或停權的例子（見 scope.out_of_scope_hints）。'
+      src: [asl_guidelines, editflow]
+    ethics:
+      statement: >-
+        authors 須遵守 ASL 的出版倫理政策；各作者對內容與是否符合指引負責，包括正確引用、版權、避免利益衝突、誹謗、偏見、騷擾或抄襲（asl_guidelines）。
+        ASL 不逐項定義違規行為，交由編輯委員會判斷；違規可由 Committee on Publications 裁定，處分包括退稿、禁止向任何 ASL 期刊或叢書投稿至少兩年、
+        通知作者的系所主管或院長等（asl_ethics）。
+      src: [asl_guidelines, asl_ethics, cup_ethics]
+    conflict_of_interest:
+      author_disclosure: {status: not_found, checked: 2026-10-27, src: [asl_guidelines, asl_ethics, cup_preparing], note: "只在 asl_guidelines 的責任段把 conflicts of interest 列為作者須避免的事，沒有揭露格式或欄位要求"}
+    language_editing: >-
+      cup_preparing：英語語言編修服務是選配、自費，使用不保證錄取（"voluntary ... at the author's own expense"）。
+
+  standards: []
+
+# ─────────────────────────────────────────────────────────────
+# FAST — 期刊無年度週期。
+# ─────────────────────────────────────────────────────────────
+cycle:
+  applies_to: null
+  rolling_calls: []
+  special_issues:
+    status: not_published
+    checked: 2026-10-27
+    note: Cambridge 的期刊首頁與 Journal information 各頁、ASL 的 RSL 頁都沒有徵稿或特刊公告
+
+# ─────────────────────────────────────────────────────────────
+warnings:
+  - >-
+    RSL 與 BSL、JSL 不同：官網只描述一種稿件。ASL 的 Guidelines 說稿件類型看 RSL 頁的 general description，而該頁只列範圍的領域，沒有稿件類型。
+    ASL 對自己三本期刊的定位（asl_journals）：JSL 是 "original research in mathematical logic and its applications"，RSL 是 "original scholarly work in philosophical
+    and non-classical logics and their applications, history and philosophy of logic, and philosophy and methodology of mathematics"，BSL 是 "articles of general interest
+    to the logic community in all the areas of logic as well as communications of important new developments"。官網沒有任何一句說明純數學稿件適不適合 RSL。
+  - >-
+    篇幅與錄取量是 RSL 特有的明文限制：初次投稿預設 25 頁（用 RSL 樣式；修訂時可到 30 頁），更長的稿件會被考慮但 "will in general be judged by higher standards"；
+    每年錄取總量的預設值是 25–30 篇，兩者都寫 "for now"（asl_guidelines）／"has begun limiting"（editflow），是為了應付投稿量增加的暫時措施。
+    官網沒有說明 25 頁是否含參考文獻與附錄。較長稿件的理由，asl_guidelines 說寫在 cover letter，editflow 說寫在 Step 4 的 "Notes for Editors"。
+  - >-
+    審稿模式有三種說法：cup_review 寫 "single-anonymized"；cup_peerinfo 寫 "single-anonymous"，並說審稿問題找 "the Editor-in-Chief"（本刊的頭銜是 Coordinating Editor，
+    沒有 Editor-in-Chief）；asl_guidelines 另寫作者可選雙匿名審稿（"Authors who prefer doubly anonymous refereeing are invited to prepare their papers accordingly and
+    choose this option upon submission"）。官網沒有說明雙匿名選項的欄位與遮蔽要求，也沒有說明預設是單匿名；本記錄以單匿名為預設、雙匿名為選配（requirements.review.conditional）。
+  - >-
+    投稿規定的本體在 ASL 網站的 RSL 頁與 Submission Guidelines 與 EditFlow Step 0，不在 Cambridge 的 Author instructions。兩處有出入時，
+    實際投稿用的是 EditFlow：Cambridge 的 Preparing 頁沒有寫投稿時要附原始檔，ASL 與 EditFlow 則要求投稿時就附原始檔（TeX 檔，或 doc／docx）；
+    Cambridge 的 Preparing 頁要求 300 字內的摘要，ASL 寫定稿時摘要、MSC 2020 分類號與關鍵字是 required，沒有寫摘要字數。
+  - >-
+    編輯名單不一致：cup_board 列 12 位（含 Paul Shafer，University of Leeds），asl_staff 列 11 位（沒有 Shafer）。asl_staff 頁的 Zaffora Blando 名下沒有列領域。
+    官網沒有說明作者是否挑選編輯（BSL 的 "one (and only one)" 規定在 RSL 頁沒有出現）；asl_guidelines 只寫 managing editor 會指派 handling editor。
+  - >-
+    Cambridge 的 Author instructions 首頁（cup_authorinstr）最後一段寫 "For each research article accepted by the JSL"，指的是另一本期刊，疑為複製貼上的殘留；
+    該段的實質（APC 豁免或折扣）仍可參考，但引用時不要把 JSL 當成本刊。asl_guidelines 也有沿用 JSL 的措辭（例如 "The Journal is now a hybrid publication"）。
+  - >-
+    樣式檔：cup_preparing 稱 "RSL LaTeX class file"（zip 下載，取檔問題寫信給 Cambridge 的 TeX 支援信箱），asl_guidelines 稱 "ASL style files" 在 Author Resources 頁；
+    Author Resources 頁的說明只提 JSL 與 BSL。RSL 的來源頁沒有寫檔名，本記錄的 files: [asl.cls, asl.bst] 是沿用 BSL 與 JSL 記錄，不是 RSL 來源所寫；投稿前要確認用的是 RSL 的類別檔。
+  - >-
+    投稿 PDF 不得使用灰階以外的顏色（"Color is not allowed"），也一般不收手繪圖，需要時先和編輯討論；但 Cambridge 的 Fees and pricing 仍列有彩色費
+    （GBP 200／USD 320），Preparing 頁的 Illustrations 一段還保留墨水手繪圖與紙本圖的舊式文字。官網沒有說明彩色費適用於哪種情況，投稿時一律用灰階與 PDF。
+  - >-
+    只收英文稿件（2023-01-01 起）。不接受匿名作者，每位作者須是可辨識的人；單匿名審稿時審稿人知道作者，稿件不需遮蔽作者資訊（選雙匿名時才需要）。
+  - >-
+    AI 工具不得列為作者；研究或寫作過程使用 AI 須在稿件內向編輯與讀者說明，並在 Acknowledgements 寫一段概述（asl_guidelines）；
+    EditFlow 的 Author Agreement 另明文警告：重複投稿範圍外或不符學術標準的稿件，投稿資格可能被限制或停權，例子包括大量由 AI 生成的稿件，
+    以及宣稱解決重大公開問題卻沒有有效新方法、也沒有處理現有文獻的稿件。
+  - >-
+    投稿前要決定誰是通訊作者：開放取用資格看通訊作者的所屬機構（機構協議或 Research4Life／Cambridge Open Equity Initiative 國家），
+    且 EditFlow 寫事後很難改。Plan S 受資助者須選 Gold OA，本刊的 Green OA 不符合 Plan S，簽出版協議後也不能走 Green OA 達成 Plan S。
+  - >-
+    指標：Cambridge 的 Impact Factor 沒有標示年度，頁面顯示 ".7"（2 年）與 ".8"（5 年）；JCR 分區需登入，本記錄沒有；記錄中的分區是 SJR 分區
+    （Logic、Mathematics (miscellaneous)、Philosophy 三個類別 2025 年都是 Q1），不是 JCR。Web of Science 收錄在 SCIE 與 AHCI（MJL 核對），不在 SSCI、ESCI。
+    比較表只顯示 SCIE 與 SSCI，所以本刊在表上是 "SCIE"，AHCI 要看 identity.metrics.indexing。
+  - >-
+    篇數有三個口徑不同的數字，不可互比：Cambridge 的 Journal metrics 寫 "Total number of articles last year 17"（不標年度）；SCImago 的 Total Documents 2024 年 43、2025 年 46
+    （含所有文件類型）；ASL 的 Guidelines 說每年錄取總量預設 25–30 篇。
+  - >-
+    官方沒有公布錄取率、首次決定時間、投稿到接受時間、審稿人人數與各階段時程；官網也沒有資料或程式碼公開的規定。官方只公布年錄取量的預設值（25–30 篇）與錄取後的出版目標（48 小時內）。
+  - >-
+    EditFlow 只讀到 Step 0（沒有按 "I accept"）。作者資料、雙匿名選項、稿件類型選單、Notes for Editors（Step 4）、cover letter、建議審稿人與檔案上傳的欄位要求未知。
+  - >-
+    Cambridge 頁面上 "https://ef.msp.org/submit/asl_..." 與 Publishing ethics 頁 "http://aslonline.org/journals/..." 的連結顯示文字被截斷，
+    實際連結分別指向 EditFlow 的 asl_rsl 入口與 ASL 的倫理政策頁；現行頁面網址見 sources。ASL 網站上 RSL 頁的網址是 /journals/the-review-of-symbolic/，沒有 "-logic"。

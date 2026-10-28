@@ -1,0 +1,618 @@
+--- # research-submission venue record
+# 內容擷取自 ScienceDirect 上 Journal of Symbolic Computation 的官方頁面（期刊首頁、aims and scope、journal insights、
+# guide for authors、open access information、editorial board）、SCImago、Clarivate Master Journal List，2026-10-25。
+# 讀取方式：ScienceDirect 的 HTML 頁用 Safari 讀（document.body.innerText）；curl 與 Python urllib 對所有 ScienceDirect
+# 網址都回 403（每個網址都是同樣的 832,805 bytes 錯誤殼），SCImago 回 403 挑戰頁，MJL 是 JS 單頁應用，三者都只能用瀏覽器讀。
+# 指標旁的小圖示（Info on Impact Factor 等）要點開才看得到定義與年份：2026-10-25 逐一點開讀過，結果記在 identity.metrics。
+# Safari 讀頁時畫面右上角會顯示瀏覽器登入者的帳號名稱，這是讀頁環境的產物，不是期刊資訊，本記錄不採用。
+# 這本刊沒有 Instructions for Authors PDF：投稿規定全部寫在 guide-for-authors 這一個 HTML 頁（頁內有「Print Guide as PDF」按鈕）。
+# 收錄緣由：語料庫缺這本；補錄符號計算（computer algebra）類期刊，供 choose-venue 比較用。
+# 本記錄只放期刊公開規定，不含任何投稿者或稿件資訊。
+
+schema_version: 1
+id: elsevier/journal-of-symbolic-computation
+kind: journal
+family: symbolic-computation-journals
+status: active
+
+sources:
+  - id: guide_for_authors
+    role: authoritative
+    url: https://www.sciencedirect.com/journal/journal-of-symbolic-computation/publish/guide-for-authors
+    note: >-
+      投稿規定本體：About the journal（aims and scope、Open Archive）、Peer review、Ethics and policies（含 Preprints、
+      Declaration of generative AI use）、Writing and formatting（File format、LaTeX、Title page、Abstract、Keywords、Highlights、
+      Math formulae、Tables、Figures、Supplementary material、Video）、Research data、Article structure、References、Submitting
+      your manuscript 都在這一個頁面（Safari 讀到約 55 KB 文字）。頁面沒有列出文章類型，也沒有正文字數或頁數上限。
+      這是 Elsevier 的標準版面，多數段落是 Elsevier 全品牌通用文字（本記錄未逐刊比對）；文中明寫 "this journal" 的有：
+      single anonymized 審稿、Open Archive、Research data 的 Option C、SSRN 預印本張貼服務、作者變更政策、編輯與審稿人不得把
+      未發表稿上傳到生成式 AI 工具。
+      頁面是動態產生的，hash 在 Elsevier 改版時一定會變；CHANGED 時要人工找出變動的段落。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 與 Python urllib 皆回 HTTP 403，832,805 bytes 的 ScienceDirect 錯誤殼（本刊六個 ScienceDirect 網址大小全部相同）"
+      validity:
+        must_contain: "This journal follows a single anonymized review process"
+        min_extracted_chars: 20000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: aims_and_scope
+    role: authoritative
+    url: https://www.sciencedirect.com/journal/journal-of-symbolic-computation/about/aims-and-scope
+    note: >-
+      兩段文字加一份 "Research Areas Include" 清單（六項）。guide for authors 的 About the journal 段重複同一份文字。
+      期刊首頁與 insights 頁的 About the journal 只是這份文字的縮寫（前半段，到 "all types of sy…" 為止）。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 與 Python urllib 皆回 HTTP 403，832,805 bytes 的 ScienceDirect 錯誤殼"
+      validity:
+        must_contain: "algorithmic treatment of all types of symbolic objects"
+        min_extracted_chars: 1200
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: journal_home
+    role: authoritative
+    url: https://www.sciencedirect.com/journal/journal-of-symbolic-computation
+    note: >-
+      期刊首頁：CiteScore、Impact Factor、APC、審稿時程四項中位數、主編、最新文章、Calls for papers、ISSN。
+      指標旁的 "Info on ..." 按鈕點開後才有定義：Impact Factor 的說明寫 "2025 Journal Citation Reports (Clarivate Analytics, 2026)"；
+      四項審稿時程都寫明是 median。最新文章、徵稿與特刊清單每週都在變，hash 會因此變動，比對時看指標那幾行即可。
+      「Submit your article」連到 https://submit.elsevier.com/JSCO。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 與 Python urllib 皆回 HTTP 403，832,805 bytes 的 ScienceDirect 錯誤殼"
+      validity:
+        must_contain: "Submission to first decision"
+        min_extracted_chars: 2500
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: journal_insights
+    role: authoritative
+    url: https://www.sciencedirect.com/journal/journal-of-symbolic-computation/about/insights
+    note: >-
+      Journal Insights：ISSN、學科領域（Algebra and Number Theory、Computational Mathematics、Artificial Intelligence）、
+      CiteScore、Impact Factor、APC、Publishing timeline（四項中位數）、Abstracting and indexing（Scopus、SCIE、SJR、SNIP）。
+      數字與首頁相同；這一頁多了學科領域與收錄清單。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 與 Python urllib 皆回 HTTP 403，832,805 bytes 的 ScienceDirect 錯誤殼"
+      validity:
+        must_contain: "Publishing timeline"
+        min_extracted_chars: 1000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: open_access_info
+    role: authoritative
+    url: https://www.sciencedirect.com/journal/journal-of-symbolic-computation/publish/open-access-options
+    note: >-
+      出版模式（開放取用或訂閱）、可選授權（CC BY、CC BY-NC、CC BY-NC-ND）、APC 金額、Best price promise、Open Archive（48 個月）、
+      自行典藏的禁止期（24 個月）。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 與 Python urllib 皆回 HTTP 403，832,805 bytes 的 ScienceDirect 錯誤殼"
+      validity:
+        must_contain: "The Article Publishing Charge for this journal is"
+        min_extracted_chars: 4000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: editorial_board
+    role: supporting
+    url: https://www.sciencedirect.com/journal/journal-of-symbolic-computation/about/editorial-board
+    note: >-
+      主編（兩位）與編輯委員名單（頁面寫 36 位、14 個國家／地區）；各人自填研究領域。只記主編，另記委員自填領域的彙總。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 與 Python urllib 皆回 HTTP 403，832,805 bytes 的 ScienceDirect 錯誤殼"
+      validity:
+        must_contain: "Cordian Riener"
+        min_extracted_chars: 3000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: scimago
+    role: supporting
+    url: https://www.scimagojr.com/journalsearch.php?q=28503&tip=sid&clean=0
+    note: >-
+      SCImago（SJR）期刊頁：SJR、分區（Algebra and Number Theory、Computational Mathematics 各一）、H-index、Scope。
+      sid 28503 由 journalsearch.php?q=0747-7171&tip=iss 的搜尋結果取得（"Exact" 單一結果，ISSN 07477171, 1095855X）。
+      頁面另列一個編輯聯絡信箱，不採用。SCImago 把出版社記為 Academic Press、國別記為 United States。
+      curl 回 403 挑戰頁（"Just a moment..."，5,586 bytes），只能用瀏覽器讀。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "403, 5586-byte challenge page"
+      validity:
+        must_contain: "Journal of Symbolic Computation"
+        min_extracted_chars: 8000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: mjl
+    role: supporting
+    url: https://mjl.clarivate.com/home
+    note: >-
+      Clarivate Master Journal List。JS 單頁應用，結果頁網址不帶查詢字串，無法用網址重現；
+      只能在頁內於 #search-box 填 ISSN、按 #search-button 後讀結果列。
+      curl 取 /home 只拿到 11 KB 的空殼，沒有任何期刊資料。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "200 但只有 SPA 空殼（11428 bytes），查詢結果需在頁內操作"
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+
+# ─────────────────────────────────────────────────────────────
+identity:
+  name: Journal of Symbolic Computation
+  publisher: Elsevier（頁面標示 Elsevier Ltd；SCImago 與 MJL 的出版社欄寫 Academic Press）
+  publisher_src: journal_home（頁尾 "Copyright © 2026 Elsevier Ltd."）
+  publisher_variants:
+    scimago: Academic Press
+    mjl: "ACADEMIC PRESS LTD- ELSEVIER SCIENCE LTD , 24-28 OVAL RD, LONDON, ENGLAND, NW1 7DX"
+  issn: {print: "0747-7171", electronic: "1095-855X"}
+  issn_src: journal_home
+  homepage: https://www.sciencedirect.com/journal/journal-of-symbolic-computation
+  open_access:
+    value: hybrid
+    src: open_access_info
+    note: >-
+      作者二選一：開放取用（付 APC）或訂閱（不收出版費）。首頁標 "Supports open access"。官方明說出版選擇不影響審稿與錄取。
+  editors_in_chief:
+    - {name: Cordian Riener, affiliation: "UiT The Arctic University of Norway", src: editorial_board}
+    - {name: Josef Schicho, affiliation: "Johannes Kepler University Linz, Research Institute for Symbolic Computation", src: editorial_board}
+  founded: 1985
+  founded_src: aims_and_scope（"founded by Bruno Buchberger in 1985"）；editorial board 頁 Founding Editor (1985-94)
+  subject_areas_elsevier: [Algebra and Number Theory, Computational Mathematics, Artificial Intelligence]
+  subject_areas_src: journal_insights
+  external_ids:
+    scimago: "28503"
+    crossref: "0747-7171"
+    openalex: issn:0747-7171
+  indexing:
+    clarivate_mjl:
+      scie: true
+      ssci: false
+      ahci: false
+      esci: false
+      web_of_science_core_collection: Science Citation Index Expanded
+      additional_indexes: [Current Contents Engineering, Computing & Technology, Essential Science Indicators]
+      checked: 2026-10-25
+      search_issn: "0747-7171"
+      mjl_title_string: "JOURNAL OF SYMBOLIC COMPUTATION"
+      mjl_publisher_string: "ACADEMIC PRESS LTD- ELSEVIER SCIENCE LTD , 24-28 OVAL RD, LONDON, ENGLAND, NW1 7DX"
+      src: mjl
+      note: >-
+        搜尋 0747-7171 得 1 筆 "Exact Match Found"（ISSN / eISSN 0747-7171 / 1095-855X），Web of Science Core Collection 欄只列
+        Science Citation Index Expanded；沒有 SSCI、AHCI、ESCI。結果頁的 Active Filters 列出 SCIE、SSCI、AHCI、ESCI 四項。
+    publisher_stated:
+      src: journal_insights
+      note: 出版社頁面自述的收錄清單（Abstracting and indexing）；SCIE 以上方 MJL 為準。
+      list: [Scopus, Science Citation Index Expanded (SCIE), SCImago Journal Rank (SJR), SNIP]
+  metrics:
+    impact_factor:
+      value: 0.9
+      year: 2025
+      as_of: 2026-10-25
+      src: journal_home
+      note: >-
+        首頁與 insights 頁都標 "0.9 Impact Factor"。點開 "Info on Impact Factor" 的說明為："The Impact Factor measures the
+        average number of citations received in a particular year by papers published in the journal during the two preceding
+        years. 2025 Journal Citation Reports (Clarivate Analytics, 2026)"。所以 2025 是 JCR 的報告年（2026 年發布），
+        來源是 JCR，是 Elsevier 轉載；本次未另以 JCR 核對（JCR 需登入）。
+    citescore:
+      value: 2.1
+      as_of: 2026-10-25
+      src: journal_home
+      note: >-
+        Scopus 的 CiteScore。"Info on CiteScore" 的說明為：以四年（例 2022-2025）的被引次數除以同四年內的可計文件數
+        （articles、reviews、conference papers、data papers、book chapters）。頁面沒有明寫這個 2.1 對應哪一個 CiteScore 年；
+        說明文字的例子是 2022-2025。CiteScore 不是 JIF，不可互換。
+    sjr:
+      value: 0.643
+      year: 2025
+      as_of: 2026-10-25
+      src: scimago
+    h_index: {value: 68, as_of: 2026-10-25, src: scimago}
+    quartiles:
+      - {system: SJR, category: Algebra and Number Theory, subject_area: Mathematics, quartile: Q1, year: 2025, as_of: 2026-10-25, src: scimago,
+         note: SCImago 列 2025 年為 Q1（2024、2023、2022 為 Q2，2016–2019 為 Q3）；頁面不給名次。頁首總覽顯示 "Q1"}
+      - {system: SJR, category: Computational Mathematics, subject_area: Mathematics, quartile: Q2, year: 2025, as_of: 2026-10-25, src: scimago,
+         note: SCImago 列 2025 年為 Q2（2024 為 Q2、2023 為 Q2、2022 為 Q3）；頁面不給名次}
+    jcr_quartile:
+      status: not_found
+      checked: 2026-10-25
+      note: >-
+        JCR 分區與名次需登入 Clarivate JCR，本次未查。Elsevier 頁面只自述 IF，沒有列分區。
+        上方 quartiles 是 SJR 分區，不是 JCR。
+    acceptance_rate: {status: not_published, checked: 2026-10-25, src: journal_home,
+                      note: Elsevier 期刊首頁、insights 頁、guide for authors、SCImago 頁皆未列接受率或拒絕率}
+    time_to_first_decision:
+      value: 14
+      unit: days
+      statistic: median
+      as_of: 2026-10-25
+      src: journal_home
+      basis: >-
+        首頁與 insights 頁 "14 days Submission to first decision"。"Info" 的說明為 "The median number of days from submission to
+        first decision (desk accept or send the paper to review or desk reject)"，所以含不送外審的直接退稿與送審決定，
+        不是「外審後的第一次決定」。未標統計期間。
+    time_submission_to_first_decision_after_review:
+      value: 139
+      unit: days
+      statistic: median
+      as_of: 2026-10-25
+      src: journal_home
+      basis: >-
+        首頁與 insights 頁 "139 days Submission to decision after review"。"Info" 的說明為 "For papers that are sent to review,
+        the median number of days from submission to receipt of first editor decision"，只算送去外審的稿件。未標統計期間。
+    time_submission_to_acceptance:
+      value: 260
+      unit: days
+      statistic: median
+      as_of: 2026-10-25
+      src: journal_home
+      basis: >-
+        首頁與 insights 頁 "260 days Submission to acceptance"。"Info" 的說明為 "For accepted papers, the median number of days
+        from submission to receipt of accept decision"，只算最後被接受的稿件，看不到被拒稿。未標統計期間。
+    time_acceptance_to_online_publication:
+      value: 6
+      unit: days
+      statistic: median
+      as_of: 2026-10-25
+      src: journal_home
+      basis: >-
+        首頁與 insights 頁 "6 days Acceptance to online publication"。"Info" 的說明為 "For papers published online, the median
+        number of days from acceptance to first online publication"。未標統計期間。
+    downloads: {status: not_published, checked: 2026-10-25, src: journal_home,
+                note: ScienceDirect 期刊首頁與 insights 頁沒有列下載數}
+
+requirements:
+  refresh: {check_every: P6M, method: manual}
+
+  scope:
+    src: [aims_and_scope, guide_for_authors, journal_home]
+    aims_and_scope_verbatim: >-
+      An international journal, the Journal of Symbolic Computation, founded by Bruno Buchberger in 1985, is directed to
+      mathematicians and computer scientists who have a particular interest in symbolic computation. The journal provides a
+      forum for research in the algorithmic treatment of all types of symbolic objects: objects in formal languages (terms,
+      formulas, programs); algebraic objects (elements in basic number domains, polynomials, residue classes, etc.); and
+      geometrical objects. It is the explicit goal of the journal to promote the integration of symbolic computation by
+      establishing one common avenue of communication for researchers working in the different subareas. It is also important
+      that the algorithmic achievements of these areas should be made available to the human problem-solver in integrated
+      software systems for symbolic computation. To help this integration, the journal publishes invited tutorial surveys as
+      well as Applications Letters and System Descriptions.
+    research_areas_verbatim:
+      - Computational algebra
+      - Computational geometry (non-linear)
+      - Automated theorem proving
+      - Automatic programming
+      - Design and implementation of symbolic computation languages and systems
+      - Applications in education, science, engineering and industry
+    research_areas_note: 官方標題為 "Research Areas Include:"，是 "include" 的舉例清單，不是封閉列舉。
+    # 官方沒有用 "not" 或 "do not" 排除任何主題或稿件類型；以下是對某些稿件有限制作用的句子，逐字列出。
+    limiting_statements_verbatim:
+      - text: "To help this integration, the journal publishes invited tutorial surveys as well as Applications Letters and System Descriptions."
+        effect: >-
+          綜述（tutorial survey）寫的是 "invited"，即由編輯邀請，不是自由投稿的類型。Applications Letters 與 System Descriptions
+          列為本刊收的類型，但官方頁面沒有給它們的稿件規格或長度。這一句沒有排除任何類型，但自由投稿的綜述不在官方列舉的收件範圍內。
+        src: aims_and_scope
+      - text: "The journal provides a forum for research in the algorithmic treatment of all types of symbolic objects: objects in formal languages (terms, formulas, programs); algebraic objects (elements in basic number domains, polynomials, residue classes, etc.); and geometrical objects."
+        effect: >-
+          範圍的界定是「對符號物件的演算法處理」（algorithmic treatment）。純結構性、不涉演算法或計算的結果，官方沒有說收或不收；
+          這句是範圍的描述，不是排除條文。
+        src: aims_and_scope
+    explicit_topic_exclusions: {status: not_published, checked: 2026-10-25, src: [aims_and_scope, guide_for_authors, journal_home, scimago],
+                                note: 四處 scope 文字都沒有列出排除的主題，也沒有 "do not" 或 "not accepted" 之類的句子}
+    explicit_type_exclusions: {status: not_published, checked: 2026-10-25, src: [aims_and_scope, guide_for_authors],
+                               note: 沒有任何一處說某種稿件類型不收}
+    algorithm_and_implementation_wording: >-
+      官方文字有明確提到演算法與實作的地方：(1) "the algorithmic treatment of all types of symbolic objects"（範圍主句）；
+      (2) "the algorithmic achievements of these areas should be made available to the human problem-solver in integrated
+      software systems for symbolic computation"（目標）；(3) 研究領域之一 "Design and implementation of symbolic computation
+      languages and systems"；(4) 收 "System Descriptions"（系統描述）。
+    differentiation_wording: >-
+      aims and scope、guide for authors、首頁、SCImago 的 scope 全文都沒有出現 "differentiation"、"differential" 或
+      "differential algebra" 字樣（2026-10-25 對已存的五份頁面文字逐一搜尋：aims and scope、guide for authors、首頁、insights、SCImago）。範圍相關的字是 "Computational algebra"、
+      "polynomials"、"algebraic objects"、"Applications in education, science, engineering and industry"。
+    editorial_board_self_listed_areas: >-
+      編輯委員頁（36 位，各人自填研究領域）：自填領域含 differential algebra 或 differential／difference algebra 的有 5 位；
+      其餘多為 computer algebra、symbolic summation 與 integration、algorithmic combinatorics、numerical／real algebraic geometry、
+      quantifier elimination、unification 與 theorem proving、group theory 等。這是委員個人自填的領域，不是期刊的收件條文。
+    editorial_board_self_listed_areas_src: editorial_board
+    classification: {status: not_published, checked: 2026-10-25, src: guide_for_authors,
+                     note: guide for authors 沒有要求附 MSC 或其他分類碼（只要求關鍵字）}
+    audience: mathematicians and computer scientists（scope 原文 "directed to mathematicians and computer scientists who have a particular interest in symbolic computation"）
+    scimago_subject_areas: [Mathematics / Algebra and Number Theory, Mathematics / Computational Mathematics]
+    scimago_subject_areas_src: scimago
+
+  article_types:
+    status: not_published
+    checked: 2026-10-25
+    src: [guide_for_authors, aims_and_scope]
+    note: >-
+      guide for authors 沒有「Article types」段，也沒有各類型的稿件規格。scope 只提到三種：研究論文（"research"）、
+      邀請稿的 tutorial surveys、以及 Applications Letters 與 System Descriptions（見 scope）。
+      投稿系統的類型選單是否另有分類，本記錄無法得知（投稿系統需登入）。
+  article_types_named_in_scope:
+    types:
+      - {name: research papers, note: "scope 寫 forum for research；沒有逐字的 'research papers' 字樣"}
+      - {name: tutorial surveys, note: "寫明 invited（邀請稿）"}
+      - {name: Applications Letters, note: 官方頁面沒有給長度或格式}
+      - {name: System Descriptions, note: 官方頁面沒有給長度或格式}
+    src: aims_and_scope
+  article_type_labels_observed:
+    labels: [Research article, Editorial board]
+    src: journal_home
+    as_of: 2026-10-25
+    note: >-
+      這是已刊出項目在 ScienceDirect 列表上的標籤（首頁最新文章，以及 Volume 135、136 的目錄），不是投稿規定。
+      2026-10-25 看到的標籤只有 "Research article"（多數）與 "Editorial board"（前頁資料）；沒有看到獨立標示的
+      Applications Letter 或 System Description。
+
+  # guide for authors 對所有稿件只給摘要字數、關鍵字數與 Highlights 規格；正文字數、頁數、表圖數、文獻數都沒有寫。
+  general_limits:
+    abstract_words: {max: 250}
+    keywords: {min: 1, max: 7}
+    highlights: {bullets_min: 3, bullets_max: 5, max_characters_each: 85, required: false}
+    src: guide_for_authors
+  length_note:
+    status: not_published
+    checked: 2026-10-25
+    src: guide_for_authors
+    note: >-
+      guide for authors 全頁沒有正文字數或頁數上限，也沒有表圖數或參考文獻數的上限（以 "page"、"word"、"length" 搜過全頁文字，
+      只有摘要 250 字、關鍵字 1–7 個、Highlights 規格、影音檔案大小）。投稿系統是否另設硬性上限，本記錄無法得知（需登入，或問編輯部）。
+  main_text_words: {status: not_published, checked: 2026-10-25, src: guide_for_authors}
+  page_limit: {status: not_published, checked: 2026-10-25, src: guide_for_authors}
+  tables_figures_max: {status: not_published, checked: 2026-10-25, src: guide_for_authors}
+  references_max: {status: not_published, checked: 2026-10-25, src: guide_for_authors}
+
+  abstracts:
+    - id: single
+      applies_to: all_manuscripts
+      max_words: 250
+      note: >-
+        原文："You are required to provide a concise and factual abstract that does not exceed 250 words." 要能獨立閱讀、避免引用
+        （必要時寫出作者與年份）、非通用縮寫要在摘要內首次出現時定義。不是結構化摘要；沒有要求分段。
+      src: guide_for_authors
+
+  keywords: {min: 1, max: 7, purpose: indexing, language: English, src: guide_for_authors,
+             note: 原文 "1 to 7 keywords"；盡量避免含 "and" 或 "of" 的多字關鍵字}
+
+  highlights:
+    required: false
+    text: >-
+      原文："You are encouraged to provide article highlights at submission." 3 到 5 個要點，每點最多 85 字元（含空格），
+      以獨立的可編輯檔上傳，檔名要含 "highlights"。
+    src: guide_for_authors
+
+  title_page:
+    required_fields:
+      - 標題（簡潔且資訊充足；避免縮寫與公式）
+      - 作者姓名（名與姓；順序要與投稿系統一致）
+      - 作者單位（做研究時所在的機構，含完整名稱與郵寄地址、國名）
+      - 通訊作者的明確標示與 email（email 會刊出）
+      - 現在地址或永久地址（如作者已換單位；以腳註標示，仍須保留做研究時的單位為主要單位）
+    note: >-
+      群體作者（group authorship）要在標題頁宣告，並在投稿系統填 "Collaborative Author Groups"。
+      Acknowledgements 另成一節，放在參考文獻之前；不可放在標題頁或標題腳註。
+    src: guide_for_authors
+
+  formatting:
+    file_formats: [Word（.doc/.docx）, LaTeX（.tex）]
+    text: >-
+      原文："Submit files with .doc/.docx extensions for Word and .tex for LaTeX files. A PDF is not an acceptable source file."
+      Word 檔要單欄版面（雙欄只允許 LaTeX 投稿）；刪除不必要的刪除線與底線。LaTeX 投稿「鼓勵」使用 Elsevier 的模板，
+      投稿或修訂時要提供全部可編輯的原始檔。
+    math: >-
+      數學式以可編輯文字提交，不可用圖片；簡單的式子與正文同行；小分數用斜線；變數用斜體；e 的冪次寫 exp；
+      獨立顯示的式子依引用順序連續編號。
+    tables: 以可編輯文字提交，不可用圖片；連續編號並在正文引用；每表要有標題；表註放表下；避免直線與底色；表要少用且不重複正文結果。
+    figures:
+      vector: EPS、PDF（字型要嵌入或把文字存成圖形）
+      photographs: TIFF、JPG、PNG，至少 300 dpi
+      bitmapped_line_drawings: TIFF、JPG、PNG，至少 1000 dpi
+      separate_files: 每張圖一個檔案，檔名如 Figure_1；不要把多張圖併成一個檔
+      captions: 每張圖都要有標題（簡短標題加描述）
+      color: 可用的彩色圖會在線上版以彩色呈現；紙本彩色的費用規定頁面沒有寫
+    supplementary_information: >-
+      可附應用程式、圖像、聲音檔等補充材料；要在正文引用，與稿件同時提交；補充檔照原樣上線，不經編輯或排版。
+      投稿後只能在修訂階段新增或替換補充檔。
+    video: 單檔偏好上限 150 MB、總計 1 GB；每個檔案要附靜態畫面（stills）。
+    article_structure: 章節用 1、1.1、1.1.1 的十進位編號；摘要不編號；腳註要少用並連續編號；附錄用 A、B 並各自編號（Eq. (A.1)、Table A.1）。
+    src: guide_for_authors
+
+  references:
+    style: >-
+      投稿時「可用任何一種格式，只要一致」（"This journal does not set strict requirements on reference formatting at submission."）；
+      錄取後在校樣階段套用 Elsevier 的期刊格式（作者-年份制）。範例格式為：Van der Geer, J., Handgraaf, T., Lupton, R.A., 2020.
+      The art of writing a scientific article. J. Sci. Commun. 163, 51–59. https://doi.org/10.1016/j.sc.2020.00372.
+    rules:
+      - 正文引用：單一作者寫姓與年份；兩位寫兩位的姓與年份；三位以上寫第一作者加 et al. 與年份
+      - 清單依字母順序、再依年份；同作者同年用 a、b、c 區分
+      - 期刊名依 LTWA 縮寫
+      - 每一筆都要對應真實存在的來源；有 DOI 要附
+      - 軟體要像其他來源一樣引用（作者、名稱、出處、日期、識別碼、版本），描述該軟體的論文要另外引用，不可只引論文代替軟體
+      - 預印本可引用，要標明 "preprint" 或預印本伺服器名稱並附 DOI；已正式刊出者改引正式版
+    src: guide_for_authors
+
+  statements_and_declarations:
+    competing_interests: >-
+      所有作者要揭露可能不當影響其工作的財務與個人關係（雇傭、顧問、持股、酬金、專利、經費、擔任本刊編輯等）。
+      一律要填 declarations tool，產生的 Word 檔在 "attach/upload files" 步驟上傳；沒有利益衝突要選 "I have nothing to declare."
+      不需要作者簽名。
+    funding: 要揭露經費來源，並說明經費方在研究設計、資料、寫作與是否投稿上的角色；沒有經費要寫指定的那一句。
+    author_contributions: >-
+      通訊作者「必須」（"are required to"）用 CRediT 角色標示各作者貢獻（共 14 個角色，從 Conceptualization 到 Writing – review and editing）。
+    generative_ai_declaration: >-
+      使用生成式 AI 工具準備稿件，投稿時要在稿末、參考文獻之前新增一節聲明（節名與句型官方有範例）。
+      基本工具（文法、拼字、參考文獻檢查）不必聲明；沒有使用就不必寫。AI 工具不可列為作者；AI 不可用來創作或修改
+      代表原始實驗或觀察資料的圖像。
+    src: guide_for_authors
+
+  data_sharing:
+    statement_required: >-
+      原文："For this journal, Option C instructions from our research data guidelines apply. This means that you are required to:
+      Deposit your research data in a relevant data repository. Cite and link to this dataset in your article. If this is not
+      possible, make a statement explaining why research data cannot be shared."
+    policy: >-
+      本刊是 Option C：必須存入合適的資料庫並在文中引用與連結；做不到就要說明為何不能分享。
+      官方的 "research data" 定義明說包含 "software, code, models, algorithms, protocols, methods and other useful materials"，
+      所以程式碼與演算法實作落在這條規定的範圍內（定義見 guide for authors 的 Research data 段）。
+    co_submission: 可同時共同投稿到 Data in Brief 或 MethodsX 發表資料、方法或協議的說明（鼓勵，非必要）。
+    code: {status: not_published, checked: 2026-10-25, src: guide_for_authors,
+           note: 沒有單獨規定程式碼的分享方式；只在 research data 定義與軟體引用規則中涵蓋}
+    src: guide_for_authors
+
+  review:
+    type: single_anonymized
+    requirements:
+      - >-
+        原文："This journal follows a single anonymized review process. Your submission will initially be assessed by our editors.
+        If your submission is deemed suitable, it will typically be sent to be reviewed by a minimum of two reviewers for an
+        independent expert assessment of the scientific quality. Our editors decide whether to accept or reject your article."
+      - 編輯不參與自己寫的、家人或同事寫的、或與其有利害關係的稿件的決定；這類稿件由他人獨立處理
+      - 作者可依 Elsevier 的 Appeal Policy 正式申訴，每篇稿件只受理一次申訴，決定為最終
+      - 特刊與專輯走同樣的審稿流程，客座編輯可送審並建議決定，最終由期刊編輯決定
+    number_of_reviewers: >-
+      原文："typically ... a minimum of two reviewers"（通常至少兩位）；不是硬性保證。
+    initial_screen: 編輯先評估稿件是否適合（"initially be assessed by our editors"），不適合者不送外審（首次決定中位數的定義也含 desk reject）。
+    reviewer_selection: {status: not_published, checked: 2026-10-25, src: guide_for_authors,
+                         note: guide for authors 沒有寫作者可否建議或排除審稿人}
+    src: guide_for_authors
+
+  integrity:
+    duplicate_submission: >-
+      原文："The article is not under consideration for publication elsewhere." 且投稿即表示 "The work described has not been
+      published previously except in the form of a preprint, abstract, published lecture, academic thesis, or registered report."
+    plagiarism_screening: >-
+      原文："To verify compliance with our journal publishing policies, we may check your manuscript with our screening tools."
+    image_screening: 本刊可能把圖像送到第三方工具篩查異常。
+    authorship_changes: >-
+      一般不考慮投稿後更改作者。錄取前須經編輯同意並由通訊作者用 Authorship Change Request 表提出，且全體作者書面同意；
+      錄取後不允許任何作者增減、排序或通訊作者變更。
+    preprints:
+      policy: >-
+        原文："Authors may share preprints in line with Elsevier's article sharing policy. Sharing preprints, such as on a preprint
+        server, will not count as prior publication."
+      ssrn: >-
+        原文："this journal offers its authors a free preprint posting service on SSRN, Elsevier's preprint and early research
+        repository." 投稿時可選擇是否張貼，張貼會在通過編輯初審（desk review）後公開；選或不選不影響編輯流程與結果。
+        張貼前通訊作者要取得全體共同作者同意。
+      src: guide_for_authors
+    src: guide_for_authors
+
+  ai_policy:
+    journal_text: >-
+      guide for authors："Authors must declare the use of generative AI tools in the manuscript preparation process upon submission
+      of the paper." 作者須負責審查與驗證 AI 輸出（包括可能捏造的參考文獻）、不可把 AI 列為作者；
+      "this journal does not currently allow academic editors and reviewers to upload an unpublished manuscript into a generative AI tool"。
+    exemptions: 基本工具（文法、拼字、參考文獻檢查）不必聲明；專為無障礙用途的輔助科技中的 AI 功能不必聲明。
+    generative_ai_images: >-
+      AI 可用於說明性圖像（流程圖、概念圖）與由資料以可重現方法產生的資料視覺化；不可用於創作或修改代表原始觀察或實驗資料的圖像。
+      用過的要在每張圖標題與總聲明中揭露。
+    src: guide_for_authors
+
+  submission:
+    portal: https://submit.elsevier.com/JSCO
+    system: Elsevier 線上投稿系統（首頁 "Submit your article" 與 guide for authors 的 "Follow this link to submit your paper" 皆連到此）
+    portal_fetch_note: >-
+      2026-10-25 用 curl 取該網址得 HTTP 200、約 56 KB 的 JavaScript 殼（文字只有 "Submit your manuscript" 與
+      "You need to enable JavaScript to run this app."），沒有任何規定內容，因此沒有列為監看來源。
+    correspondence: 所有通信（編輯決定、修訂要求）以 email 寄送。
+    at_submission:
+      - 上傳可編輯的稿件原始檔（Word 或 LaTeX 原始檔，PDF 不算）
+      - 圖、影音、補充材料一併上傳；表格與腳註放在稿件檔內，圖表標題要附
+      - 上傳 declarations tool 產生的利益衝突聲明檔
+      - 通訊作者以 CRediT 標示貢獻；填生成式 AI 使用聲明（如有）
+      - 選擇是否張貼預印本到 SSRN（選配）
+    after_acceptance: >-
+      錄取後作者簽 publishing agreement（通訊作者收到 email 連結）；開放取用文章選授權（CC BY、CC BY-NC、CC BY-NC-ND）；
+      校樣要在兩天內改回（官方原文 "within two days"）。若稿件更適合 Elsevier 其他期刊，可能收到 Article Transfer Service 的轉投建議。
+    src: [guide_for_authors, journal_home]
+
+  fees:
+    submission: {status: not_published, checked: 2026-10-25, src: [guide_for_authors, open_access_info],
+                 note: 兩處都沒有提投稿費或審稿費}
+    apc:
+      mandatory: false
+      amount: {usd: 3280}
+      currency: USD
+      applies_to: all_articles
+      payable: 錄取後、且作者選擇開放取用才付；選訂閱模式不收出版費
+      tax: 金額不含稅（excl. taxes）
+      personalised: >-
+        官方：投稿時系統會依個人情況（國家、機構、學會會員等）顯示個人化的 APC，Actual APCs may differ based on individual
+        author circumstances；機構可能有協議全額或部分負擔。
+      license: CC BY、CC BY-NC 或 CC BY-NC-ND（符合資助機構要求時，錄取後可申請 CC BY）
+      as_of: 2026-10-25
+      src: open_access_info
+    subscription_route: 訂閱模式不收作者出版費（"No publication fee charged to authors"）。
+    open_archive: >-
+      本刊有 Open Archive：所有已刊項目在出版 48 個月後無限制免費閱讀與下載。
+    self_archiving: >-
+      訂閱模式下，作者可在機構典藏庫公開被接受的稿件版本，但有 24 個月的禁止期（embargo，自正式上線日起算）；
+      正式出版版不可公開放在 ResearchGate 或 Academia.edu 等平台。
+    color_in_print: {status: not_published, checked: 2026-10-25, src: guide_for_authors,
+                     note: 只寫可用的彩色圖在線上版以彩色呈現；沒有提紙本彩色或頁面費用}
+    page_charges: {status: not_published, checked: 2026-10-25, src: [guide_for_authors, open_access_info],
+                   note: 兩處都沒有提頁面費}
+    language_editing: 選配，Elsevier Author Services 的英文編修，另計費；頁面只說有此服務，不是投稿條件。
+    src: [open_access_info, guide_for_authors, journal_home]
+
+cycle:
+  applies_to: null
+
+warnings:
+  - >-
+    本刊的投稿規定很精簡：整個 guide for authors 頁沒有文章類型清單、沒有正文字數或頁數上限，只有摘要 250 字、關鍵字 1–7 個、
+    選配的 Highlights。不要把別刊的篇幅上限當成本刊的；投稿系統是否另設硬性上限，需登入或問編輯部才知道。
+  - >-
+    scope 寫 "the journal publishes invited tutorial surveys"：綜述是邀請稿，不是自由投稿類型。Applications Letters 與
+    System Descriptions 列為本刊收的類型，但官方沒有給格式或長度。
+  - >-
+    scope 的範圍句是「對符號物件的演算法處理」（algorithmic treatment）；官方文字沒有 "differentiation" 或 "differential"
+    字樣。這不等於不收，只是範圍文字沒有點名；判斷是否切題要看實際刊出的文章與編輯委員的領域。
+  - >-
+    研究資料政策是 Option C（"you are required to" 存入資料庫、引用並連結，做不到要說明原因），且官方的 research data 定義
+    包含 software、code、algorithms。若稿件附程式碼或實作，這條直接適用。
+  - >-
+    審稿是單匿名（審稿人知道作者），不需要去識別化稿件。
+  - >-
+    預印本：官方明文允許，不算先前發表；另提供免費的 SSRN 預印本張貼服務（通過編輯初審後才公開）。
+  - >-
+    IF 0.9 是 Elsevier 頁面自述，說明寫 "2025 Journal Citation Reports (Clarivate Analytics, 2026)"，未另以 JCR 核對；JCR 分區未查
+    （需登入）。記錄裡的分區是 SJR（SCImago）：Algebra and Number Theory Q1、Computational Mathematics Q2（2025 年）。
+    兩個系統不可互換。CiteScore 2.1 是 Scopus 的指標，不是 JIF。
+  - >-
+    審稿時程四項都是官方標示的中位數，但頁面沒有標統計期間：首次決定 14 天（含 desk reject）、送審稿到第一次編輯決定 139 天、
+    投稿到接受 260 天（只算被接受的稿件）、接受到上線 6 天。官方沒有公布接受率。
+  - >-
+    ScienceDirect 的所有頁面對 curl 與 Python urllib 都回 403（832,805 bytes 錯誤殼），所以這份記錄的 Elsevier 來源都是
+    browser／http_viable: false，verify.py 只會回 NEEDS_AGENT；不能取代人工用 Safari 重讀頁面。

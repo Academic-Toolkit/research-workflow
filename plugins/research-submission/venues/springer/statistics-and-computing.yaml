@@ -1,0 +1,708 @@
+--- # research-submission venue record
+# 內容擷取自 Springer Nature Link 的 Statistics and Computing 官方頁面（期刊首頁、aims and scope、
+# submission guidelines、how to publish with us、ethics & disclosures、editorial board、journal updates 兩則公告）、
+# Springer 全品牌期刊政策頁、SCImago、Clarivate Master Journal List，2026-10-25。
+# 讀取方式：Springer 的 HTML 頁用 Safari 讀（document.body.innerText），curl 另測一次可取得完整頁面（200）；
+# SCImago 與 MJL 用 Safari 讀（MJL 是 JS 單頁應用，只能在頁內查詢）。
+# 這本刊沒有 Instructions for Authors PDF：投稿規定全部寫在 submission-guidelines 這一個 HTML 頁。
+# 這本刊正處於出版模式轉換期：首頁與 FAQ 寫 2026-07-01 起只收 OA 投稿、2027-01-01 起全面開放取用，
+# 但 submission-guidelines 與 how-to-publish 兩頁仍保留舊的 hybrid 文字；兩種說法並存，見 warnings。
+# 收錄緣由：語料庫缺這本；補錄統計計算類期刊（與 JASA、Annals of Statistics 等同屬 statistics-journals），供 choose-venue 比較用。
+# 本記錄只放期刊公開規定，不含任何投稿者或稿件資訊。
+
+schema_version: 1
+id: springer/statistics-and-computing
+kind: journal
+family: statistics-journals
+status: active
+
+sources:
+  - id: submission_guidelines_page
+    role: authoritative
+    url: https://link.springer.com/journal/11222/submission-guidelines
+    note: >-
+      投稿規定本體：Editorial Procedure（首次決定與出版時程）、Manuscript Submission、Title Page（摘要、關鍵字）、Text、
+      References、Tables、Artwork、Supplementary Information、Ethical Responsibilities、Authorship、Competing Interests、
+      Research Data Policy、After acceptance、Open Choice 都在這一個頁面（Safari 讀到約 55 KB 文字）。頁面沒有連到 PDF 版。
+      頁面仍寫 "Editorial Manager" 與「期刊不收投稿費或出版費」，這兩處與首頁的 OA 轉換公告不一致，見 warnings。
+      頁尾含讀者的 IP 位址與機構授權名單，抽取文字的 hash 會隨連線改變，verify.py 回報 CHANGED 時先排除這個因素。
+      Springer 對沒有 cookie 的請求，部分頁面會導向 ?error=cookies_not_supported&code=... 的網址，內容相同。
+      抓取方式（適用所有 link.springer.com 的 HTML 來源）：curl 可取得完整頁面（200），但 verify.py 用的 Python urllib
+      只會拿到約 3 KB 的 Client Challenge 頁（HTTP 200，2026-10-25 實測本刊 8 個網址與 brands/springer/journal-policies
+      皆如此），所以記為 browser／http_viable: false，verify.py 只會回 NEEDS_AGENT；重新驗證時用 Safari 或 curl 讀頁面，
+      確認 must_contain 仍在。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 取得完整頁面（200、約 294 KB），但 Python urllib（verify.py 的抓取器）只拿到約 3 KB 的 Client Challenge 頁（HTTP 200）"
+      validity:
+        must_contain: "Please provide an abstract of 150 to 250 words"
+        min_extracted_chars: 15000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: aims_and_scope
+    role: authoritative
+    url: https://link.springer.com/journal/11222/aims-and-scope
+    note: >-
+      三段文字（約 2,000 字元）加頁首的 OA 轉換公告。期刊首頁的 Overview 是它的縮寫版。
+      頁面內有不換行空格（U+00A0），must_contain 選了不含空格變體的片語。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 取得完整頁面（200、約 175 KB），但 Python urllib（verify.py 的抓取器）只拿到約 3 KB 的 Client Challenge 頁（HTTP 200）"
+      validity:
+        must_contain: "bi-monthly refereed journal which publishes papers covering the range of the interface"
+        min_extracted_chars: 1500
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: journal_home
+    role: authoritative
+    url: https://link.springer.com/journal/11222
+    note: >-
+      期刊首頁：Publishing model、OA 轉換公告、Overview、Editor-in-Chief、Journal metrics（IF、5 年 IF、首次決定中位數、
+      下載數）、最新文章、Journal updates、ISSN、收錄資料庫清單。指標與最新文章每週都在變，hash 會因此變動；
+      比對時看 must_contain 與指標那幾行即可。「Submit your manuscript」連到
+      https://submission.nature.com/new-submission/11222/3。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 取得完整頁面（200、約 213 KB），但 Python urllib（verify.py 的抓取器）只拿到約 3 KB 的 Client Challenge 頁（HTTP 200）"
+      validity:
+        must_contain: "Submission to first decision (median)"
+        min_extracted_chars: 1500
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: how_to_publish
+    role: authoritative
+    url: https://link.springer.com/journal/11222/how-to-publish-with-us
+    note: >-
+      出版模式（頁面寫 hybrid）、APC 金額與幣別、Creative Commons 授權。APC 以接受日期當天的價格為準。
+      這一頁仍寫「作者也可以選訂閱模式（無 APC）」，與首頁和 FAQ 的 OA 轉換說法並存，見 warnings。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 取得完整頁面（200、約 185 KB），但 Python urllib（verify.py 的抓取器）只拿到約 3 KB 的 Client Challenge 頁（HTTP 200）"
+      validity:
+        must_contain: "The current APC for Statistics and Computing is"
+        min_extracted_chars: 2000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: ethics_disclosures
+    role: authoritative
+    url: https://link.springer.com/journal/11222/ethics-and-disclosures
+    note: 載明審稿模式（single-anonymous）、COPE 會員身分、相似度偵測軟體。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 取得完整頁面（200、約 175 KB），但 Python urllib（verify.py 的抓取器）只拿到約 3 KB 的 Client Challenge 頁（HTTP 200）"
+      validity:
+        must_contain: "peer reviewed (single-anonymous)"
+        min_extracted_chars: 600
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: editorial_board
+    role: supporting
+    url: https://link.springer.com/journal/11222/editorial-board
+    note: Editor-in-Chief 與編輯名單（只記主編）。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 取得完整頁面（200、約 257 KB），但 Python urllib（verify.py 的抓取器）只拿到約 3 KB 的 Client Challenge 頁（HTTP 200）"
+      validity:
+        must_contain: "Ajay Jasra"
+        min_extracted_chars: 1500
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: oa_transition_announcement
+    role: authoritative
+    url: https://link.springer.com/journal/11222/updates/52895072
+    note: >-
+      Journal updates 的公告 "Statistics and Computing is transitioning to full open access!"（頁面日期 1st July 2026）：
+      2027 年 1 月起只出版開放取用文章。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 取得完整頁面（200、約 175 KB），但 Python urllib（verify.py 的抓取器）只拿到約 3 KB 的 Client Challenge 頁（HTTP 200）"
+      validity:
+        must_contain: "Statistics and Computing is transitioning to full open access"
+        min_extracted_chars: 500
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: oa_transition_faq
+    role: authoritative
+    url: https://link.springer.com/journal/11222/updates/52895102
+    note: >-
+      Journal updates 的 "Transition to fully OA FAQ"：何時停止非 OA 出版、2027 年 APC 金額、已投稿者要不要付 APC、
+      沒有 OA 經費怎麼辦（折扣與豁免）、授權條款。頁面內有不換行空格（U+00A0）。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 取得完整頁面（200、約 183 KB），但 Python urllib（verify.py 的抓取器）只拿到約 3 KB 的 Client Challenge 頁（HTTP 200）"
+      validity:
+        must_contain: "Why is there no longer a non-OA option available at submission"
+        min_extracted_chars: 2000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: springer_policies
+    role: supporting
+    url: https://link.springer.com/brands/springer/journal-policies
+    note: >-
+      Springer 全品牌的期刊政策頁（不是本刊專屬）：preprint 分享、AI 使用、資料可用性、報告規範、知情同意與倫理核准。
+      本刊自己的頁面沒有 preprint 條文，preprint 以此頁為準，兩者的關係見 requirements.integrity.preprints。
+      頁面很長（約 104 KB 文字），有改版時 hash 一定變，CHANGED 時要人工找出變動的段落。
+      Safari 讀取時為了避免與其他分頁混淆，用了帶查詢字串的網址（?journal=11222-sc），內容相同。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 取得完整頁面（200、約 334 KB），但 Python urllib（verify.py 的抓取器）只拿到約 3 KB 的 Client Challenge 頁（HTTP 200）"
+      validity:
+        must_contain: "Springer Nature journals encourage posting of preprints"
+        min_extracted_chars: 20000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: scimago
+    role: supporting
+    url: https://www.scimagojr.com/journalsearch.php?q=23614&tip=sid&clean=0
+    note: >-
+      SCImago（SJR）期刊頁：SJR、分區（四個類別各一）、H-index、Scope。sid 23614 由
+      journalsearch.php?q=0960-3174&tip=iss 的搜尋結果取得（搜尋頁只列這一筆）。
+      curl 回 403 挑戰頁（2026-10-25 實測本刊網址：HTTP 403、5586 bytes），只能用瀏覽器讀。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "403, 5586-byte challenge page"
+      validity:
+        must_contain: "Statistics and Computing"
+        min_extracted_chars: 8000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: mjl
+    role: supporting
+    url: https://mjl.clarivate.com/home
+    note: >-
+      Clarivate Master Journal List。JS 單頁應用，結果頁網址不帶查詢字串，無法用網址重現；
+      只能在頁內於 #search-box 填 ISSN、按 #search-button 後讀結果列。
+      curl 取 /home 只拿到 11 KB 的空殼（2026-10-25 實測：HTTP 200、11428 bytes），沒有任何期刊資料。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "200 但只有 SPA 空殼（11428 bytes），查詢結果需在頁內操作"
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+
+# ─────────────────────────────────────────────────────────────
+identity:
+  name: Statistics and Computing
+  publisher: Springer Nature (Springer Science+Business Media, LLC, part of Springer Nature)
+  publisher_src: journal_home（頁尾 "© Springer Science+Business Media, LLC, part of Springer Nature"）
+  issn: {print: "0960-3174", electronic: "1573-1375"}
+  issn_src: journal_home
+  issn_note: >-
+    期刊首頁 Journal information 把 Print ISSN 標為 "0960-3174 (Ceased)"，Electronic ISSN 為 1573-1375。
+    SCImago 與 MJL 都以 0960-3174 / 1573-1375 兩個 ISSN 收錄。
+  homepage: https://link.springer.com/journal/11222
+  open_access:
+    value: hybrid
+    src: [journal_home, how_to_publish]
+    note: >-
+      2026-10-25 首頁與 how-to-publish 頁的 "Publishing model" 仍標 Hybrid。同一頁面的公告與 FAQ 寫 2026-07-01 起
+      只收 OA 投稿、2027-01-01 起全面開放取用（見 transition）。錄取後的 APC 與授權條款見 requirements.fees。
+  transition:
+    to: fully_open_access
+    effective: 2027-01-01
+    src: [journal_home, oa_transition_announcement, oa_transition_faq]
+    note: >-
+      原文（首頁公告）："Statistics and Computing will become a fully open access (OA) on 1 January 2027. As a result,
+      all submissions received from 1 July 2026 are subject to an article publication charge (APC) if accepted and
+      published in the journal (unless a waiver is applied)."
+  editor_in_chief: {name: Ajay Jasra, affiliation: "Mohamed bin Zayed University of Artificial Intelligence, Abu Dhabi, United Arab Emirates", src: editorial_board}
+  external_ids:
+    scimago: "23614"
+    crossref: "0960-3174"
+    openalex: issn:0960-3174
+  indexing:
+    clarivate_mjl:
+      scie: true
+      ssci: false
+      ahci: false
+      esci: false
+      web_of_science_core_collection: Science Citation Index Expanded
+      additional_indexes: [Essential Science Indicators]
+      checked: 2026-10-25
+      search_issn: "0960-3174"
+      mjl_title_string: "STATISTICS AND COMPUTING"
+      mjl_publisher_string: "SPRINGER , VAN GODEWIJCKSTRAAT 30, DORDRECHT, NETHERLANDS, 3311 GZ"
+      src: mjl
+      note: >-
+        搜尋 0960-3174 得 1 筆 "Exact Match Found"（ISSN / eISSN 0960-3174 / 1573-1375），Web of Science Core
+        Collection 欄只列 Science Citation Index Expanded；沒有 SSCI、AHCI、ESCI。Additional Web of Science Indexes
+        欄只列 Essential Science Indicators。
+    publisher_stated:
+      src: journal_home
+      note: 出版社頁面自述的收錄清單（含 SCIE、Mathematical Reviews、zbMATH、Current Index to Statistics），SCIE 以上方 MJL 為準。
+      list: [ACM Digital Library, ANVUR, Australian Business Deans Council (ABDC) Journal Quality List, BFI List, Baidu, CLOCKSS, CNKI, CNPIEC, Chinese Academy of Medical Science (CAMS), Current Index to Statistics, DBLP, Dimensions, EBSCO, Google Scholar, Japanese Science and Technology Agency (JST), Mathematical Reviews, Naver, OCLC WorldCat Discovery Service, Ovid Discovery, Portico, ProQuest, SCImago, SCOPUS, Science Citation Index Expanded (SCIE), TD Net Discovery Service, Wanfang, eLibrary.ru, zbMATH]
+  metrics:
+    impact_factor:
+      value: 1.8
+      year: 2025
+      as_of: 2026-10-25
+      src: journal_home
+      note: >-
+        期刊首頁 Journal metrics 自述 "Journal Impact Factor 1.8 (2025)"。頁面沒有說明 2025 是 JCR 發布年或資料年，
+        也沒有標明來源是 JCR，本次未另以 JCR 核對（JCR 需登入）。
+    five_year_impact_factor:
+      value: 2.1
+      year: 2025
+      as_of: 2026-10-25
+      src: journal_home
+      note: 同頁 "5-year Journal Impact Factor 2.1 (2025)"，標示方式同上。
+    sjr:
+      value: 0.824
+      year: 2025
+      as_of: 2026-10-25
+      src: scimago
+    h_index: {value: 94, as_of: 2026-10-25, src: scimago}
+    quartiles:
+      - {system: SJR, category: Computational Theory and Mathematics, subject_area: Computer Science, quartile: Q1, year: 2025, as_of: 2026-10-25, src: scimago,
+         note: SCImago 列此類別 2022–2025 每年皆為 Q1；頁面不給名次}
+      - {system: SJR, category: Statistics and Probability, subject_area: Mathematics, quartile: Q2, year: 2025, as_of: 2026-10-25, src: scimago,
+         note: SCImago 列 2025 年為 Q2（2024 為 Q2、2023 與 2022 為 Q1）；頁面不給名次}
+      - {system: SJR, category: "Statistics, Probability and Uncertainty", subject_area: Decision Sciences, quartile: Q2, year: 2025, as_of: 2026-10-25, src: scimago,
+         note: SCImago 列 2025 年為 Q2（2024 為 Q2、2023 與 2022 為 Q1）；頁面不給名次}
+      - {system: SJR, category: Theoretical Computer Science, subject_area: Mathematics, quartile: Q1, year: 2025, as_of: 2026-10-25, src: scimago,
+         note: SCImago 列 2025 年為 Q1（2022–2024 為 Q2）；頁面不給名次。subject_area 依頁面類別清單的排列判讀（列在 Mathematics 底下），頁面沒有逐類別標註所屬領域}
+    quartile_note: >-
+      SCImago 頁首總覽只顯示一個 "Q1"，頁面沒有說明取哪個類別（四個類別 2025 年分別是 Q1、Q2、Q2、Q1）。
+      以上是 SJR 分區，不是 JCR。
+    jcr_quartile:
+      status: not_found
+      checked: 2026-10-25
+      note: >-
+        JCR 分區與名次需登入 Clarivate JCR，本次未查。Springer 頁面只自述 IF，沒有列分區。
+        上方 quartiles 是 SJR 分區，不是 JCR。
+    acceptance_rate: {status: not_published, checked: 2026-10-25, src: journal_home,
+                      note: Springer 期刊首頁、submission guidelines、ethics 頁、how-to-publish 頁、SCImago 頁皆未列接受率或拒絕率}
+    time_to_first_decision:
+      value: 3
+      unit: days
+      statistic: median
+      as_of: 2026-10-25
+      src: journal_home
+      basis: >-
+        Springer 期刊首頁 "Submission to first decision (median) 3 days"；未標統計期間，也未說明是否含不送外審的直接退稿。
+        submission guidelines 另有文字描述："In most cases, the decision is made in less than three months."
+        兩者口徑不同（中位數 vs. 多數情況的上界），不互相換算。
+    time_submission_to_acceptance:
+      status: not_published
+      checked: 2026-10-25
+      src: journal_home
+      note: Springer 首頁 Journal metrics 只列首次決定中位數，沒有投稿到接受；submission guidelines 也沒有。
+    time_acceptance_to_online:
+      value: "3-5 weeks"
+      src: submission_guidelines_page
+      as_of: 2026-10-25
+      basis: >-
+        原文："Assuming proofs are returned quickly, the article should be published online (the official version) within 3-5 weeks."
+        這是錄取後到上線的時間，不是審稿時間。
+    downloads: {value: "539.3k (2025)", as_of: 2026-10-25, src: journal_home}
+
+requirements:
+  refresh: {check_every: P6M, method: manual}
+
+  scope:
+    src: [aims_and_scope, journal_home, scimago]
+    aims_and_scope_verbatim:
+      - >-
+        Statistics and Computing is a bi-monthly refereed journal which publishes papers covering the range of the
+        interface between the statistical and computing sciences.
+      - >-
+        In particular, it addresses the use of statistical concepts in computing science, for example in machine learning,
+        computer vision and data analytics, as well as the use of computers in data modelling, prediction and analysis.
+        Specific topics which are covered include: techniques for evaluating analytically intractable problems such as
+        bootstrap resampling, Markov chain Monte Carlo, sequential Monte Carlo, approximate Bayesian computation, search
+        and optimization methods, stochastic simulation and Monte Carlo, graphics, computer environments, statistical
+        approaches to software errors, information retrieval, machine learning, statistics of databases and database
+        technology, huge data sets and big data analytics, computer algebra, graphical models, image processing,
+        tomography, inverse problems and uncertainty quantification.
+      - >-
+        In addition, the journal contains original research reports, authoritative review papers, discussed papers, and
+        occasional special issues on particular topics or carrying proceedings of relevant conferences. Statistics and
+        Computing also publishes book review and software review sections.
+    overview_verbatim:
+      - "Statistics and Computing is a bi-monthly refereed journal publishing papers at the intersection of statistical and computing sciences."
+      - "Addresses the use of statistical concepts in computing science and the use of computers in data modelling, prediction and analysis."
+      - "Includes techniques for evaluating analytically intractable problems and big data analytics."
+      - "Publishes original research reports, authoritative review papers, and discussion papers."
+      - "Features special issues dedicated to emerging topics or proceedings of relevant conferences."
+    # 官方沒有用 "not" 或 "do not" 排除任何主題；以下是對稿件有界定作用的句子，逐字列出。
+    limiting_statements_verbatim:
+      - text: "Statistics and Computing is a bi-monthly refereed journal which publishes papers covering the range of the interface between the statistical and computing sciences."
+        effect: >-
+          收稿範圍是統計與計算科學的交界（"interface"）。官方沒有進一步定義什麼算交界，也沒有說只談統計理論、
+          或只談計算實作的稿件是否收。這是界定範圍的句子，不是排除句。
+        src: aims_and_scope
+      - text: "Scope: If you have questions about the scope and suitability of your article, the Editor-in-Chief will need to view the entire manuscript to make this determination."
+        effect: >-
+          scope 疑問的處理方式：主編要看整份稿件才判斷，沒有只看摘要的預審詢問管道（原文接著說可在投稿系統填寫對稿件的
+          comments/questions）。出自 submission guidelines 的 Editorial Procedure 段。
+        src: submission_guidelines_page
+    explicit_topic_exclusions: {status: not_published, checked: 2026-10-25, src: [aims_and_scope, journal_home, submission_guidelines_page, scimago],
+                                note: 四處文字都沒有列出排除的主題，也沒有 "do not" 或 "not accepted" 之類的句子}
+    theory_vs_computation: >-
+      scope 文字（aims-and-scope、首頁 Overview）沒有出現 "theory"、"theoretical" 或 "methodology" 這些字，
+      沒有說純理論稿件收或不收，也沒有說稿件必須附實作或數值實驗。官方只用 "interface" 界定，並列出具體主題
+      （見 aims_and_scope_verbatim）。2026-10-25 在 aims-and-scope、首頁、submission guidelines 與 SCImago scope 全文搜尋：
+      "theor" 只在 submission guidelines 的抄襲條文命中 "theories by others"，"methodolog" 只命中 CRediT 範例的
+      "Methodology"，兩者都與收稿範圍無關。
+    software_statements: >-
+      scope 提到兩處：稿件主題 "statistical approaches to software errors"，與期刊另有 "book review and software review
+      sections"（軟體評論欄）。scope 沒有說明作者自己的軟體或套件是否屬於收稿範圍，也沒有列軟體論文為一種稿件類型。
+      submission guidelines 的 Data transparency 段對作者軟體的要求見 data_sharing。
+    symbolic_or_automatic_differentiation: >-
+      官方頁面沒有出現 "automatic differentiation"、"algorithmic differentiation"、"symbolic" 或 "differentiation" 等字
+      （2026-10-25 在 aims-and-scope、首頁、submission guidelines、SCImago scope 全文搜尋；"differenti" 只命中
+      參考文獻格式範例裡的 "partial differential equations"）。最接近的已列主題是
+      "computer algebra"（電腦代數）、"search and optimization methods"、"techniques for evaluating analytically
+      intractable problems"、"inverse problems and uncertainty quantification"。這些只是 scope 上最接近的字眼，
+      不是官方對自動微分或符號微分稿件的表態。
+    subfields_listed:
+      value: >-
+        bootstrap resampling, Markov chain Monte Carlo, sequential Monte Carlo, approximate Bayesian computation,
+        search and optimization methods, stochastic simulation and Monte Carlo, graphics, computer environments,
+        statistical approaches to software errors, information retrieval, machine learning, statistics of databases and
+        database technology, huge data sets and big data analytics, computer algebra, graphical models, image
+        processing, tomography, inverse problems, uncertainty quantification
+      note: 這是 "Specific topics which are covered include" 後的清單；官方沒有說這份清單是否窮盡。
+      src: aims_and_scope
+    audience: {status: not_published, checked: 2026-10-25, src: [aims_and_scope, journal_home],
+               note: scope 沒有列出目標讀者}
+    scimago_subject_areas: [Computer Science / Computational Theory and Mathematics, Decision Sciences / Statistics, Probability and Uncertainty, Mathematics / Statistics and Probability, Mathematics / Theoretical Computer Science]
+    scimago_subject_areas_src: scimago
+
+  article_types:
+    status: not_published
+    checked: 2026-10-25
+    src: [submission_guidelines_page, aims_and_scope, journal_home]
+    note: >-
+      submission guidelines 沒有列出文章類型清單，也沒有各類型的稿件規格。scope 與首頁只用描述句提到類型：
+      "original research reports, authoritative review papers, discussed papers, and occasional special issues"，
+      以及 "book review and software review sections"（見 scope）。投稿系統是否另有類型選單，本記錄無法得知（需登入）。
+  article_type_labels_observed:
+    labels: [Original Paper]
+    src: journal_home
+    as_of: 2026-10-25
+    note: >-
+      這是已刊出文章在 Springer 列表上的標籤（/articles 頁最新 50 筆全是 "Original Paper"），不是投稿規定，
+      也不代表沒有其他類型。
+
+  # submission guidelines 對所有稿件只給摘要字數與關鍵字數；正文字數、頁數、表圖數、文獻數都沒有寫。
+  general_limits:
+    abstract_words: {min: 150, max: 250}
+    keywords: {min: 4, max: 6}
+    src: submission_guidelines_page
+  length_note:
+    status: not_published
+    checked: 2026-10-25
+    src: submission_guidelines_page
+    note: >-
+      submission guidelines 全頁沒有正文字數或頁數上限，也沒有表圖數或參考文獻數的上限（以 "length"、"word"、"page"
+      搜過全頁文字，與篇幅有關的只有摘要 150–250 字，以及 Editorial Procedure 的 "the length of your article" 一句；
+      後者說稿件長度會影響首次決定的時間，不是上限）。投稿系統是否另設硬性上限，本記錄無法得知（需登入，或問編輯部）。
+  main_text_words: {status: not_published, checked: 2026-10-25, src: submission_guidelines_page}
+  page_limit: {status: not_published, checked: 2026-10-25, src: submission_guidelines_page}
+  tables_figures_max: {status: not_published, checked: 2026-10-25, src: submission_guidelines_page}
+  references_max: {status: not_published, checked: 2026-10-25, src: submission_guidelines_page}
+
+  abstracts:
+    - id: single
+      applies_to: all_manuscripts
+      min_words: 150
+      max_words: 250
+      note: >-
+        原文："Please provide an abstract of 150 to 250 words. The abstract should not contain any undefined abbreviations
+        or unspecified references."（不是結構化摘要；沒有要求分段）
+      src: submission_guidelines_page
+
+  keywords: {min: 4, max: 6, purpose: indexing, src: submission_guidelines_page}
+
+  title_page:
+    required_fields:
+      - 標題（"concise and informative"）
+      - 作者姓名
+      - 作者單位（機構、（系所）、城市、（州）、國家）
+      - 通訊作者的明確標示與可用的 email
+      - 有的話，作者的 16 位數 ORCID
+    note: >-
+      感謝（Acknowledgments，含補助與經費）放在標題頁的獨立一節，經費機構名稱要寫全名。
+      暫時沒有單位的作者，Springer 只記錄居住城市與國家，不記 email（除非特別要求）。
+      與 Archive for Mathematical Logic 不同，這份須知沒有要求 MSC 分類碼。
+    src: submission_guidelines_page
+
+  formatting:
+    file_formats: [LaTeX（建議）, Word（.docx）]
+    text: >-
+      原文："Manuscripts should be submitted in LaTeX. We recommend using Springer Nature's LaTeX template and choosing
+      the formatting option "[iicol]". The submission should include the original source (including all style files and
+      figures) and a PDF version of the compiled output. Word files are also accepted."
+    ms_word_template: >-
+      原文："The journal does not provide MsWord templates for your manuscript. ... If accepted, your article will be
+      formatted by our production team."
+    source_files: >-
+      原文："Please ensure you provide all relevant editable source files at every submission and revision. Failing to
+      submit a complete set of editable source files will result in your article not being considered for review."
+    headings: 十進位標題編號，最多三層（"decimal system of headings with no more than three levels"）
+    footnotes: 用腳註不用尾註；腳註不能只放一筆引用，也不能放完整書目資料，不放圖表
+    abbreviations: 首次出現時定義，之後一致使用
+    tables: 阿拉伯數字連續編號並依序在正文引用；每表要有標題；引用已發表資料要在標題後附來源文獻；表註用上標小寫字母
+    figures:
+      vector: EPS（建議）；字型要嵌入
+      halftone: TIFF；MSOffice 檔也接受
+      resolution_dpi: {line_art: 1200, halftone: 300, combination: 600}
+      color: 線上版免費；紙本彩色由作者分擔費用（金額未列）
+      captions: 放在正文檔，不放圖檔；以粗體 "Fig." 加編號開頭
+      size_mm: {large_journal_double_column: 84, large_journal_single_column: 174, small_journal: 119, note: 該刊屬哪一型未標}
+      naming: 檔名用 Fig 加編號，例 Fig1.eps
+    supplementary_information: >-
+      可附影音與其他補充檔；稱為 "Online Resource" 並在正文引用；補充檔不經轉換或編輯，照原樣刊出。
+      影音最大 2 GB；文字與簡報用 PDF；試算表用 .csv 或 .xlsx；特殊格式可附 ".nb (Mathematica notebook), and .tex"；
+      多檔可打包成 .zip 或 .gz。
+    src: submission_guidelines_page
+
+  references:
+    style: 作者年份式（正文括號內放作者姓與年份，清單依第一作者姓氏字母排序；清單項目作者姓在前、名縮寫，年份在最後的括號）
+    rules:
+      - 正文引用範例 "(Thompson 1990)"、"Becker and Seligman (1996)"、"(Abbott 1991; Barakat et al. 1995; Kelso and Smith 1998)"
+      - 清單只列已發表或已被接受的文獻；私人通訊與未發表作品只在正文提及
+      - 有 DOI 的要附完整 DOI 連結
+      - 期刊名用 ISSN LTWA 的標準縮寫；不確定時用全名
+      - 範例 "Hamburger, C.: Quasimonotonicity, regularity and duality for nonlinear systems of partial differential equations. Ann. Mat. Pura Appl. 169, 321–354 (1995)"
+    src: submission_guidelines_page
+
+  statements_and_declarations:
+    required: >-
+      原文："The following statements should be included under the heading "Statements and Declarations" for inclusion in
+      the published paper. Please note that submissions that do not include relevant declarations will be returned as
+      incomplete."
+    competing_interests: 要揭露與投稿工作直接或間接相關的財務與非財務利益；開始工作前 3 年內的都要報；原創研究與綜述都要有聲明
+    funding: 經費資訊要在投稿系統填，也要在正文 Declarations 段寫
+    at_submission_interface: >-
+      原文："Author Contribution information and Competing Interest information must be provided at submission via the
+      submission interface. Only the information submitted via the interface will be used in the final published version."
+    author_contributions: 建議（"recommends"）附貢獻聲明，可用自由文字或 CRediT；放在標題頁
+    other_declarations_named: [Funding, Competing interests, Ethics approval, Consent, "Data, Material and/or Code availability", Authors' contribution]
+    src: submission_guidelines_page
+
+  data_sharing:
+    statement_required: >-
+      原文："Sharing of all relevant research data is strongly encouraged and authors must add a Data Availability
+      Statement to original research articles."
+    policy: 遵循 Springer Nature research data policy；公開存放資料 "strongly encouraged"，不是強制；不能公開時，聲明要說明取得方式與使用條件
+    on_request: >-
+      原文："Upon request authors should be prepared to send relevant documentation or data in order to verify the
+      validity of the results presented."（機密或專有資料除外）
+    software_and_code_text: >-
+      Authorship principles 的 Data transparency 段原文："All authors are requested to make sure that all data and
+      materials as well as software application or custom code support their published claims and comply with field
+      standards."（"requested"，不是強制；沒有要求公開程式碼）
+    code:
+      status: not_published
+      checked: 2026-10-25
+      src: submission_guidelines_page
+      note: >-
+        研究資料政策段沒有單獨規定程式碼，也沒有要求提交或公開程式碼；只有上方 Data transparency 段與
+        Declarations 清單的 "Data, Material and/or Code availability" 提到 code。補充檔格式清單接受 .tex、
+        .nb 等，但那是檔案格式說明，不是要求。
+    reproducibility_policy: {status: not_published, checked: 2026-10-25,
+                             src: [submission_guidelines_page, aims_and_scope, journal_home, ethics_disclosures],
+                             note: 本刊四個頁面全文以 "reproduc"、"replicat"、"github" 搜尋，只命中 data availability statement 段的 "replicate"（一般性建議，非可重現性政策）}
+    src: submission_guidelines_page
+
+  review:
+    type: single_anonymized
+    requirements:
+      - >-
+        原文："Research content published in this journal is peer reviewed (single-anonymous)."（審稿人知道作者身分，作者不知道審稿人）
+      - 可以建議審稿人，也可以要求排除某些人；建議的審稿人要與工作完全無關，且要附機構 email 或其他可驗證身分的連結
+      - 期刊不一定採用建議
+      - 首次決定的時程描述見 identity.metrics.time_to_first_decision；原文 "Reviewers are given a tight deadline to review the manuscript."
+    number_of_reviewers: {status: not_published, checked: 2026-10-25, src: [ethics_disclosures, submission_guidelines_page]}
+    reviewer_selection: >-
+      原文："Authors are welcome to suggest suitable reviewers and/or request the exclusion of certain individuals when
+      they submit their manuscripts. ... Please note that the Journal may not use the suggestions, but suggestions are
+      appreciated and may help facilitate the peer review process."
+    discussion_papers: >-
+      scope 提到 "discussed papers"（首頁寫 "discussion papers"），但 submission guidelines 沒有說明這類稿件的
+      投稿或審稿流程。special issues 的決定時程可另訂，原文："special issues of the journal are given an option to adapt
+      a different schedule for decisions. Check the Call for Papers for specific schedules."
+    src: [ethics_disclosures, submission_guidelines_page]
+
+  integrity:
+    plagiarism_screening: >-
+      "The journal may use plagiarism detection software to screen submissions."（ethics 頁）；submission guidelines 另有
+      "the journal may use software to screen for plagiarism"。
+    duplicate_submission: >-
+      原文："The manuscript should not be submitted to more than one journal for simultaneous consideration." 提交即表示工作
+      未曾發表、未在他處審查中。
+    originality: >-
+      原文："The submitted work should be original and should not have been published elsewhere in any form or language
+      (partially or in full), unless the new work concerns an expansion of previous work. (Please provide transparency on
+      the re-use of material ...)"
+    salami_slicing: 不得把單一研究拆成多篇投稿。
+    authorship_changes: 錄取後不接受增減作者、改通訊作者或改作者順序；修訂階段 "generally not permitted"。
+    preprints:
+      journal_specific: {status: not_published, checked: 2026-10-25, src: [submission_guidelines_page, aims_and_scope, ethics_disclosures, how_to_publish, journal_home],
+                         note: 本刊五個頁面的文字都沒有出現 "preprint"}
+      publisher_wide_text: >-
+        Springer 政策頁："Springer Nature journals encourage posting of preprints of primary research manuscripts on
+        preprint servers of the authors' choice, authors' or institutional websites, and open communications between
+        researchers whether on community preprint servers or preprint commenting platforms." 並寫 "preprints may be posted
+        at any time during the peer review process." 以及 "Manuscripts posted on preprint servers will not be taken into
+        account when determining the advance provided by a study under consideration at a Springer Nature journal."
+      disclosure: 投稿時或審稿期間要揭露 preprint 的 DOI 與授權條款；刊出後要更新 preprint 記錄，附上正式版的 DOI 與連結。
+      src: springer_policies
+      scope_note: >-
+        這是 Springer Nature 全品牌政策，不是本刊自己的條文；本刊頁面沒有與它矛盾的文字，也沒有明說採用它。
+        條文的「primary research manuscripts」是否涵蓋本刊的各種稿件類型，政策頁沒有進一步說明。
+    src: [submission_guidelines_page, ethics_disclosures, springer_policies]
+
+  ai_policy:
+    journal_text: >-
+      submission guidelines："Large Language Models (LLMs), such as ChatGPT, do not currently satisfy our authorship
+      criteria. ... Use of an LLM should be properly documented in the Methods section (and if a Methods section is not
+      available, in a suitable alternative part) of the manuscript. The use of an LLM (or other AI-tool) for "AI assisted
+      copy editing" purposes does not need to be declared."
+    ai_copy_editing_definition: >-
+      原文將 "AI assisted copy editing" 定義為對人寫文字的可讀性與風格改進、文法拼字標點與語氣的修正，包含用字與格式調整，
+      "but do not include generative editorial work and autonomous content creation"；最終文字須有人負責並經作者同意。
+    generative_ai_images: 圖與補充檔段落都要求遵守 Springer 的生成式 AI 圖像政策（連到政策頁），細節見 springer_policies。
+    src: [submission_guidelines_page, springer_policies]
+
+  submission:
+    portal: https://submission.nature.com/new-submission/11222/3
+    system: >-
+      Springer Nature 的線上投稿系統（入口網址在 submission.nature.com）。本刊頁面沒有說出系統名稱；
+      submission guidelines 的 Editorial Procedure 段仍寫 "Editorial Manager"，但「Submit manuscript」按鈕實際指向
+      submission.nature.com，與 Archive for Mathematical Logic 記錄中確認為 Snapp 的入口同一個主機。
+      這一點是由網址推論，頁面本身未明說，投稿前以實際登入畫面為準。
+    portal_fetch_note: >-
+      2026-10-25 用 curl 取該網址得 HTTP 400（導向 submission.springernature.com/new-submission/11222/3?error=cookies_not_supported），
+      是投稿入口需要 cookie 與登入，不是網址失效；因此沒有列為監看來源。
+    cover_letter_items: >-
+      通訊作者要在給編輯的信（cover letter）說明重複使用的材料，並提及稿中任何未發表的材料（例如已被接受但未刊出的稿件）。
+    at_submission:
+      - 上傳全部可編輯的原始檔（LaTeX 含樣式檔與圖，加編譯後 PDF；或 Word）
+      - 在投稿介面填作者貢獻與利益衝突
+      - 建議或排除審稿人（選填）
+      - 依 OA FAQ，可在投稿過程中申請 APC 折扣或豁免
+    after_acceptance: >-
+      錄取後系統會發兩封信：一封要確認單位、選出版模式、處理權利與費用；另一封在排版完成後附校樣連結。
+      版權：開放取用作者保留版權；訂閱模式下依期刊所有權授予出版社專屬授權或轉讓版權。
+      依 FAQ，2026 年底前錄取的稿件仍可在授權簽署時選訂閱路徑，2027-01-01 起只出版 OA。
+    src: [submission_guidelines_page, journal_home, oa_transition_faq]
+
+  fees:
+    submission:
+      status: not_published
+      checked: 2026-10-25
+      src: [submission_guidelines_page, how_to_publish]
+      note: >-
+        兩處都沒有提投稿費或審稿費。submission guidelines 的 Editorial Procedure 段原文寫
+        "The journal does not charge a submission fee or publication fee. If your article is accepted for
+        publication, it will be published without incurring any cost to the authors."，但這段與首頁的 OA 轉換公告
+        不一致（見 warnings），不能當作現況的免費承諾。
+    apc:
+      mandatory: true
+      mandatory_note: >-
+        首頁公告原文："all submissions received from 1 July 2026 are subject to an article publication charge (APC) if
+        accepted and published in the journal (unless a waiver is applied)." FAQ："As of 1 July 2026 we are open for OA
+        submissions only." how-to-publish 頁則仍寫 "Authors can also choose to publish under the subscription publishing
+        model (no APC charges apply)"，兩種說法並存；FAQ 另說 2026 年底前錄取者仍可選訂閱路徑。
+      amount: {usd: 2990, gbp: 2090, eur: 2390}
+      currency: USD
+      payable: 錄取後才付（"payable by authors' institutions or funders when articles are accepted for publication"）
+      tax: 另依適用情形加 VAT 或當地稅
+      license: CC BY-NC-ND 4.0 或 CC BY 4.0
+      price_rule: "The APC price will be determined from the date on which the article is accepted for publication."
+      waiver: >-
+        FAQ 原文："You can apply for an APC discount or waiver during the Statistics and Computing submission process.
+        The APC waivers team will then confirm if you are eligible for a waiver or discount."
+        機構協議涵蓋的稿件由機構集中付款（FAQ："the APC will be centrally invoiced to the OA agreement"）。
+      as_of: 2026-10-25
+      src: [how_to_publish, oa_transition_faq, journal_home]
+    color_in_print: {status: not_published, checked: 2026-10-25, src: submission_guidelines_page,
+                     note: 原文 "For color in the print version, authors will be expected to make a contribution towards the extra costs." 沒有列金額；線上版彩色免費}
+    language_editing: 選配，Springer Nature Author Services 的英文編修，另計費（頁面標 15% 折扣）；頁面明說不是投稿條件，也不保證送審或錄取
+    src: [how_to_publish, oa_transition_faq, submission_guidelines_page]
+
+cycle:
+  applies_to: null
+
+warnings:
+  - >-
+    出版模式正在轉換，官方頁面互相不一致。首頁與 FAQ：2026-07-01 起只收 OA 投稿、錄取後付 APC（可申請折扣或豁免）、
+    2027-01-01 起全面 OA。submission guidelines 的 Editorial Procedure 段仍寫「不收投稿費或出版費」、
+    how-to-publish 頁仍寫 hybrid 並提供免費的訂閱路徑，且 FAQ 自己也說 2026 年底前錄取者可選訂閱。
+    記錄的 APC 金額（USD 2,990 / GBP 2,090 / EUR 2,390）取自 how-to-publish 與 FAQ，兩處數字一致；
+    投稿前要以投稿系統的實際選項為準，並確認所屬機構是否有 OA 協議。
+  - >-
+    scope 以「統計與計算科學的交界」界定，沒有排除任何主題，也沒有談理論稿件、軟體稿件或自動微分、符號微分。
+    官方頁面在這些議題上是沉默，不是同意也不是反對；最接近的已列主題是 "computer algebra"。
+    scope 疑問的處理方式是主編看整份稿件後判斷。
+  - >-
+    投稿規定很精簡：整個 submission-guidelines 頁沒有文章類型清單、沒有正文字數或頁數上限，只有摘要 150–250 字與
+    關鍵字 4–6 個。不要把別刊的篇幅上限當成本刊的；投稿系統是否另設硬性上限，需登入或問編輯部才知道。
+  - >-
+    沒有可編輯的原始檔會連審都不審：原文 "Failing to submit a complete set of editable source files will result in your
+    article not being considered for review."；缺 Declarations 的稿件會被退回為不完整。
+  - >-
+    審稿是單匿名（審稿人知道作者），不需要去識別化稿件。
+  - >-
+    程式碼與資料：資料可用性聲明（Data Availability Statement）是原創研究文章的必要項目，但公開存放資料只是
+    "strongly encouraged"；官方頁面沒有要求提交或公開程式碼，也沒有單獨的可重現性政策。
+  - >-
+    preprint：本刊自己的頁面沒有 preprint 條文；Springer Nature 全品牌政策鼓勵張貼 preprint，且張貼不影響審查時對進展的判斷。
+    這份記錄把該政策標為 publisher-wide，沒有假裝是本刊自己的規定。
+  - >-
+    IF 1.8 與 5 年 IF 2.1 是 Springer 頁面自述，沒有說明系統與年份定義，未另以 JCR 核對；JCR 分區未查（需登入）。
+    記錄裡的分區是 SJR（SCImago），2025 年四個類別為 Q1、Q2、Q2、Q1。兩個系統不可互換。
+  - >-
+    首次決定中位數 3 天是首頁自述，未標統計期間，也未說明是否含不送外審的直接退稿；它與 submission guidelines 的
+    「多數情況在三個月內決定」口徑不同，不互相換算。官方沒有公布投稿到接受的時間，也沒有公布接受率。
+  - >-
+    投稿入口與系統名稱：guidelines 文字仍寫 Editorial Manager，實際按鈕指向 submission.nature.com。
+    系統名稱未由本刊頁面證實，登入前不要預設是哪個系統的帳號。
+  - >-
+    Springer 的 HTML 頁尾含讀者 IP 與機構授權名單，且 verify.py 的 urllib 只拿到 Client Challenge 頁，
+    所以這份記錄的 Springer 來源都是 browser／http_viable: false，verify.py 只會回 NEEDS_AGENT；
+    不能取代人工用 Safari 或 curl 重讀頁面。

@@ -1,0 +1,751 @@
+--- # research-submission venue record
+# 內容擷取自 Elsevier／ScienceDirect 官方頁面、SCImago 與 Clarivate Master Journal List，2026-10-25。
+# ScienceDirect（sciencedirect.com）對 curl 回 HTTP 403 + 832,805 bytes 的挑戰頁（所有子頁大小完全相同），
+# 規定本體只能用 Safari 讀；elsevier.com 的政策頁 curl 讀得到。各 source 的 fetch 欄位記錄了這件事。
+# 收錄緣由：數理邏輯領域期刊的投稿標的評估（choose-venue）。
+# 本記錄只放期刊公開規定，不含任何特定稿件或合作者資訊。
+
+schema_version: 1
+id: elsevier/annals-of-pure-and-applied-logic
+kind: journal
+family: logic-journals
+status: active
+
+# ─────────────────────────────────────────────────────────────
+# 來源與 provenance。須知集中在 ScienceDirect 的 Guide for authors 一頁（含 Aims and scope、Peer review、
+# 倫理與政策、格式、投稿檢核表）；開放取用與 APC 在 Open access information 頁；審稿時程與指標在
+# Journal Insights 頁；Elsevier 全公司層級的 preprint／分享規定在 elsevier.com 的 Article sharing 頁。
+# 所有 sciencedirect.com 子頁網址皆由期刊首頁的導覽連結取得，非推測。
+# 唯一例外：試過 /about/call-for-papers 被導回期刊首頁（該路徑不存在），真正的頁面是 /special-issues。
+# ─────────────────────────────────────────────────────────────
+sources:
+  - id: guide_for_authors
+    role: authoritative
+    url: https://www.sciencedirect.com/journal/annals-of-pure-and-applied-logic/publish/guide-for-authors
+    note: >-
+      投稿規定本體：Aims and scope、Peer review、倫理與政策（含 GenAI、preprint）、檔案格式、
+      摘要與關鍵字、參考文獻、研究資料、cover letter、投稿檢核表。頁面沒有標修訂日期。
+      頁面沒有文章類型清單，也沒有正文字數或頁數上限。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: >-
+        sciencedirect.com 對 curl 回 HTTP 403 + 832,805 bytes（挑戰頁）。2026-10-25 實測 6 個不同
+        ScienceDirect 子頁（guide-for-authors、about/insights、publish/open-access-options、
+        about/editorial-board、about/aims-and-scope、special-issues）以及期刊首頁，回應大小全部相同，
+        是決定性證據：同一個挑戰頁。須以 safari-browser 開啟後讀 document.body.innerText
+        （本頁約 48,670 字元）。
+      validity:
+        must_contain: "This journal follows a single anonymized review process"
+        min_extracted_chars: 30000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: aims_and_scope
+    role: authoritative
+    url: https://www.sciencedirect.com/journal/annals-of-pure-and-applied-logic/about/aims-and-scope
+    note: >-
+      Aims and scope 全文（單段）。與 Guide for authors 的 "Aims and scope" 段、期刊首頁 About the journal
+      段（被截斷，連到此頁）、SCImago 的 Scope 段逐字相同。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 guide_for_authors（403 + 832,805 bytes 挑戰頁）
+      validity:
+        must_contain: "of significant interest to a substantial number of logicians"
+        min_extracted_chars: 700
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: journal_insights
+    role: authoritative
+    url: https://www.sciencedirect.com/journal/annals-of-pure-and-applied-logic/about/insights
+    note: >-
+      Journal Insights：ISSN、學科領域、CiteScore、Impact Factor、APC、四項審稿時程中位數、收錄清單。
+      指標旁的 (i) 按鈕展開後的定義文字（Impact Factor 的 JCR 年度、時程的統計口徑）只在點擊後才出現在 DOM，
+      innerText 讀不到，需在頁內點 "Info on Impact Factor" 等按鈕。頁面沒有標時程的統計期間。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 guide_for_authors（403 + 832,805 bytes 挑戰頁）
+      validity:
+        must_contain: "Submission to first decision"
+        min_extracted_chars: 1200
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: open_access_options
+    role: authoritative
+    url: https://www.sciencedirect.com/journal/annals-of-pure-and-applied-logic/publish/open-access-options
+    note: 開放取用選項、可選授權、APC 金額、Open Archive（48 個月）、自存（self-archiving）禁運期。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 guide_for_authors（403 + 832,805 bytes 挑戰頁）
+      validity:
+        must_contain: "The Article Publishing Charge for this journal is"
+        min_extracted_chars: 5000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: elsevier_article_sharing
+    role: authoritative
+    url: https://www.elsevier.com/about/policies-and-standards/sharing
+    note: >-
+      Elsevier 全公司的 Article sharing 政策。Guide for authors 的 Preprints 段說 "Authors may share preprints in line
+      with Elsevier's article sharing policy"，所以 preprint 規定的本體在此頁。頁面提醒
+      "Some society-owned titles and journals that operate double-anonymized peer review have different preprint
+      policies"；本刊是 single anonymized，且 Guide for authors 沒有另訂不同規定。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Authors can share their preprint anywhere at any time"
+        min_extracted_chars: 5000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: journal_home
+    role: supporting
+    url: https://www.sciencedirect.com/journal/annals-of-pure-and-applied-logic
+    note: >-
+      期刊首頁：CiteScore、Impact Factor、APC、審稿時程（與 journal_insights 相同）、協調編輯、最新文章、特刊清單。
+      "Submit your article" 連到 https://submit.elsevier.com/APAL ，"Guide for authors"、"Order journal" 等導覽連結
+      也從這裡取得。文章列表的標籤（Research article、Open access、Abstract only）見 requirements.article_type_labels_observed。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 guide_for_authors（403 + 832,805 bytes 挑戰頁）
+      validity:
+        must_contain: "Article publishing options"
+        min_extracted_chars: 2500
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: editorial_board
+    role: supporting
+    url: https://www.sciencedirect.com/journal/annals-of-pure-and-applied-logic/about/editorial-board
+    note: Coordinating Editors、Editors（含各自列出的專長）、Editors Emeriti。cover letter 須指名一位 preferred handling editor，所以名單與專長有用。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 guide_for_authors（403 + 832,805 bytes 挑戰頁）
+      validity:
+        must_contain: "Coordinating Editors"
+        min_extracted_chars: 2000
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: special_issues
+    role: supporting
+    url: https://www.sciencedirect.com/journal/annals-of-pure-and-applied-logic/special-issues
+    note: 期刊的特刊與文章集合清單，頁面只列已出版者（最近一筆 Last update October–November 2024）；沒有列開放中的徵稿。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 guide_for_authors（403 + 832,805 bytes 挑戰頁）
+      validity:
+        must_contain: "This page contains a list of all available article collections"
+        min_extracted_chars: 4000
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: calls_for_papers_browse
+    role: supporting
+    url: https://www.sciencedirect.com/browse/calls-for-papers
+    note: >-
+      ScienceDirect 全站的特刊徵稿總覽（2026-10-25 頁首 "Browse 2824 calls for papers for special issues"，
+      頁內文字載入 2,754 筆 "Submission deadline"）。頁面內容每天都在變（徵稿增減），hash 不穩定，
+      只用來回答「查過，沒有看到本刊的徵稿」，不要用 verify 的 hash 差異判斷它是否 CHANGED。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 guide_for_authors（sciencedirect.com 挑戰頁）
+      validity:
+        must_contain: "calls for papers for special issues"
+        min_extracted_chars: 100000
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: submission_portal
+    role: supporting
+    url: https://submit.elsevier.com/APAL
+    note: >-
+      期刊的投稿入口（由期刊首頁 "Submit your article" 連入）。Elsevier 的新投稿服務 "Submit your manuscript"：
+      "Start a submission" 與 "Complete a transfer" 兩個入口；送出後在 Editorial Manager 管理稿件
+      （頁內連到 https://www.editorialmanager.com/APAL ）。入口頁列出投稿前要準備：投稿檔案、
+      全部作者與共同作者的資料（含 email 與 affiliation）、資助者資料。本記錄沒有登入或開始投稿。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: >-
+        curl 回 HTTP 200 + 56,268 bytes，但是 React 單頁應用的空殼，抽取後只有 "Submit your manuscript"
+        與 "You need to enable JavaScript to run this app."；說明文字由 JS 繪製，須用瀏覽器讀。
+      validity:
+        must_contain: "Use this service to submit to Annals of Pure and Applied Logic"
+        min_extracted_chars: 500
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: scimago
+    role: supporting
+    url: https://www.scimagojr.com/journalsearch.php?q=24726&tip=sid&clean=0
+    note: >-
+      SCImago（SJR）期刊頁：SJR、分區（1999–2025 逐年）、H-index、涵蓋年份、Scope（與期刊現行 Aims and scope 相同）。
+      網址的 q=24726 是 SCImago 的 source id，由 ISSN 搜尋結果頁
+      （journalsearch.php?q=01680072&tip=iss）的唯一結果連結取得。頁面上 "How to publish in this journal" 列了
+      一位編輯的 email，本記錄不收。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "403, 5586-byte challenge page"
+      validity:
+        must_contain: "Subject Area and Category"
+        min_extracted_chars: 8000
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25, extracted_sha256: null}
+
+  - id: mjl
+    role: supporting
+    url: https://mjl.clarivate.com/home
+    note: >-
+      Clarivate Master Journal List。JS 單頁應用，結果頁網址不帶查詢字串，無法用網址重現；
+      只能在頁內於 #search-box 填 ISSN、按 #search-button 後讀結果列。
+      curl 取 /home 只拿到空殼，沒有任何期刊資料。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "200 但只有 SPA 空殼，查詢結果需在頁內操作"
+    snapshot: {fetched_at: 2026-10-25, last_verified_at: 2026-10-25}
+
+# ─────────────────────────────────────────────────────────────
+identity:
+  name: Annals of Pure and Applied Logic
+  abbreviation: APAL
+  abbreviation_note: 投稿入口網址用 APAL（submit.elsevier.com/APAL、editorialmanager.com/APAL）。來源 submission_portal
+  publisher: Elsevier B.V.
+  publisher_evidence: >-
+    期刊首頁頁尾 "Copyright © 2026 Elsevier B.V."；MJL 出版社欄 "ELSEVIER , RADARWEG 29, AMSTERDAM, Netherlands"；
+    SCImago 出版社欄 "Elsevier B.V."，國別 Netherlands。
+  issn: {print: "0168-0072", electronic: "1873-2461", src: journal_home}
+  issn_cross_check: >-
+    MJL 搜尋 0168-0072 得 "ISSN / eISSN: 0168-0072 / 1873-2461"，與期刊首頁相同。
+    Crossref（api.crossref.org/journals/0168-0072）與 OpenAlex 也回同一組 ISSN（輔助確認，非來源）。
+  homepage: https://www.sciencedirect.com/journal/annals-of-pure-and-applied-logic
+  hosting_platform: {name: ScienceDirect, url: "https://www.sciencedirect.com/journal/annals-of-pure-and-applied-logic"}
+  subject_area: {value: Logic, src: journal_insights, note: "Journal Insights 的 Subject areas；SCImago 為 Mathematics → Logic"}
+  coverage: {value: "1974, 1983-2026", src: scimago, note: SCImago 頁面所列涵蓋年份}
+  external_ids:
+    scimago: "24726"
+    crossref: "0168-0072"
+    openalex: issn:0168-0072
+  open_access:
+    value: hybrid
+    src: open_access_options
+    note: >-
+      "Annals of Pure and Applied Logic offers authors two choices to publish their research: Open access / Subscription"；
+      "Your publication choice will have no effect on the peer review process or acceptance of your submission."
+      另有 Open Archive：所有已出版項目在出版 48 個月後開放免費閱讀與下載。
+  access:
+    model: 訂閱制或作者付費開放取用（二選一）；另有 Open Archive（出版 48 個月後開放）
+    statement: >-
+      "This journal has an Open Archive. All published items, including research articles, have unrestricted access
+      and will remain permanently free to read and download 48 months after publication."
+    src: open_access_options
+  editors:
+    status_note: >-
+      名單抄自 editorial_board 頁（2026-10-25）。cover letter 須指名 preferred handling editor
+      （見 requirements.submission.cover_letter），專長欄是頁面原文，Editors 中 Christian Rosendal 一位頁面未列專長。
+    coordinating_editors:
+      - {name: Natasha Dobrinen, affiliation: "University of Notre Dame", areas: "Set Theory, Infinite Combinatorics, Topology"}
+      - {name: Ulrich Kohlenbach, affiliation: "TU Darmstadt, Department of Mathematics", areas: "Proof Theory, Logic and Analysis"}
+      - {name: George Metcalfe, affiliation: "University of Bern Mathematical Institute", areas: "Non-Classical Logics, Algebraic Logic, Proof Theory"}
+    editors:
+      - {name: Arnold Beckmann, affiliation: "Swansea University, Department of Computer Science", areas: "Proof Theory, Logic in Computer Science, Theoretical Computer Science"}
+      - {name: Benno van den Berg, affiliation: "University of Amsterdam, Institute for Logic Language and Computation", areas: "Categorical Logic, Type Theory, Constructive Logic, Proof Theory"}
+      - {name: Maryanthe Malliaris, affiliation: "The University of Chicago", areas: "Model theory"}
+      - {name: Alexander Melnikov, affiliation: "Victoria University of Wellington", areas: "Computability recursion theory, Computable structures, and Computable analysis"}
+      - {name: André Nies, affiliation: "The University of Auckland, School of Computer Science", areas: "Computability and its ramifications, Reverse Mathematics, Complexity Theory"}
+      - {name: Christian Rosendal, affiliation: "University of Maryland, Department of Mathematics", areas: "（頁面未列專長）"}
+      - {name: Keita Yokoyama, affiliation: "Tohoku University", areas: "Reverse Mathematics, Models of arithmetic, Proof theoy（頁面原文拼法）"}
+    src: editorial_board
+  indexing:
+    clarivate_mjl:
+      scie: true
+      ssci: false
+      esci: false
+      ahci: false
+      web_of_science_core_collection: Science Citation Index Expanded
+      additional_indexes: [Current Contents Physical, Chemical & Earth Sciences, Essential Science Indicators]
+      checked: 2026-10-25
+      search_issn: "0168-0072"
+      mjl_publisher_string: "ELSEVIER , RADARWEG 29, AMSTERDAM, Netherlands, 1043 NX"
+      src: mjl
+      note: >-
+        搜尋 0168-0072 得 1 筆 "Exact Match Found"（ANNALS OF PURE AND APPLIED LOGIC，ISSN/eISSN 0168-0072 / 1873-2461），
+        Web of Science Core Collection 欄只列 Science Citation Index Expanded；沒有 SSCI、AHCI、ESCI。
+        搜尋時頁面的篩選條件為預設的四項（SCIE、SSCI、AHCI、ESCI 皆勾選），所以其他三項的缺席是有效的負面結果。
+    publisher_stated:
+      list: [Scopus, Science Citation Index Expanded (SCIE), SCImago Journal Rank (SJR), SNIP]
+      src: journal_insights
+      note: >-
+        Journal Insights 頁 "Abstracting and indexing" 的清單，是出版社自述。SCIE 一項已用 MJL 核對相符；
+        Scopus 與 SNIP 沒有另外到 Scopus 核對。
+  metrics:
+    impact_factor:
+      value: 0.8
+      year: 2025
+      system: JCR
+      as_of: 2026-10-25
+      src: journal_insights
+      note: >-
+        期刊首頁與 Journal Insights 顯示 "0.8 Impact Factor"。點開 (i) 的說明原文：
+        "The Impact Factor measures the average number of citations received in a particular year by papers published
+        in the journal during the two preceding years. 2025 Journal Citation Reports (Clarivate Analytics, 2026)"。
+        頁面只給到一位小數；沒有五年 IF。
+    citescore:
+      value: 1.4
+      as_of: 2026-10-25
+      src: journal_insights
+      note: >-
+        Scopus 的 CiteScore。(i) 說明為四年窗口（原文範例 "e.g. 2022-2025"），頁面沒有逐年標明這個 1.4 是哪一年的值。
+    sjr:
+      value: 0.737
+      year: 2025
+      as_of: 2026-10-25
+      src: scimago
+    h_index: {value: 55, as_of: 2026-10-25, src: scimago, note: SCImago 頁面所列}
+    quartiles:
+      - {system: SJR, category: Logic, quartile: Q1, year: 2025, as_of: 2026-10-25, src: scimago,
+         note: "SCImago 頁面（學科領域 Mathematics → Logic）列 1999–2025 逐年分區：2008、2009、2012 為 Q2，其餘各年 Q1；頁面不給名次"}
+    jcr_quartile:
+      status: not_found
+      checked: 2026-10-25
+      note: >-
+        JCR 分區與名次需登入 Clarivate JCR，本次未查。ScienceDirect 頁面只列 IF（0.8），沒有列分區。
+        上方 quartiles 是 SJR 分區，不是 JCR。
+    acceptance_rate:
+      status: not_published
+      checked: 2026-10-25
+      src: journal_insights
+      note: Journal Insights、期刊首頁、Guide for authors 皆無錄取率；也沒有拒絕率。
+    time_to_first_decision:
+      value: 12
+      unit: days
+      statistic: median
+      as_of: 2026-10-25
+      src: journal_insights
+      basis: >-
+        Journal Insights 的 "Submission to first decision"，(i) 說明原文："The median number of days from submission to first
+        decision (desk accept or send the paper to review or desk reject)."。含不送外審的直接決定（desk reject），
+        所以這個數字大半反映初篩速度，不是外審結果的時間。頁面沒有標統計期間或年度。
+    time_submission_to_decision_after_review:
+      value: 224
+      unit: days
+      statistic: median
+      as_of: 2026-10-25
+      src: journal_insights
+      basis: >-
+        "Submission to decision after review"，(i) 說明原文："For papers that are sent to review, the median number of days
+        from submission to receipt of first editor decision."。只計有送外審的稿件。頁面沒有標統計期間或年度。
+    time_submission_to_acceptance:
+      value: 391
+      unit: days
+      statistic: median
+      as_of: 2026-10-25
+      src: journal_insights
+      basis: >-
+        "Submission to acceptance"，(i) 說明原文："For accepted papers, the median number of days from submission to receipt
+        of accept decision."。只計最後被接受的稿件（看不到被拒稿）。頁面沒有標統計期間或年度。
+    time_acceptance_to_online_publication:
+      value: 5
+      unit: days
+      statistic: median
+      as_of: 2026-10-25
+      src: journal_insights
+      basis: >-
+        "Acceptance to online publication"，(i) 說明原文："For papers published online, the median number of days from acceptance
+        to first online publication."。頁面沒有標統計期間或年度。
+    estimates:
+      status: not_applicable
+      checked: 2026-10-25
+      note: >-
+        官方已公布投稿到接受的中位數（391 天），所以沒有做自行抽樣估計；且 sample_review_times.py 沒有 ScienceDirect 的
+        preset（sciencedirect.com 對 curl 回 403）。
+
+# ─────────────────────────────────────────────────────────────
+# SLOW — 數年不變。驗證用 hash diff 即可（browser 來源 verify.py 無法自動重抓，會回 NEEDS_AGENT，屬預期）。
+# ─────────────────────────────────────────────────────────────
+requirements:
+  refresh: {check_every: P6M, method: extracted_hash_diff}
+
+  scope:
+    aims_verbatim: >-
+      The journal Annals of Pure and Applied Logic publishes high quality papers in all areas of mathematical logic as
+      well as applications of logic in mathematics, in theoretical computer science and in other related disciplines.
+      All submissions to the journal should be mathematically correct, well written (preferably in English)and contain
+      relevant new results that are of significant interest to a substantial number of logicians. The journal also
+      considers submissions that are somewhat too long to be published by other journals while being too short to form
+      a separate memoir provided that they are of particular outstanding quality and broad interest. In addition,
+      Annals of Pure and Applied Logic occasionally publishes special issues of selected papers from well-chosen
+      conferences in pure and applied logic.
+    aims_verbatim_note: 原文 "(preferably in English)and" 之間少一個空格，照錄。
+    src: aims_and_scope
+    areas:
+      - id: mathematical_logic
+        statement: 'all areas of mathematical logic（原文 "high quality papers in all areas of mathematical logic"）'
+        src: aims_and_scope
+      - id: applications_of_logic
+        statement: 'applications of logic in mathematics, in theoretical computer science and in other related disciplines（原文）'
+        src: aims_and_scope
+      - id: special_issues_from_conferences
+        statement: '偶爾出版 "special issues of selected papers from well-chosen conferences in pure and applied logic"'
+        src: aims_and_scope
+    acceptance_criteria:
+      statement: >-
+        原文："All submissions to the journal should be mathematically correct, well written (preferably in English)and
+        contain relevant new results that are of significant interest to a substantial number of logicians."
+        三項：數學上正確、寫作良好（偏好英文）、含有相關的新結果且對相當多邏輯學者有顯著興趣。
+      src: aims_and_scope
+    out_of_scope_hints:
+      - case: 新結果的興趣面太窄（只對少數邏輯學者有意義）
+        statement: >-
+          "...contain relevant new results that are of significant interest to a substantial number of logicians."
+          這是對所有投稿的要求（"All submissions ... should"），用語是 "should"，不是明文排除某個主題；
+          但它把「對相當多邏輯學者有顯著興趣」列為投稿條件，窄而專門的結果有被判不合的風險。
+        src: aims_and_scope
+      - case: 非英文稿件
+        statement: >-
+          "...well written (preferably in English)" —— 只說偏好英文，沒有禁止其他語言；
+          Guide for authors 的 Language and editing services 段另建議 "write in American or British English but not a combination of both"。
+        src: [aims_and_scope, guide_for_authors]
+      - case: 篇幅介於一般論文與專書（memoir）之間
+        statement: >-
+          "The journal also considers submissions that are somewhat too long to be published by other journals while being
+          too short to form a separate memoir provided that they are of particular outstanding quality and broad interest."
+          這是收錄條款，不是排除；但附了條件 "provided that they are of particular outstanding quality and broad interest"。
+        src: aims_and_scope
+    explicit_exclusions:
+      status: not_published
+      checked: 2026-10-25
+      src: [aims_and_scope, guide_for_authors]
+      note: >-
+        Aims and scope 與 Guide for authors 都沒有寫「本刊不收某類文章」的句子。唯一接近的是上面三條
+        （興趣面、英文偏好、篇幅條款），措辭都是 should／preferably／provided that。
+
+  article_types:
+    status: not_published
+    checked: 2026-10-25
+    src: [guide_for_authors, aims_and_scope]
+    note: >-
+      Guide for authors 與 Aims and scope 都沒有列出文章類型（沒有 review、survey、short communication 等分類），
+      也沒有各類型的規格。scope 只提到 "high quality papers"、篇幅介於一般論文與 memoir 之間的投稿，以及
+      會議論文集式的特刊。Editorial Manager 的投稿介面是否另有類型選單，本記錄無法得知（需登入）。
+  article_type_labels_observed:
+    labels: [Research article]
+    src: journal_home
+    note: >-
+      這是首頁最新文章列表上的標籤（"Research article"，附 "Open access" 或 "Abstract only"），不是投稿規定。
+      2026-10-25 只在首頁最新 7 篇看到這一種標籤。
+
+  length_note:
+    status: not_published
+    checked: 2026-10-25
+    src: guide_for_authors
+    note: >-
+      Guide for authors 全頁沒有正文字數或頁數上限，也沒有表圖數或參考文獻數的上限（逐段讀過，非關鍵字搜尋）。
+      唯一的篇幅相關規定是摘要不超過 250 字。aims 提到 "somewhat too long to be published by other journals" 的稿件
+      也被考慮，同樣沒有給數字。Editorial Manager 是否另設硬性上限，本記錄無法得知（需登入，或問編輯部）。
+  main_text_words: {status: not_published, checked: 2026-10-25, src: guide_for_authors}
+  page_limit: {status: not_published, checked: 2026-10-25, src: guide_for_authors}
+  tables_figures_max: {status: not_published, checked: 2026-10-25, src: guide_for_authors}
+  references_max: {status: not_published, checked: 2026-10-25, src: guide_for_authors}
+
+  abstracts:
+    - id: main
+      max_words: 250
+      required_at: submission
+      rules:
+        - 簡明、陳述事實；"State the purpose of your paper"
+        - 說明基本程序、主要發現與主要結論，強調新而重要的部分
+        - 要能獨立閱讀（"Abstracts must be able to stand alone"）
+        - 避免引用文獻；若不得不引，要給作者與年份；摘要中引用的文獻在參考文獻表須完整列出
+        - 避免非標準或罕見縮寫；不得不用時在摘要首次出現處定義
+      wording: '"You are required to provide a concise and factual abstract that does not exceed 250 words."'
+      src: guide_for_authors
+  keywords:
+    min: 1
+    max: 7
+    language: English
+    guidance: '"Try to avoid keywords consisting of multiple words (using "and" or "of")."；縮寫只在領域內已確立時使用'
+    src: guide_for_authors
+
+  formatting:
+    file_format:
+      statement: >-
+        "Submit files with .doc/.docx extensions for Word and .tex for LaTeX files. A PDF is not an acceptable source file."
+        Word 檔須單欄排版；雙欄排版只允許 LaTeX 投稿。刪除不具科學意義的刪除線與底線。
+      src: guide_for_authors
+    latex:
+      template: encouraged
+      statement: '"We encourage you use our LaTeX template when preparing a LaTeX submission. You will be asked to provide all relevant editable source files upon submission or revision."'
+      template_name_and_url: {status: not_published, checked: 2026-10-25, note: 頁面以超連結給 "LaTeX submission instructions and templates"，連結目標本次未點開核對}
+      src: guide_for_authors
+    title_page:
+      required: [concise title, author names, affiliations with full postal address and country, corresponding author with email, present/permanent address if changed]
+      note: 通訊作者的 email 會刊在文章中。作者名字順序須與投稿系統一致。
+      src: guide_for_authors
+    sections: 分節並編號（1、1.1、1.1.1），交互參照用編號；摘要不編號；致謝放獨立段落、置於參考文獻之前，不放在標題頁或註腳
+    footnotes: 少用，連續編號
+    appendices: 以 A、B 標示，公式、表、圖另編號（Eq. (A.1)、Table A.1、Fig. A.1）
+    math: 公式以可編輯文字提交，不得用圖片；變數用斜體；顯示公式分開編號
+    tables: 可編輯文字，不得用圖片；每表有標題；表註在表下；避免垂直線與底色
+    figures: 每張圖一個獨立檔案，須有標題；向量圖建議 EPS 或 PDF；不得把多張圖合併成一個檔案
+    references:
+      style: 內文以方括號數字引用（[3,6]）；參考文獻表依字母順序排列後編號
+      journal_abbreviation: 依 List of Title Word Abbreviations（LTWA）縮寫期刊名
+      doi: 有 DOI 的要附
+      rules: 每筆文獻必須對應真實存在的來源；"We recommend not including unpublished results or personal communications in your reference list"
+      preprints: 可引用對研究核心的 preprint，須在文獻中標明 "preprint" 或 preprint server 名並附 DOI；已正式出版者改引正式版
+      src: guide_for_authors
+    language: 建議美式或英式英文擇一，不要混用
+    src: guide_for_authors
+
+  supplementary_material:
+    allowed: true
+    rules:
+      - 須與論文同時提交；送出後只能在修訂階段新增或替換
+      - 內文須引用每個補充檔案，每個檔案附簡短說明
+      - 補充材料 "will appear online exactly as received"，不經查核、排版或編輯
+    src: guide_for_authors
+
+  reproducibility:
+    research_data:
+      policy: Option C
+      statement: >-
+        "For this journal, Option C instructions from our research data guidelines apply. This means that you are required to:
+        Deposit your research data in a relevant data repository. Cite and link to this dataset in your article.
+        If this is not possible, make a statement explaining why research data cannot be shared."
+      definition: >-
+        頁面定義 research data 為 "the results of observations or experimentation that validate research findings,
+        which may also include software, code, models, algorithms, protocols, methods and other useful materials"。
+      src: guide_for_authors
+    reporting_standards: {status: not_published, checked: 2026-10-25, src: guide_for_authors, note: 無 TOP、JARS 或其他報告標準要求}
+    competing_interests_declaration:
+      required: true
+      how: 用 declarations tool 填寫，產出的 Word 文件在 "attach/upload files" 步驟上傳（.doc/.docx，不需簽名）；無須揭露者選 "I have nothing to declare."
+      src: guide_for_authors
+    funding_disclosure:
+      required: true
+      how: 'Funding 段用標準句式；無經費者寫 "This research did not receive any specific grant from funding agencies in the public, commercial, or not-for-profit sectors."'
+      src: guide_for_authors
+
+  review:
+    type: single_anonymized
+    statement: >-
+      "This journal follows a single anonymized review process. Your submission will initially be assessed by our editors.
+      If your submission is deemed suitable, it will typically be sent to be reviewed by a minimum of one reviewer for an
+      independent expert assessment of the scientific quality. Our editors decide whether to accept or reject your article."
+      頁面只寫 single anonymized，沒有展開誰對誰匿名，也沒有另外解釋；本記錄不補充頁面沒有寫的涵義。
+    reviewers_minimum: {value: 1, wording: "a minimum of one reviewer", src: guide_for_authors}
+    author_anonymization: {status: not_applicable, checked: 2026-10-25, note: 單匿名審稿，稿件不需去識別化；頁面沒有要求遮蔽作者資訊}
+    src: guide_for_authors
+    stages:
+      - id: editor_screening
+        detail: 投稿先由編輯評估是否適合；適合者才送外審
+        src: guide_for_authors
+      - id: external_review
+        detail: 通常至少一位審稿人獨立評估科學品質
+        src: guide_for_authors
+    editor_conflicts: >-
+      編輯不參與自己、家人或同事所寫、或涉及自己有利益之產品／服務的稿件的決定；這類稿件交由獨立處理（"Peer review will be handled
+      independently of the editor involved and their research group"）。
+    appeal:
+      allowed: true
+      statement: 作者可依 Elsevier 的 Appeal Policy 對編輯決定提出申訴，每份投稿只受理一次，決定為最終。
+      src: guide_for_authors
+    special_issues: 特刊與文章集合走同樣的審稿程序，客座編輯可把稿件送審並建議決定，最終由期刊編輯決定。
+    decision_categories: {status: not_published, checked: 2026-10-25, src: guide_for_authors, note: Guide for authors 沒有列決定類別（accept／minor／major／reject 等）}
+    author_may_suggest_reviewers:
+      status: not_published
+      checked: 2026-10-25
+      src: guide_for_authors
+      note: >-
+        頁面只說 cover letter 不應包含建議或反對的審稿人（"A cover letter should not include funding information,
+        author declarations, or suggested or opposed reviewers. If these details are needed, they will be requested separately."），
+        投稿系統是否另行詢問，本記錄無法得知（需登入）。
+    authors_as_referees: {status: not_published, checked: 2026-10-25, src: guide_for_authors}
+
+  submission:
+    portal: https://submit.elsevier.com/APAL
+    system: Elsevier 新投稿服務 "Submit your manuscript"，送出後在 Editorial Manager 管理稿件
+    files: .doc／.docx 或 .tex（可編輯來源檔）；PDF 不接受為來源檔
+    registration: 投稿後系統會寄 log-in 或註冊資料（"We will send you log-in or registration details"）
+    prepare_before_starting: [投稿檔案, 全部作者與共同作者資料（含 email 與 affiliation）, 資助者資料]
+    conditions:                     # 投稿即表示同意（Submission declaration）
+      - '工作未曾發表，但 preprint、abstract、published lecture、academic thesis、registered report 的形式除外'
+      - 文章未同時在他處審查中
+      - 全體作者核准發表，且在研究執行處的責任單位明示或默示同意
+      - 若被接受，未經著作權人書面同意不會以相同形式在他處發表（含其他語言與電子形式）
+      - 稿件可能以篩檢工具檢查，以驗證是否符合出版政策
+    cover_letter:
+      required: true
+      must_state:
+        - 'preferred handling editor 的姓名（原文："You are required to indicate the name of a preferred handling editor of this journal in the cover letter."）'
+      should_include: [研究目的與主要發現（簡短、最好不超過一頁）, 研究如何符合本刊 aim and scope, 新穎性與更廣的影響, 若是受邀投稿須說明]
+      must_not_include: [經費資訊, 作者聲明, 建議或反對的審稿人]
+      src: guide_for_authors
+    checklist:
+      items:
+        - 指定一位通訊作者並提供完整聯絡資料，投稿與出版期間要持續更新；出版協議的資格依通訊作者的 affiliation 判定
+        - 所有檔案（含圖、影片、補充材料、表與註腳、圖表標題）都已上傳
+        - 拼字與文法已檢查
+        - 內文引用的參考文獻都在文獻表，反之亦然
+        - 已取得使用他人有著作權材料的許可
+        - 選開放取用者，所有作者理解錄取後須負擔 APC（可由通訊作者的機構或資助者支付）
+      src: guide_for_authors
+    article_transfer: >-
+      稿件較適合 Elsevier 其他期刊時，可能收到 email 邀請透過 Article Transfer Service 轉投；同意後由新期刊編輯獨立審稿，
+      轉入後可修訂。建議來源可能是期刊編輯、駐站科學編輯、工具輔助建議或其組合。
+    after_acceptance:
+      publishing_agreement: 錄取後由通訊作者收到線上出版協議的連結
+      proofs: 請在兩天內完成校樣修正（"we ask you to provide proof corrections within two days"）；校樣階段的重大修改須經期刊編輯同意
+    src: [guide_for_authors, submission_portal]
+
+  fees:
+    submission: {status: not_published, checked: 2026-10-25, src: guide_for_authors, note: Guide for authors、Journal Insights 與 Open access information 皆未提投稿費}
+    apc:
+      amount: 3490
+      currency: USD
+      mandatory: false
+      excludes: taxes
+      applies_to: All articles
+      wording: >-
+        Open access information 頁原文："The Article Publishing Charge for this journal is: Article type: All articles —
+        Article Publishing Charge (excl. taxes): USD 3490"；期刊首頁與 Journal Insights 寫
+        "Article Publishing Charge (APC): USD 3,490 (excluding taxes). Actual APCs may differ based on individual author circumstances."
+      personalization: >-
+        投稿時系統會依個人情境（國家、機構 affiliation、學會會員等）顯示個人化的 APC（"Best price promise"）；
+        機構可能有協議全額或部分涵蓋（"Your institution may have an agreement that fully or partially covers the Article Publishing Charge"）。
+      subscription_route: '選訂閱制則 "No publication fee charged to authors, and published articles are immediately available to subscribers."'
+      choice_independence: '"Your publication choice will have no effect on the peer review process or acceptance of your submission."'
+      src: [open_access_options, journal_insights]
+    color_print: {status: not_published, checked: 2026-10-25, src: guide_for_authors, note: "只寫 \"If you submit usable color figures with your accepted article, we will ensure that they appear in color online.\"；沒有提紙本彩色費用"}
+    page_charges: {status: not_published, checked: 2026-10-25, src: journal_insights, note: 訂閱路徑 "No publication fee charged to authors"，沒有另列頁費}
+
+  open_access:
+    options: [Open access (gold, APC), Subscription (no author fee)]
+    licenses_offered: [CC BY, CC BY-NC, CC BY-NC-ND]
+    funder_license_note: '"If you need to comply with your funding body policy you can apply for a CC BY license after your manuscript is accepted for publication."'
+    author_rights: 開放取用文章使用授權協議：作者保有著作權與學術使用權，Elsevier 取得出版與散布權
+    open_archive: 所有已出版項目於出版 48 個月後開放免費閱讀與下載，適用 Elsevier 的使用者授權
+    self_archiving:
+      embargo_months: 24
+      statement: >-
+        "Under the subscription model, authors may self-archive the accepted manuscript and grant public access via their
+        institution's repository after an embargo period. ... This journal has an embargo period of 24 months for self-archiving."
+        出版後的正式版不得公開放在 ResearchGate、Academia.edu 等平台。
+    src: open_access_options
+
+  policies:
+    dual_submission: forbidden
+    dual_submission_wording: '"The article is not under consideration for publication elsewhere."'
+    prior_publication: >-
+      "The work described has not been published previously except in the form of a preprint, abstract, published lecture,
+      academic thesis, or registered report." 另見 Elsevier 的 multiple, redundant, or concurrent publication 政策
+      （Guide for authors 以連結指向，本記錄未讀該頁）。
+    preprints:
+      allowed: true
+      statement: >-
+        Guide for authors："Authors may share preprints in line with Elsevier's article sharing policy. Sharing preprints,
+        such as on a preprint server, will not count as prior publication."
+        Elsevier Article sharing 頁："Authors can share their preprint anywhere at any time"；
+        "If accepted for publication, we encourage authors to link from the preprint to their formal publication via its Digital Object Identifier (DOI)"；
+        "Authors can update their preprints on arXiv or RePEc with their accepted manuscript"；
+        "Preprints should not be added to or enhanced in any way in order to appear more like, or to substitute for, the final versions of articles"。
+      caveat: 接受稿（accepted manuscript）的分享另有規定：可立即放個人網頁或更新 arXiv／RePEc 的 preprint（並改用 CC BY-NC-ND 授權）；公開放機構典藏須等禁運期（本刊 24 個月）
+      src: [guide_for_authors, elsevier_article_sharing]
+    generative_ai:
+      allowed: true
+      disclosure_required: true
+      statement: >-
+        "Authors must declare the use of generative AI tools in the manuscript preparation process upon submission of the paper."
+        聲明放在投稿時稿件末尾、參考文獻之前的新段落，標題 "Declaration of generative AI and AI-assisted technologies in the manuscript preparation process"。
+      exemptions: 基本工具（檢查文法、拼字、參考文獻）不必聲明；專為無障礙用途的輔助科技不必聲明；沒有使用則不必加聲明
+      prohibitions:
+        - AI 工具不得列為作者或共同作者
+        - 不得用 AI 工具建立或修改代表初級研究資料的影像
+      reviewer_side: 本刊目前不允許編輯與審稿人把未發表稿件上傳到生成式 AI 工具
+      src: guide_for_authors
+    authorship:
+      changes: >-
+        "The editors of this journal generally will not consider changes to authorship once a manuscript has been submitted."
+        接受前可經編輯同意變更（須用 Authorship Change Request form，通訊作者提出並附全體作者書面同意）；
+        "This journal does not allow authorship changes after acceptance."
+      criteria: 全體作者須對（1）研究構想與設計、資料取得或分析詮釋，（2）撰寫或批判性修訂，（3）核准投稿版本 都有實質貢獻
+      corresponding_author: 須指定單一通訊作者；只用通訊作者的 affiliation 判定出版協議資格與折扣
+      src: guide_for_authors
+    copyright:
+      transfer_required: true
+      statement: '"Authors are asked to complete a publishing agreement after acceptance." 開放取用走授權協議（作者保有著作權）。'
+      src: [guide_for_authors, open_access_options]
+    ethics:
+      publishing_ethics: 作者須遵循 Elsevier 的 publishing ethics 政策
+      image_manipulation: 不得為欺騙目的處理影像；本刊可能把影像送第三方工具篩檢
+      src: guide_for_authors
+    inclusive_language: 要求使用包容性語言
+    conflict_of_interest:
+      author_disclosure: required
+      how: 見 requirements.reproducibility.competing_interests_declaration
+      src: guide_for_authors
+    delayed_publication: 需要延後出版者應盡早聯絡編輯部或 Journal Article Publishing Support Center，不保證能成功
+
+  standards: []
+
+# ─────────────────────────────────────────────────────────────
+# FAST — 期刊無年度週期。
+# ─────────────────────────────────────────────────────────────
+cycle:
+  applies_to: null
+  rolling_calls: []
+  special_issues:
+    status: not_found
+    checked: 2026-10-25
+    src: [special_issues, calls_for_papers_browse]
+    note: >-
+      期刊的 special-issues 頁只列已出版的特刊與集合（最近一筆 Last update October–November 2024，Combining Probability and Logic）。
+      ScienceDirect 全站 Browse Calls for Papers 頁（頁首宣稱 2824 筆，頁內文字載入 2,754 筆）全文搜尋
+      "Pure and Applied Logic" 無命中。頁內文字比頁首宣稱的數量少 70 筆，所以這是「沒看到」，不是「確定沒有」。
+
+# ─────────────────────────────────────────────────────────────
+warnings:
+  - >-
+    cover letter 必須指名一位 preferred handling editor（"You are required to indicate the name of a preferred handling editor
+    of this journal in the cover letter."）。編輯名單與各自專長見 identity.editors；cover letter 同時不得包含經費資訊、
+    作者聲明、建議或反對的審稿人。
+  - >-
+    收稿條件寫的是 "contain relevant new results that are of significant interest to a substantial number of logicians"，
+    用語是 should，不是明文排除；但窄而專門的結果有被判不合的風險。Aims and scope 沒有任何明文排除某類文章的句子。
+  - >-
+    官方沒有文章類型清單，也沒有正文字數、頁數、表圖或參考文獻數的上限；只有摘要 250 字、關鍵字 1–7 個。
+    篇幅介於一般論文與 memoir 之間的稿件也被考慮，但要有 "particular outstanding quality and broad interest"。
+  - >-
+    Journal Insights 的時程是中位數且沒有標統計期間：首次決定 12 天（含 desk reject）、有外審者到第一次編輯決定 224 天、
+    投稿到接受 391 天（只含最後被接受者）、接受到線上出版 5 天。中位數 391 天約 13 個月，規劃時程時要把這點算進去。
+  - >-
+    指標口徑：IF 0.8 是 JCR 2025；quartiles 欄記的是 SJR（SCImago）Logic Q1，不是 JCR 分區（JCR 需登入，未查）。
+    CiteScore 1.4 來自 Scopus，頁面沒有標年度。三者不要互換。
+  - >-
+    Research data 走 Option C：須把研究資料存入合適的資料庫並在文中引用與連結，或寫聲明說明為何不能共享。
+    理論論文沒有資料時，聲明怎麼寫由投稿系統決定，本記錄無法得知。
+  - >-
+    ScienceDirect 對 curl 回 403 挑戰頁，所有來源須用瀏覽器讀；verify.py 對 method: browser 的來源回 NEEDS_AGENT 屬預期，
+    不是故障。重新驗證時請用 Safari 打開被引用的頁面，確認原文仍在並記下確認日期。Journal Insights 的 IF 年度與時程定義
+    只在點開指標旁的 (i) 按鈕後才出現。
+  - >-
+    投稿入口 submit.elsevier.com/APAL 是 Elsevier 的新投稿服務，頁面自述 "This is a new submission service"，
+    "We will expand this service over the coming weeks."；送出後在 Editorial Manager 管理稿件。入口與流程可能還在變。

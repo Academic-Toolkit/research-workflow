@@ -1,0 +1,571 @@
+--- # research-submission venue record
+# 內容擷取自 Springer Nature Link 的 Archive for Mathematical Logic 官方頁面（期刊首頁、aims and scope、
+# submission guidelines、how to publish with us、ethics & disclosures、editorial board、journal updates）、
+# Springer 全品牌期刊政策頁、SCImago、Clarivate Master Journal List，2026-10-25。
+# 讀取方式：Springer 的 HTML 頁用 Safari 讀（document.body.innerText），curl 另測一次可取得完整頁面（內容一致）；
+# SCImago 擋 curl（403），MJL 是 JS 單頁應用，兩者只能用瀏覽器讀。
+# 這本刊沒有 Instructions for Authors PDF：投稿規定全部寫在 submission-guidelines 這一個 HTML 頁。
+# 收錄緣由：語料庫缺這本；補錄數理邏輯類期刊，供 choose-venue 比較用。
+# 本記錄只放期刊公開規定，不含任何投稿者或稿件資訊。
+
+schema_version: 1
+id: springer/archive-for-mathematical-logic
+kind: journal
+family: logic-journals
+status: active
+
+sources:
+  - id: submission_guidelines_page
+    role: authoritative
+    url: https://link.springer.com/journal/153/submission-guidelines
+    note: >-
+      投稿規定本體：Manuscript Submission、Title Page（摘要、關鍵字）、Classification code（MSC）、Text、References、
+      Artwork、Supplementary Information、Ethical Responsibilities、Authorship、Competing Interests、After acceptance、
+      Open Choice、Research Data Policy 都在這一個頁面（Safari 讀到約 52 KB 文字）。頁面沒有連到 PDF 版。
+      頁尾含讀者的 IP 位址與機構授權名單，抽取文字的 hash 會隨連線改變，verify.py 回報 CHANGED 時先排除這個因素。
+      Springer 對沒有 cookie 的請求，部分頁面會導向 ?error=cookies_not_supported&code=... 的網址，內容相同。
+      抓取方式（適用所有 link.springer.com 的 HTML 來源）：curl 可取得完整頁面（200），但 verify.py 用的 Python urllib
+      只會拿到 3,036 bytes 的 Client Challenge 頁（HTTP 200，2026-10-25 實測 journal/153、
+      journal/153/submission-guidelines、brands/springer/journal-policies 三個網址皆如此），所以記為 browser／
+      http_viable: false，verify.py 只會回 NEEDS_AGENT；重新驗證時用 Safari 或 curl 讀頁面，確認 must_contain 仍在。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 取得完整頁面（200、約 295 KB），但 Python urllib（verify.py 的抓取器）只拿到 3,036 bytes 的 Client Challenge 頁（HTTP 200）"
+      validity:
+        must_contain: "Please provide an abstract of 150 to 250 words"
+        min_extracted_chars: 15000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: aims_and_scope
+    role: authoritative
+    url: https://link.springer.com/journal/153/aims-and-scope
+    note: 只有一段文字（約 520 字元）。期刊首頁的 Overview 是它的縮寫版。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 取得完整頁面（200、約 175 KB），但 Python urllib（verify.py 的抓取器）只拿到 3,036 bytes 的 Client Challenge 頁（HTTP 200）"
+      validity:
+        must_contain: "as long as the methods of mathematical logic play a significant role"
+        min_extracted_chars: 400
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: journal_home
+    role: authoritative
+    url: https://link.springer.com/journal/153
+    note: >-
+      期刊首頁：Overview、Journal metrics（IF、5 年 IF、首次決定中位數、下載數）、最新文章、Journal updates、
+      ISSN、收錄資料庫清單。指標與最新文章每週都在變，hash 會因此變動；比對時看 must_contain 與指標那幾行即可。
+      「Submit your manuscript」連到 https://submission.nature.com/new-submission/153/3（Snapp）。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 取得完整頁面（200、約 211 KB），但 Python urllib（verify.py 的抓取器）只拿到 3,036 bytes 的 Client Challenge 頁（HTTP 200）"
+      validity:
+        must_contain: "Submission to first decision (median)"
+        min_extracted_chars: 1500
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: how_to_publish
+    role: authoritative
+    url: https://link.springer.com/journal/153/how-to-publish-with-us
+    note: 出版模式（hybrid）、APC 金額與幣別、Creative Commons 授權。APC 以接受日期當天的價格為準。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 取得完整頁面（200、約 187 KB），但 Python urllib（verify.py 的抓取器）只拿到 3,036 bytes 的 Client Challenge 頁（HTTP 200）"
+      validity:
+        must_contain: "The current APC for Archive for Mathematical Logic is"
+        min_extracted_chars: 2000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: ethics_disclosures
+    role: authoritative
+    url: https://link.springer.com/journal/153/ethics-and-disclosures
+    note: 載明審稿模式（single-anonymous）、COPE 會員身分、相似度偵測軟體。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 取得完整頁面（200、約 176 KB），但 Python urllib（verify.py 的抓取器）只拿到 3,036 bytes 的 Client Challenge 頁（HTTP 200）"
+      validity:
+        must_contain: "peer reviewed (single-anonymous)"
+        min_extracted_chars: 600
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: editorial_board
+    role: supporting
+    url: https://link.springer.com/journal/153/editorial-board
+    note: Editor-in-Chief 與編輯名單（只記主編）。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 取得完整頁面（200、約 222 KB），但 Python urllib（verify.py 的抓取器）只拿到 3,036 bytes 的 Client Challenge 頁（HTTP 200）"
+      validity:
+        must_contain: "Ralf Schindler"
+        min_extracted_chars: 1500
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: snapp_update
+    role: authoritative
+    url: https://link.springer.com/journal/153/updates/23181968
+    note: >-
+      Journal updates 的一則公告 "SNAPP – A New Manuscript Submission system"：本刊改用 Snapp 取代 Editorial Manager，
+      投稿要用新的 Springer Nature 帳號，與舊的 Editorial Manager 帳號不同。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 取得完整頁面（200、約 177 KB），但 Python urllib（verify.py 的抓取器）只拿到 3,036 bytes 的 Client Challenge 頁（HTTP 200）"
+      validity:
+        must_contain: "replacing the previous system, Editorial Manager"
+        min_extracted_chars: 500
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: springer_policies
+    role: supporting
+    url: https://link.springer.com/brands/springer/journal-policies
+    note: >-
+      Springer 全品牌的期刊政策頁（不是本刊專屬）：preprint 分享、AI 使用、資料可用性、報告規範、知情同意與倫理核准。
+      本刊自己的頁面沒有 preprint 條文，preprint 以此頁為準，兩者的關係見 requirements.integrity.preprints。
+      頁面很長（約 104 KB 文字），有改版時 hash 一定變，CHANGED 時要人工找出變動的段落。
+      Safari 讀取時為了避免與同時開著同一網址的其他分頁混淆，用了帶查詢字串的網址（?journal=153-aml），內容相同。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 取得完整頁面（200、約 334 KB），但 Python urllib（verify.py 的抓取器）只拿到 3,036 bytes 的 Client Challenge 頁（HTTP 200）"
+      validity:
+        must_contain: "Springer Nature journals encourage posting of preprints"
+        min_extracted_chars: 20000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: scimago
+    role: supporting
+    url: https://www.scimagojr.com/journalsearch.php?q=25207&tip=sid&clean=0
+    note: >-
+      SCImago（SJR）期刊頁：SJR、分區（Logic、Philosophy 各一）、H-index、Scope。sid 25207 由
+      journalsearch.php?q=0933-5846&tip=iss 的搜尋結果取得。頁面另列一個編輯聯絡信箱，不採用。
+      curl 回 403 挑戰頁，只能用瀏覽器讀。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "403, 5586-byte challenge page"
+      validity:
+        must_contain: "Archive for Mathematical Logic"
+        min_extracted_chars: 8000
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+      extracted_sha256: null
+
+  - id: mjl
+    role: supporting
+    url: https://mjl.clarivate.com/home
+    note: >-
+      Clarivate Master Journal List。JS 單頁應用，結果頁網址不帶查詢字串，無法用網址重現；
+      只能在頁內於 #search-box 填 ISSN、按 #search-button 後讀結果列。
+      curl 取 /home 只拿到 11 KB 的空殼，沒有任何期刊資料。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "200 但只有 SPA 空殼（11428 bytes），查詢結果需在頁內操作"
+    snapshot:
+      fetched_at: 2026-10-25
+      last_verified_at: 2026-10-25
+
+# ─────────────────────────────────────────────────────────────
+identity:
+  name: Archive for Mathematical Logic
+  publisher: Springer Nature (Springer-Verlag GmbH Germany, part of Springer Nature)
+  publisher_src: journal_home（頁尾 "© Springer-Verlag GmbH Germany, part of Springer Nature"）
+  issn: {print: "0933-5846", electronic: "1432-0665"}
+  issn_src: journal_home
+  homepage: https://link.springer.com/journal/153
+  open_access:
+    value: hybrid
+    src: how_to_publish
+    note: >-
+      錄取後才選擇：訂閱模式（無 APC）或開放取用（付 APC）。首頁標 "Publishing model: Hybrid"。
+  editor_in_chief: {name: Ralf Schindler, affiliation: University of Münster, src: editorial_board}
+  founded: 1950
+  founded_src: journal_home（"Founded in 1950"）
+  external_ids:
+    scimago: "25207"
+    crossref: "0933-5846"
+    openalex: issn:0933-5846
+  indexing:
+    clarivate_mjl:
+      scie: true
+      ssci: false
+      ahci: false
+      esci: false
+      web_of_science_core_collection: Science Citation Index Expanded
+      additional_indexes: [Current Contents Physical, Chemical & Earth Sciences, Essential Science Indicators]
+      checked: 2026-10-25
+      search_issn: "0933-5846"
+      mjl_title_string: "ARCHIVE FOR MATHEMATICAL LOGIC"
+      mjl_publisher_string: "SPRINGER HEIDELBERG , Europaplatz 3, HEIDELBERG, Germany, D-69115"
+      src: mjl
+      note: >-
+        搜尋 0933-5846 得 1 筆 "Exact Match Found"（ISSN / eISSN 0933-5846 / 1432-0665），Web of Science Core
+        Collection 欄只列 Science Citation Index Expanded；沒有 SSCI、AHCI、ESCI。
+    publisher_stated:
+      src: journal_home
+      note: 出版社頁面自述的收錄清單（含 SCIE、Mathematical Reviews、zbMATH），SCIE 以上方 MJL 為準。
+      list: [ACM Digital Library, ANVUR, BFI List, Baidu, CLOCKSS, CNKI, CNPIEC, Chinese Academy of Medical Science (CAMS), Current Contents/Physical, Chemical and Earth Sciences, DBLP, Dimensions, EBSCO, ERIH PLUS, Google Scholar, INSPEC, Japanese Science and Technology Agency (JST), Mathematical Reviews, Naver, OCLC WorldCat Discovery Service, Ovid Discovery, PhilPapers, Philosopher's Index, Portico, ProQuest, SCImago, SCOPUS, Science Citation Index Expanded (SCIE), TD Net Discovery Service, Wanfang, eLibrary.ru, zbMATH]
+  metrics:
+    impact_factor:
+      value: 0.5
+      year: 2025
+      as_of: 2026-10-25
+      src: journal_home
+      note: >-
+        期刊首頁 Journal metrics 自述 "Journal Impact Factor 0.5 (2025)"。頁面沒有說明 2025 是 JCR 發布年或資料年，
+        也沒有標明來源是 JCR，本次未另以 JCR 核對（JCR 需登入）。
+    five_year_impact_factor:
+      value: 0.5
+      year: 2025
+      as_of: 2026-10-25
+      src: journal_home
+      note: 同頁 "5-year Journal Impact Factor 0.5 (2025)"，標示方式同上。
+    sjr:
+      value: 0.440
+      year: 2025
+      as_of: 2026-10-25
+      src: scimago
+    h_index: {value: 34, as_of: 2026-10-25, src: scimago}
+    quartiles:
+      - {system: SJR, category: Logic, subject_area: Mathematics, quartile: Q2, year: 2025, as_of: 2026-10-25, src: scimago,
+         note: SCImago 列 2025 年 Logic 為 Q2（2024 為 Q1、2023 為 Q2、2022 為 Q1）；頁面不給名次}
+      - {system: SJR, category: Philosophy, subject_area: Arts and Humanities, quartile: Q1, year: 2025, as_of: 2026-10-25, src: scimago,
+         note: SCImago 列 1999–2025 每年皆為 Q1；頁面不給名次。頁首總覽只顯示一個 "Q1"，頁面沒有說明取哪個類別}
+    jcr_quartile:
+      status: not_found
+      checked: 2026-10-25
+      note: >-
+        JCR 分區與名次需登入 Clarivate JCR，本次未查。Springer 頁面只自述 IF，沒有列分區。
+        上方 quartiles 是 SJR 分區，不是 JCR。
+    acceptance_rate: {status: not_published, checked: 2026-10-25, src: journal_home,
+                      note: Springer 期刊首頁、submission guidelines、ethics 頁、SCImago 頁皆未列接受率或拒絕率}
+    time_to_first_decision:
+      value: 38
+      unit: days
+      statistic: median
+      as_of: 2026-10-25
+      src: journal_home
+      basis: 'Springer 期刊首頁 "Submission to first decision (median) 38 days"；未標統計期間，也未說明是否含不送外審的直接退稿'
+    time_submission_to_acceptance:
+      status: not_published
+      checked: 2026-10-25
+      src: journal_home
+      note: Springer 首頁 Journal metrics 只列首次決定中位數，沒有投稿到接受；submission guidelines 也沒有。
+    downloads: {value: "87k (2025)", as_of: 2026-10-25, src: journal_home}
+
+requirements:
+  refresh: {check_every: P6M, method: manual}
+
+  scope:
+    src: [aims_and_scope, journal_home]
+    aims_and_scope_verbatim: >-
+      The journal publishes research papers and occasionally surveys or expositions on mathematical logic. Contributions
+      are also welcomed from other related areas, such as theoretical computer science or philosophy, as long as the
+      methods of mathematical logic play a significant role. The journal therefore addresses logicians and mathematicians,
+      computer scientists, and philosophers who are interested in the applications of mathematical logic in their own
+      field, as well as its interactions with other areas of research.
+    overview_verbatim:
+      - "Founded in 1950, Archive for Mathematical Logic publishes research papers and occasionally surveys or expositions on mathematical logic."
+      - "Welcomes contributions from other related areas like theoretical computer science or philosophy, as long as the methods of mathematical logic play a significant role."
+      - "Addresses logicians, mathematicians, computer scientists, and philosophers interested in the applications of mathematical logic."
+    # 官方沒有用 "not" 或 "do not" 排除任何主題；以下是對某些稿件有限制作用的兩句，逐字列出。
+    limiting_statements_verbatim:
+      - text: "Contributions are also welcomed from other related areas, such as theoretical computer science or philosophy, as long as the methods of mathematical logic play a significant role."
+        effect: >-
+          理論資訊科學與哲學的稿件附條件：數理邏輯的方法必須在其中扮演重要角色。條件原文是 "significant role"，
+          官方沒有進一步定義。這是附帶條件的收件，不是排除。
+        src: aims_and_scope
+      - text: "The journal publishes research papers and occasionally surveys or expositions on mathematical logic."
+        effect: >-
+          主要收研究論文；survey（綜述）與 exposition（闡述性文章）只說 "occasionally"，不是常態類型。
+        src: aims_and_scope
+    explicit_topic_exclusions: {status: not_published, checked: 2026-10-25, src: [aims_and_scope, journal_home, scimago],
+                                note: 三處 scope 文字都沒有列出排除的主題，也沒有 "do not" 或 "not accepted" 之類的句子}
+    subfields_listed: {status: not_published, checked: 2026-10-25, src: [aims_and_scope, journal_home],
+                       note: scope 沒有列出子領域（例如集合論、模型論、遞迴論、證明論）；唯一的領域限定是 "mathematical logic" 與上面的相鄰領域}
+    classification: >-
+      投稿要附 MSC（Mathematics Subject Classification）碼，說明 MSC 用於 Mathematical Reviews 與 zbMATH 兩個評論資料庫
+      （submission guidelines "Classification code" 段）。
+    audience: logicians, mathematicians, computer scientists, philosophers（scope 原文）
+    scimago_subject_areas: [Mathematics / Logic, Arts and Humanities / Philosophy]
+    scimago_subject_areas_src: scimago
+
+  article_types:
+    status: not_published
+    checked: 2026-10-25
+    src: [submission_guidelines_page, aims_and_scope]
+    note: >-
+      submission guidelines 與 aims and scope 都沒有列出文章類型、各類型的稿件規格，也沒有說明有哪些類型不收。
+      scope 只提到 "research papers" 與 "occasionally surveys or expositions"（見 scope）。
+      Editorial Manager 時代的投稿介面是否另有類型選單，本記錄無法得知（Snapp 需登入）。
+  article_type_labels_observed:
+    labels: [OriginalPaper, Original Article, Correction]
+    src: journal_home
+    as_of: 2026-10-25
+    note: >-
+      這是已刊出文章在 Springer 列表上的標籤（首頁最新文章與 /articles 頁），不是投稿規定。
+      2026-10-25 在 /articles 頁前 50 筆看到的標籤只有這三種。
+
+  # submission guidelines 對所有稿件只給摘要字數與關鍵字數；正文字數、頁數、表圖數、文獻數都沒有寫。
+  general_limits:
+    abstract_words: {min: 150, max: 250}
+    keywords: {min: 4, max: 6}
+    src: submission_guidelines_page
+  length_note:
+    status: not_published
+    checked: 2026-10-25
+    src: submission_guidelines_page
+    note: >-
+      submission guidelines 全頁沒有正文字數或頁數上限，也沒有表圖數或參考文獻數的上限（以 "word"、"page"、"length"
+      搜過全頁文字，沒有任何相關規定）。唯一的篇幅相關規定是摘要 150–250 字。
+      Snapp 投稿介面是否另設硬性上限，本記錄無法得知（需登入，或問編輯部）。
+  main_text_words: {status: not_published, checked: 2026-10-25, src: submission_guidelines_page}
+  page_limit: {status: not_published, checked: 2026-10-25, src: submission_guidelines_page}
+  tables_figures_max: {status: not_published, checked: 2026-10-25, src: submission_guidelines_page}
+  references_max: {status: not_published, checked: 2026-10-25, src: submission_guidelines_page}
+
+  abstracts:
+    - id: single
+      applies_to: all_manuscripts
+      min_words: 150
+      max_words: 250
+      note: >-
+        原文："Please provide an abstract of 150 to 250 words. The abstract should not contain any undefined abbreviations
+        or unspecified references."（不是結構化摘要；沒有要求分段）
+      src: submission_guidelines_page
+
+  keywords: {min: 4, max: 6, purpose: indexing, src: submission_guidelines_page}
+
+  title_page:
+    required_fields:
+      - 標題（"concise and informative"）
+      - 作者姓名
+      - 作者單位（機構、（系所）、城市、（州）、國家）
+      - 通訊作者的明確標示與可用的 email
+      - 有的話，作者的 16 位數 ORCID
+      - MSC 分類碼（"An appropriate number of MSC codes should be provided"）
+    note: >-
+      感謝（Acknowledgments，含補助與經費）放在標題頁的獨立一節，經費機構名稱要寫全名。
+      暫時沒有單位的作者，Springer 只記錄居住城市與國家，不記 email（除非特別要求）。
+    src: submission_guidelines_page
+
+  formatting:
+    file_formats: [LaTeX（建議）, Word（.docx）]
+    text: >-
+      原文："Manuscripts should be submitted in LaTeX. We recommend using Springer Nature's LaTeX template. The submission
+      should include the original source (including all style files and figures) and a PDF version of the compiled output.
+      Word files are also accepted."
+    source_files: >-
+      原文："Please ensure you provide all relevant editable source files at every submission and revision. Failing to
+      submit a complete set of editable source files will result in your article not being considered for review."
+    headings: 十進位標題編號，最多三層（"decimal system of headings with no more than three levels"）
+    footnotes: 用腳註不用尾註；腳註不能只放一筆引用，也不能放完整書目資料，不放圖表
+    abbreviations: 首次出現時定義，之後一致使用
+    mathematical_notation: >-
+      單一字母的數學常數、變數、未知量用斜體；數字、運算符、標點、慣用函數或縮寫（cos、det、exp、lim、log、max、min、
+      sin、tan、導數的 d）用正體；向量、張量、矩陣用粗體。
+    tables: 阿拉伯數字連續編號並依序在正文引用；每表要有標題；引用已發表資料要在標題後附來源文獻；表註用上標小寫字母
+    figures:
+      vector: EPS（建議）；字型要嵌入
+      halftone: TIFF；MSOffice 檔也接受
+      resolution_dpi: {line_art: 1200, halftone: 300, combination: 600}
+      color: 線上版免費；紙本彩色由作者分擔費用（金額未列）
+      captions: 放在正文檔，不放圖檔；以粗體 "Fig." 加編號開頭
+      size_mm: {large_journal_double_column: 84, large_journal_single_column: 174, small_journal: 119, note: 該刊屬哪一型未標}
+      naming: 檔名用 Fig 加編號，例 Fig1.eps
+    supplementary_information: >-
+      可附影音與其他補充檔；稱為 "Online Resource" 並在正文引用；補充檔不經轉換或編輯，照原樣刊出。
+      影音最大 2 GB。
+    src: submission_guidelines_page
+
+  references:
+    style: Springer 的數字式（正文方括號數字，清單依引用順序編號；作者姓在前、名縮寫，年份在最後的括號）
+    rules:
+      - 正文以方括號數字引用，例 "[3]"、"[1-3, 7]"
+      - 清單只列已發表或已被接受的文獻；私人通訊與未發表作品只在正文提及
+      - 有 DOI 的要附完整 DOI 連結
+      - 期刊名用 ISSN LTWA 的標準縮寫；不確定時用全名
+      - 範例 "Hamburger, C.: Quasimonotonicity, regularity and duality for nonlinear systems of partial differential equations. Ann. Mat. Pura Appl. 169, 321–354 (1995)"
+    src: submission_guidelines_page
+
+  statements_and_declarations:
+    required: >-
+      原文："The following statements should be included under the heading "Statements and Declarations" for inclusion in
+      the published paper. Please note that submissions that do not include relevant declarations will be returned as
+      incomplete."
+    competing_interests: 要揭露與投稿工作直接或間接相關的財務與非財務利益；開始工作前 3 年內的都要報；原創研究與綜述都要有聲明
+    funding: 經費資訊要在投稿系統填，也要在正文 Declarations 段寫
+    at_submission_interface: >-
+      原文："Author Contribution information and Competing Interest information must be provided at submission via the
+      submission interface. Only the information submitted via the interface will be used in the final published version."
+    author_contributions: 建議（"recommends"）附貢獻聲明，可用自由文字或 CRediT；放在標題頁
+    other_declarations_named: [Funding, Competing interests, Ethics approval, Consent, Data/Material/Code availability, Authors' contribution]
+    src: submission_guidelines_page
+
+  data_sharing:
+    statement_required: >-
+      原文："Sharing of all relevant research data is strongly encouraged and authors must add a Data Availability
+      Statement to original research articles."
+    policy: 遵循 Springer Nature research data policy；公開存放資料 "strongly encouraged"，不是強制；不能公開時，聲明要說明取得方式與使用條件
+    on_request: >-
+      原文："Upon request authors should be prepared to send relevant documentation or data in order to verify the
+      validity of the results presented."
+    code: {status: not_published, checked: 2026-10-25, src: submission_guidelines_page,
+           note: 研究資料政策段沒有單獨規定程式碼；Declarations 清單只提到 "Data, Material and/or Code availability"}
+    src: submission_guidelines_page
+
+  review:
+    type: single_anonymized
+    requirements:
+      - >-
+        原文："Research content published in this journal is peer reviewed (single-anonymous)."（審稿人知道作者身分，作者不知道審稿人）
+      - 可以建議審稿人，也可以要求排除某些人；建議的審稿人要與工作完全無關，且要附機構 email 或其他可驗證身分的連結
+      - 期刊不一定採用建議
+    number_of_reviewers: {status: not_published, checked: 2026-10-25, src: [ethics_disclosures, submission_guidelines_page]}
+    reviewer_selection: >-
+      原文："Authors are welcome to suggest suitable reviewers and/or request the exclusion of certain individuals when
+      they submit their manuscripts. ... Please note that the Journal may not use the suggestions, but suggestions are
+      appreciated and may help facilitate the peer review process."
+    src: [ethics_disclosures, submission_guidelines_page]
+
+  integrity:
+    plagiarism_screening: >-
+      "The journal may use plagiarism detection software to screen submissions."（ethics 頁）；submission guidelines 另有
+      "the journal may use software to screen for plagiarism"。
+    duplicate_submission: >-
+      原文："The manuscript should not be submitted to more than one journal for simultaneous consideration." 提交即表示工作
+      未曾發表、未在他處審查中。
+    originality: >-
+      原文："The submitted work should be original and should not have been published elsewhere in any form or language
+      (partially or in full), unless the new work concerns an expansion of previous work. (Please provide transparency on
+      the re-use of material ...)"
+    salami_slicing: 不得把單一研究拆成多篇投稿。
+    authorship_changes: 錄取後不接受增減作者、改通訊作者或改作者順序；修訂階段 "generally not permitted"。
+    preprints:
+      journal_specific: {status: not_published, checked: 2026-10-25, src: [submission_guidelines_page, aims_and_scope, ethics_disclosures, how_to_publish, journal_home],
+                         note: 本刊五個頁面的文字都沒有出現 "preprint"}
+      publisher_wide_text: >-
+        Springer 政策頁："Springer Nature journals encourage posting of preprints of primary research manuscripts on
+        preprint servers of the authors' choice, authors' or institutional websites, and open communications between
+        researchers whether on community preprint servers or preprint commenting platforms." 並寫 "Posting of preprints is
+        not considered prior publication and will not jeopardize consideration at Springer Nature journals." 以及
+        "preprints may be posted at any time during the peer review process."
+      disclosure: 投稿時或審稿期間要揭露 preprint 的 DOI 與授權條款；刊出後要更新 preprint 記錄，附上正式版的 DOI 與連結。
+      src: springer_policies
+      scope_note: >-
+        這是 Springer Nature 全品牌政策，不是本刊自己的條文；本刊頁面沒有與它矛盾的文字，也沒有明說採用它。
+        條文的「primary research manuscripts」是否涵蓋本刊的稿件類型，政策頁沒有進一步說明。
+    src: [submission_guidelines_page, ethics_disclosures, springer_policies]
+
+  ai_policy:
+    journal_text: >-
+      submission guidelines："Large Language Models (LLMs), such as ChatGPT, do not currently satisfy our authorship
+      criteria. ... Use of an LLM should be properly documented in the Methods section (and if a Methods section is not
+      available, in a suitable alternative part) of the manuscript. The use of an LLM (or other AI-tool) for "AI assisted
+      copy editing" purposes does not need to be declared."
+    ai_copy_editing_definition: >-
+      原文將 "AI assisted copy editing" 定義為對人寫文字的可讀性與風格改進、文法拼字標點與語氣的修正，包含用字與格式調整，
+      "but do not include generative editorial work and autonomous content creation"；最終文字須有人負責並經作者同意。
+    generative_ai_images: 圖與補充檔段落都要求遵守 Springer 的生成式 AI 圖像政策（連到政策頁），細節見 springer_policies。
+    src: [submission_guidelines_page, springer_policies]
+
+  submission:
+    portal: https://submission.nature.com/new-submission/153/3
+    system: Snapp (Springer Nature's Article Processing Platform)
+    account: >-
+      Snapp 要用 Springer Nature 帳號登入，與舊的 Editorial Manager 帳號不同；第一次用 Snapp 投稿要註冊新帳號。
+    support: stoa-support@springernature.com
+    support_src: snapp_update
+    portal_fetch_note: >-
+      2026-10-25 用 curl 取該網址得 HTTP 400（導向 submission.springernature.com/new-submission/153/3?error=cookies_not_supported），
+      是投稿入口需要 cookie 與登入，不是網址失效；因此沒有列為監看來源。
+    cover_letter_items: >-
+      通訊作者要在給編輯的信（cover letter）說明重複使用的材料，並提及稿中任何未發表的材料（例如已被接受但未刊出的稿件）。
+    at_submission:
+      - 上傳全部可編輯的原始檔（LaTeX 含樣式檔與圖，加編譯後 PDF；或 Word）
+      - 在投稿介面填作者貢獻與利益衝突
+      - 建議或排除審稿人（選填）
+    after_acceptance: >-
+      錄取後系統會發兩封信：一封要確認單位、選出版模式（訂閱或開放取用）、處理權利與費用；另一封在排版完成後附校樣連結。
+      版權：訂閱模式下依期刊所有權授予出版社專屬授權或轉讓版權；開放取用作者保留版權。
+    src: [submission_guidelines_page, journal_home, snapp_update]
+
+  fees:
+    submission: {status: not_published, checked: 2026-10-25, src: [submission_guidelines_page, how_to_publish],
+                 note: 兩處都沒有提投稿費或審稿費}
+    apc:
+      mandatory: false
+      amount: {usd: 3290, gbp: 2390, eur: 2690}
+      currency: USD
+      payable: 錄取後、且作者選擇開放取用才付；選訂閱模式不收 APC
+      tax: 另依適用情形加 VAT 或當地稅
+      license: CC BY-NC-ND 4.0 或 CC BY 4.0
+      price_rule: "The APC price will be determined from the date on which the article is accepted for publication."
+      as_of: 2026-10-25
+      src: how_to_publish
+    color_in_print: {status: not_published, checked: 2026-10-25, src: submission_guidelines_page,
+                     note: 原文 "For color in the print version, authors will be expected to make a contribution towards the extra costs." 沒有列金額；線上版彩色免費}
+    language_editing: 選配，Springer Nature Author Services 的英文編修，另計費（頁面標 15% 折扣）；頁面明說不是投稿條件，也不保證送審或錄取
+    src: [how_to_publish, submission_guidelines_page]
+
+cycle:
+  applies_to: null
+
+warnings:
+  - >-
+    本刊的投稿規定很精簡：整個 submission-guidelines 頁沒有文章類型清單、沒有正文字數或頁數上限，只有摘要 150–250 字、
+    關鍵字 4–6 個、MSC 碼。不要把別刊的篇幅上限當成本刊的；Snapp 是否另設硬性上限，需登入或問編輯部才知道。
+  - >-
+    scope 對相鄰領域有附帶條件：理論資訊科學與哲學的稿件要 "the methods of mathematical logic play a significant role"
+    才收。主要收研究論文，survey 與 exposition 只說 "occasionally"。
+  - >-
+    投稿系統已從 Editorial Manager 換成 Snapp，要用新的 Springer Nature 帳號；舊文件或舊記憶裡的 editorialmanager.com
+    投稿網址不再適用。
+  - >-
+    沒有可編輯的原始檔會連審都不審：原文 "Failing to submit a complete set of editable source files will result in your
+    article not being considered for review."；缺 Declarations 的稿件會被退回為不完整。
+  - >-
+    審稿是單匿名（審稿人知道作者），不需要去識別化稿件。
+  - >-
+    preprint：本刊自己的頁面沒有 preprint 條文；Springer Nature 全品牌政策鼓勵張貼 preprint，且不算先前發表。
+    這份記錄把該政策標為 publisher-wide，沒有假裝是本刊自己的規定。
+  - >-
+    IF 0.5 是 Springer 頁面自述，沒有說明系統與年份定義，未另以 JCR 核對；JCR 分區未查（需登入）。
+    記錄裡的分區是 SJR（SCImago）：Logic Q2、Philosophy Q1（2025 年）。兩個系統不可互換。
+  - >-
+    首次決定中位數 38 天是首頁自述，未標統計期間，也未說明是否含不送外審的直接退稿；官方沒有公布投稿到接受的時間，
+    也沒有公布接受率。
+  - >-
+    Springer 的 HTML 頁尾含讀者 IP 與機構授權名單，且 verify.py 的 urllib 只拿到 Client Challenge 頁，
+    所以這份記錄的 Springer 來源都是 browser／http_viable: false，verify.py 只會回 NEEDS_AGENT；
+    不能取代人工用 Safari 或 curl 重讀頁面。
