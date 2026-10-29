@@ -1,6 +1,6 @@
 # research-meetings (plugin)
 
-研究會議紀錄：把研究討論、統計諮詢、合作會面的錄音或逐字稿，整理成每一點都指得回逐字稿的研究會議紀錄（XeLaTeX 標楷體 .tex，編譯成 PDF）。完整說明見 [repo README](https://github.com/PsychQuant/research-workflow)。
+研究會議紀錄：把研究討論、統計諮詢、合作會面的錄音或逐字稿，整理成每一點都指得回逐字稿的研究會議紀錄（XeLaTeX 標楷體 .tex，編譯成 PDF）。完整說明見 [repo README](https://github.com/Academic-Toolkit/research-workflow)。
 
 ## Skills
 

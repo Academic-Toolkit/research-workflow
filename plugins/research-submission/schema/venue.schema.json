@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/PsychQuant/research-workflow/plugins/research-submission/schema/venue.schema.json",
+  "$id": "https://github.com/Academic-Toolkit/research-workflow/plugins/research-submission/schema/venue.schema.json",
   "title": "Submission venue record",
   "description": "投稿場次（期刊或研討會）的須知記錄。設計理由見 SCHEMA.md。此 schema 的職責是強制四個決策（provenance 可驗證、unknown 是一級公民、slow/fast 欄位分離、原生單位不假裝可比），不是窮舉所有欄位 —— requirements 底下容許擴充。",
 

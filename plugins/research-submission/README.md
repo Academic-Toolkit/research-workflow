@@ -1,6 +1,6 @@
 # research-submission (plugin)
 
-學術投稿須知的一手來源語料庫。完整說明見 [repo README](https://github.com/PsychQuant/research-workflow)。
+學術投稿須知的一手來源語料庫。完整說明見 [repo README](https://github.com/Academic-Toolkit/research-workflow)。
 
 ## Skills
 

@@ -24,7 +24,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
 EXTRACTOR = "stdlib-htmlparser/1"   # hash 只在同一 extractor 內可比，故記版本
-UA = "research-submission/0.1 (+https://github.com/PsychQuant/research-workflow)"
+UA = "research-submission/0.1 (+https://github.com/Academic-Toolkit/research-workflow)"
 
 
 class TextExtractor(HTMLParser):

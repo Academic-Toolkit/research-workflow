@@ -12,7 +12,7 @@
 ## Install
 
 ```
-/plugin marketplace add PsychQuant/research-workflow
+/plugin marketplace add Academic-Toolkit/research-workflow
 /plugin install research-meetings@research-workflow
 /plugin install research-design@research-workflow
 /plugin install research-presentation@research-workflow
@@ -23,7 +23,7 @@
 
 ```
 /plugin marketplace remove live-submission-guidelines-marketplace
-/plugin marketplace add PsychQuant/research-workflow
+/plugin marketplace add Academic-Toolkit/research-workflow
 /plugin install research-submission@research-workflow
 ```
 

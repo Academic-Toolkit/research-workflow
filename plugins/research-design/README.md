@@ -1,6 +1,6 @@
 # research-design (plugin)
 
-研究設計階段的文件。完整說明見 [repo README](https://github.com/PsychQuant/research-workflow)。
+研究設計階段的文件。完整說明見 [repo README](https://github.com/Academic-Toolkit/research-workflow)。
 
 ## Skills
 
