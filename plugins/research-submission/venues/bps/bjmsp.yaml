@@ -1,0 +1,1048 @@
+--- # research-submission venue record
+# 內容擷取自 BPS 期刊在 Wiley Online Library 上的 BJMSP 頁面（bpspsychub.onlinelibrary.wiley.com）、
+# Wiley Authors 投稿入口與 Clarivate Master Journal List，2026-11-13。
+#
+# 抓取方式：Wiley Online Library 全站由 Cloudflare managed challenge 擋 curl
+# （HTTP 403 + 約 5.5–5.9 KB 的 "Just a moment..." 頁），本記錄的逐字內容全部用 safari-browser
+# 讀 document.body.innerText 取得；各 source 的 fetch 欄位記錄了這件事。
+# 因此 verify.py 對這些來源只會回 NEEDS_AGENT，重新驗證要用真實瀏覽器打開頁面比對。
+#
+# 官方頁面彼此有出入的地方（逐一記在 warnings 與各欄位 conflict 註記）：期刊宗旨的寫法有三種版本、
+# Expert Tutorial 的字數上限有兩個數字、編輯部信箱有兩個拼法、程式碼是「期待」還是「非必須」、
+# 首次決定時間有「中位 21 天」與「90 天內」兩種說法。
+
+schema_version: 1
+id: bps/bjmsp
+kind: journal
+family: psychometrics-journals
+status: active
+
+# ─────────────────────────────────────────────────────────────
+# 來源與 provenance。須知集中在 Author Guidelines 一頁，加上 Overview、Open Access、
+# Journal Metrics、Data Sharing 與 Calls for Papers 子頁。所有網址皆從期刊首頁的 About、
+# Authors 選單與 Author Guidelines 內的連結取得，非推測；期刊首頁網址本身出自 BPS 官網的期刊頁
+# （bps_journals，該頁列出 "Find out more about the British Journal of Mathematical and Statistical Psychology"）。
+# ─────────────────────────────────────────────────────────────
+sources:
+  - id: author_guidelines
+    role: authoritative
+    url: https://bpspsychub.onlinelibrary.wiley.com/hub/journal/20448317/homepage/forauthors.html
+    note: >-
+      從期刊首頁 Authors 選單的 "Author Guidelines" 點入，頁內標題 "BJMSP AUTHOR GUIDELINES"，分九節：
+      Submission、Aims and Scope、Manuscript Categories and Requirements、Preparing the Submission、
+      Editorial Policies and Ethical Considerations、Author Licensing、Publication Process After Acceptance、
+      Post Publication、Editorial Office Contact Details。首頁的 "Submit a Manuscript" 與 "Submit an article" 也連到同一頁。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: >-
+        Cloudflare managed challenge：curl 以預設 UA 與 verify.py 的 UA 都回 HTTP 403 加約 5.6–5.8 KB 的
+        "Just a moment..." 頁（回應標頭 cf-mitigated: challenge）。本站所有 Wiley Online Library 頁面皆同。
+        逐字內容是用 safari-browser 讀 document.body.innerText 取得。
+      validity:
+        must_contain: "Papers should normally be no more than 5000 words"
+        min_extracted_chars: 24000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: overview
+    role: authoritative
+    url: https://bpspsychub.onlinelibrary.wiley.com/hub/journal/20448317/homepage/productinformation.html
+    note: >-
+      首頁 About 選單的 "Overview"。載有 Aims and Scope（與 author_guidelines 的 Aims and Scope 寫法不同，見 scope.aims_variants）
+      與出版社自述的 Abstracting and Indexing 清單。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 author_guidelines（Cloudflare 403 挑戰頁，約 5.7–5.9 KB）。
+      validity:
+        must_contain: "publishes articles that develop new quantitative methods or models"
+        min_extracted_chars: 3000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: open_access
+    role: authoritative
+    url: https://bpspsychub.onlinelibrary.wiley.com/hub/journal/20448317/homepage/fundedaccess.html
+    note: 首頁 Authors 選單的 "Open Access"（頁內標題 "Article Publication Charges (APCs)"）。APC 金額、授權、稅。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 author_guidelines（Cloudflare 403 挑戰頁，約 5.7–5.8 KB）。
+      validity:
+        must_contain: "If the Open Access option is selected, submissions will be subject to an APC"
+        min_extracted_chars: 3600
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: data_sharing
+    role: authoritative
+    url: https://bpspsychub.onlinelibrary.wiley.com/hub/datasharingfaqs
+    note: >-
+      author_guidelines 的 "Data Sharing and Data Accessibility Policy" 與 "FAQs" 兩個連結都指向這一頁。
+      BPS 全部期刊共用的資料分享 FAQ（不是 BJMSP 專屬）。與 author_guidelines 對「程式碼」的說法不同，見 openness.code。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 author_guidelines（Cloudflare 403 挑戰頁，約 5.5–5.7 KB）。
+      validity:
+        must_contain: "The BPS expects authors to provide sufficient detail for the reader to understand the nature of the data"
+        min_extracted_chars: 4400
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: journal_metrics
+    role: supporting
+    url: https://bpspsychub.onlinelibrary.wiley.com/journal/20448317/journal-metrics
+    note: >-
+      首頁 "VIEW ALL METRICS" 與 About 選單的 "Journal Metrics"。全部數值都標 2025 年，由 Wiley 公布；
+      首頁的指標摘要（CiteScore、Impact Factor、Acceptance Rate、首次決定中位數）與本頁相同。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 author_guidelines（Cloudflare 403 挑戰頁，約 5.6–5.7 KB）。
+      validity:
+        must_contain: "Submission to first decision (median)"
+        min_extracted_chars: 2400
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: journal_home
+    role: supporting
+    url: https://bpspsychub.onlinelibrary.wiley.com/journal/20448317
+    note: >-
+      期刊首頁：一句話宗旨、ISSN、主編、最新一期、指標摘要、徵稿。導覽選單（About、Authors、Browse、Special Issues）的
+      連結從這裡取得。頁面另有「近期文章」清單與最新一期資訊，hash 會經常變動，CHANGED 不代表規定改版。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 author_guidelines（Cloudflare 403 挑戰頁，約 5.5–5.7 KB）。
+      validity:
+        must_contain: "is an international, interdisciplinary journal publishing advances in quantitative methodologies in psychology"
+        min_extracted_chars: 3400
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: editorial_board
+    role: supporting
+    url: https://bpspsychub.onlinelibrary.wiley.com/hub/journal/20448317/homepage/editorialboard.html
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 author_guidelines（Cloudflare 403 挑戰頁，約 5.6–5.8 KB）。
+      validity:
+        must_contain: "Consulting Editors"
+        min_extracted_chars: 2800
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: contact
+    role: supporting
+    url: https://bpspsychub.onlinelibrary.wiley.com/hub/journal/20448317/homepage/contact.html
+    note: 編輯部與製作部信箱。編輯部信箱的拼法（bmsp@）與 author_guidelines 的（bjmsp@）不同，見 identity.editorial_office。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 author_guidelines（Cloudflare 403 挑戰頁，約 5.6–5.8 KB）。
+      validity:
+        must_contain: "Contact us about a paper under review or in production"
+        min_extracted_chars: 1700
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: society_info
+    role: supporting
+    url: https://bpspsychub.onlinelibrary.wiley.com/hub/journal/20448317/homepage/society.html
+    note: 首頁 About 選單的 "Society Information"。只有 BPS 的一般介紹，沒有投稿規定。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 author_guidelines（Cloudflare 403 挑戰頁，約 5.6–5.8 KB）。
+      validity:
+        must_contain: "representative body for psychology and psychologists in the UK"
+        min_extracted_chars: 2200
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: all_issues
+    role: supporting
+    url: https://bpspsychub.onlinelibrary.wiley.com/loi/20448317
+    note: 首頁 Browse 選單的 "All Issues"。只用來觀察出刊頻率與已出的 special issue；官方頁面沒有明寫刊期。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 author_guidelines（Cloudflare 403 挑戰頁，約 5.5–5.7 KB）。
+      validity:
+        must_contain: "2025 - Volume 78"
+        min_extracted_chars: 2000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: cfp_index
+    role: supporting
+    url: https://bpspsychub.onlinelibrary.wiley.com/hub/journal/20448317/homepage/call-for-papers
+    note: Authors 選單的 "Call for Papers"，列出現行徵稿（兩則）。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 author_guidelines（Cloudflare 403 挑戰頁，約 5.6–5.8 KB）。
+      validity:
+        must_contain: "This page is dedicated to our current Calls for Papers"
+        min_extracted_chars: 2000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: cfp_advanced_methods
+    role: supporting
+    url: https://bpspsychub.onlinelibrary.wiley.com/hub/journal/20448317/call-for-papers/advanced-research-methods
+    note: >-
+      滾動收件的 Review Articles 與 Expert Tutorials 徵稿。載有給主編的一頁摘要流程，以及與 author_guidelines
+      不同的 Expert Tutorial 字數寫法，見 article_types 的 conflict 註記。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 author_guidelines（Cloudflare 403 挑戰頁，約 5.7–5.9 KB）。
+      validity:
+        must_contain: "invites submissions of Review Articles and Expert Tutorials that enhance research methods in psychology"
+        min_extracted_chars: 3300
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: cfp_xai
+    role: supporting
+    url: https://bpspsychub.onlinelibrary.wiley.com/hub/journal/20448317/call-for-papers/si-2026-001288
+    note: >-
+      特刊 "Interpretable and Explainable AI/ML for Psychological Research" 的徵稿全文。載有該徵稿自己的
+      Submission Priorities（只適用這個特刊）、提案流程與期限；頁內也給出 Wiley 投稿網址 wiley.atyponrex.com/journal/BMSP。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 author_guidelines（Cloudflare 403 挑戰頁，約 5.7–5.8 KB）。
+      validity:
+        must_contain: "Full Manuscript deadline - June 15, 2028"
+        min_extracted_chars: 7000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: registered_reports
+    role: supporting
+    url: https://bpspsychub.onlinelibrary.wiley.com/hub/journal/20448317/homepage/registeredreportsguidelines.htm
+    note: >-
+      Author Guidelines 說 Registered Reports 另有獨立規定，連到這一頁。兩階段審查（Stage 1 / Stage 2）；
+      只記要點，本記錄不展開。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 author_guidelines（Cloudflare 403 挑戰頁，約 5.7–5.9 KB）。
+      validity:
+        must_contain: "Registered Reports are a form of empirical article"
+        min_extracted_chars: 12000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: submission_portal
+    role: supporting
+    url: https://authors.wiley.com/journal/BMSP
+    note: >-
+      author_guidelines 的 "Wiley Authors submission portal" 與 "Start your submission" 連結的目標。
+      curl 會轉址到 https://authors.wiley.com/dashboard/journal/BMSP（HTTP 200，1,319 bytes 的 SPA 空殼，
+      <div id="root"></div>，<title> 只有 "Wiley Authors"）。2026-11-13 以 safari-browser 開啟：
+      頁面轉到 Wiley 的 CONNECT 登入頁 https://wiley.scienceconnect.io/login；該頁是中文介面（瀏覽器語言所致），
+      含「以继续访问 Wiley Authors」一句，選項有 Google、ORCID、Microsoft、WeChat、Apple、郵箱。
+      沒有登入，也沒有建立任何投稿，所以投稿表單本身（是否有 BJMSP 專屬欄位）沒有讀到。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: >-
+        curl 回 HTTP 200，但只有 1,319 bytes 的 SPA 空殼（內容由 JavaScript 產生，沒有可抽取的正文）；
+        另一個網址 https://wiley.atyponrex.com/journal/BMSP（出自 cfp_xai）curl 追蹤後落在 https://authors.wiley.com/dashboard/journal?groupCode=BMSP，同樣是 1,319 bytes 的空殼。
+      validity:
+        must_contain: "Wiley Authors"
+        min_extracted_chars: 40
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: mjl
+    role: supporting
+    url: https://mjl.clarivate.com/home
+    note: >-
+      Clarivate Master Journal List。JS 單頁應用，結果頁網址（https://mjl.clarivate.com/search-results）不帶查詢字串，
+      無法用網址重現；只能在頁內於 #search-box 填 ISSN（本次填 2044-8317）、按 #search-button 後讀結果列。
+      結果列的 "View profile page" 需要免費登入（頁面標 "* Requires free login."），所以 JCR 的類別與分區沒有取得。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: curl 回 200 + 11,428 bytes，但只有 SPA 空殼，查詢結果需在頁內操作；must_contain 只在查詢結果頁出現。
+      validity:
+        must_contain: "BRITISH JOURNAL OF MATHEMATICAL & STATISTICAL PSYCHOLOGY"
+        min_extracted_chars: 2500
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: bps_journals
+    role: supporting
+    url: https://www.bps.org.uk/Journals
+    note: >-
+      BPS 官網的期刊頁，是找到 BJMSP 在 Wiley 上的網址的地方（"Find out more about the British Journal of Mathematical and
+      Statistical Psychology" 連到 bpspsychub.onlinelibrary.wiley.com/journal/20448317）。curl 讀得到完整頁面。
+      另有 BPS 期刊通則（Registered Reports 說明、特刊 PDF 等），本記錄沒有展開。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Find out more about the British Journal of Mathematical and Statistical Psychology"
+        min_extracted_chars: 19000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: scimago
+    role: supporting
+    url: https://www.scimagojr.com/journalsearch.php?q=12773&tip=sid&clean=0
+    note: >-
+      SCImago（SJR）期刊頁。sid 12773 由 journalsearch.php?q=0007-1102&tip=iss&clean=0 的搜尋結果取得（只列 "British Journal of
+      Mathematical and Statistical Psychology" 一筆，出版者標 "Wiley-Blackwell"）。curl 回 403 Cloudflare 挑戰頁，以 Safari 讀到約 22 K 字元。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "403, Cloudflare challenge page (~5.7 KB)"
+      validity:
+        must_contain: "The set of journals have been ranked according to their SJR and divided into four equal groups"
+        min_extracted_chars: 12000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+# ─────────────────────────────────────────────────────────────
+identity:
+  name: British Journal of Mathematical and Statistical Psychology
+  abbreviation: BJMSP
+  abbreviation_note: >-
+    "BJMSP" 出自 author_guidelines 的標題與內文；Wiley 的投稿代碼與信箱用 "BMSP"（authors.wiley.com/journal/BMSP）。
+    MJL 登錄的刊名是 "BRITISH JOURNAL OF MATHEMATICAL & STATISTICAL PSYCHOLOGY"。
+  publisher: Wiley
+  publisher_note: >-
+    author_guidelines 的 Data protection 段稱 "the publisher (Wiley)"；首頁頁尾寫 "Published on behalf of the British Psychological Society"，
+    版權行寫 "© The British Psychological Society"。MJL 出版社欄 "WILEY , 111 RIVER ST, HOBOKEN, USA, NJ, 07030-5774"。
+  owner: The British Psychological Society
+  owner_note: >-
+    首頁寫 "A British Psychological Society journal."、頁尾寫 "Published on behalf of the British Psychological Society"。
+    所有權的法律安排官方頁面沒有說明，這裡只記頁面的措辭。
+  issn: {print: "0007-1102", electronic: "2044-8317", src: journal_home}
+  issn_cross_check: >-
+    MJL 搜尋 2044-8317 得 1 筆 "Exact Match Found"，"ISSN / eISSN: 0007-1102 / 2044-8317"；
+    OpenAlex 與 Crossref 的 ISSN 也是這兩個（兩者只用於核對，不是須知來源）。
+  homepage: https://bpspsychub.onlinelibrary.wiley.com/journal/20448317
+  society_page: https://bpspsychub.onlinelibrary.wiley.com/hub/journal/20448317/homepage/society.html
+  editors:
+    - role: Editor
+      name: Sun-Joo Cho
+      affiliation: "Vanderbilt University, Nashville, TN, USA"
+      src: [editorial_board, journal_home, cfp_advanced_methods]
+      note: '首頁寫 "Edited by: Sun-Joo Cho"；徵稿頁稱 "Editor-in-Chief"（cfp_advanced_methods）。'
+  associate_editors:
+    src: editorial_board
+    names:
+      - {name: Daniel Bolt, affiliation: "University of Wisconsin at Madison, USA"}
+      - {name: Victor Cervantes, affiliation: "University of Illinois at Urbana–Champaign, USA"}
+      - {name: Yunxiao Chen, affiliation: "London School of Economics, UK"}
+      - {name: Rudolf Debelak, affiliation: "EPFL, Switzerland"}
+      - {name: Jorge González, affiliation: "Universidad Católica de Chile, Chile"}
+      - {name: Heungsun Hwang, affiliation: "McGill University, Canada"}
+      - {name: Terrence Jorgensen, affiliation: "University of Amsterdam, The Netherlands"}
+      - {name: Wenchao Ma, affiliation: "University of Minnesota at Twin Cities, USA"}
+      - {name: Francis Tuerlinckx, affiliation: "KU Leuven, Belgium"}
+      - {name: Esther Ulitzsch, affiliation: "University of Oslo, Norway"}
+      - {name: J. Fernando Vera, affiliation: "University of Granada, Spain"}
+      - {name: Chun Wang, affiliation: "University of Washington, USA"}
+      - {name: Hao Wu, affiliation: "Vanderbilt University, USA"}
+      - {name: Qian (Jackie) Zhang, affiliation: "Florida State University, USA"}
+  consulting_editors:
+    src: editorial_board
+    note: 頁面另列 21 位 Consulting Editors（Silvia Cagnone、Ping Chen、Han Du、Leah Feuerstahler、Suzanne Jak、Siwei Liu、Yang Liu、Stefano Noventa、Markus Pauly、Wai Poon、Xu Qin、Jason Rights、Miguel Sorrel、Tenko Raykov、Gerhard Tutz、Gabriel Wallin、Gongjun Xu、Michio Yamamoto、Jun Zhang、Siliang Zhang、Susu Zhang），頁面拼法照錄。
+  editorial_office:
+    email: bmsp@wiley.com
+    src: [contact, author_guidelines, cfp_xai]
+    note: >-
+      contact 頁寫 "Contact us about a paper under review or in production"，下一行是 "Email: bmsp@wiley.com"，cfp_xai 的特刊提案也寄 bmsp@wiley.com；
+      但 author_guidelines 第 9 節寫 "please contact the Editorial Assistant at bjmsp@wiley.com"。兩個拼法官方頁面都有，
+      沒有說明哪個是正確的；寄信前宜兩個都確認，或用投稿系統內的訊息。
+  technical_support: {email: submissionhelp@wiley.com, scope: 投稿系統的技術問題, src: author_guidelines}
+  production: {email: bmsp-production@wiley.com, src: contact}
+  frequency:
+    status: not_published
+    checked: 2026-11-13
+    src: [journal_home, all_issues, overview, author_guidelines]
+    note: >-
+      官方頁面沒有寫刊期。all_issues 列出 Volume 79（2026）的三期：Issue 1（pp. 1–230，February 2026）、
+      Issue 2（pp. 233–452，May 2026）、Issue 3（pp. 453–784，November 2026）；journal_home 另列 Volume 78 Issue 3（pp. 711–1047，November 2025）。
+      這是觀察，不是官方說明。
+  access:
+    model: hybrid（訂閱 + 作者可選 Open Access）
+    statement: '"You may choose to publish under the terms of the journal’s standard copyright agreement, or Open Access under the terms of a Creative Commons License."'
+    src: author_guidelines
+  external_ids:
+    crossref: "0007-1102"
+    openalex: issn:0007-1102
+  metrics:
+    impact_factor:
+      value: 1.9
+      year: 2025
+      provider: Clarivate
+      as_of: 2026-11-13
+      src: journal_metrics
+      note: '頁面原文 "2025 Journal Impact Factor (Clarivate): 1.9"；首頁的摘要也是 1.9。'
+    journal_citation_indicator:
+      value: 0.69
+      year: 2025
+      provider: Clarivate
+      as_of: 2026-11-13
+      src: journal_metrics
+      note: '頁面原文 "2025 Journal Citation Indicator (Clarivate): 0.69"。'
+    citescore:
+      value: 3.6
+      year: 2025
+      provider: Scopus
+      as_of: 2026-11-13
+      src: journal_metrics
+      note: '頁面原文 "2025 CiteScore (Scopus): 3.6"。'
+    quartiles:
+      - {system: SJR, category: "Statistics and Probability", subject_area: Mathematics, quartile: Q1, year: 2025, as_of: 2026-11-13, src: scimago}
+      - {system: SJR, category: "Psychology (miscellaneous)", subject_area: Psychology, quartile: Q1, year: 2025, as_of: 2026-11-13, src: scimago}
+      - {system: SJR, category: "Medicine (miscellaneous)", subject_area: Medicine, quartile: Q1, year: 2025, as_of: 2026-11-13, src: scimago}
+      - system: SJR
+        category: "Arts and Humanities (miscellaneous)"
+        subject_area: Arts and Humanities
+        quartile: Q1
+        year: 2025
+        as_of: 2026-11-13
+        src: scimago
+        note: >-
+          SCImago 的 Subject Area and Category 欄列這四個類別；表格 "Category / Year / Quartile" 中 2025 年四者皆為 Q1（2024 年也都是 Q1）。
+          頁面同列 "SJR 2025" 為 1.203、H-Index 69。這是 SJR 分區，不是 JCR；SCImago 不是本刊官方頁面。
+    jcr_quartile:
+      status: not_published
+      checked: 2026-11-13
+      src: [journal_metrics, journal_home, overview, mjl]
+      note: >-
+        官方頁面沒有分區（JCR 或 SJR 都沒有），也沒有學科類別名次。JCR 的類別與分區需登入 Clarivate JCR，本次未查；
+        MJL 的 "View profile page" 也標 "* Requires free login."。（此段原為 quartiles 欄的內容，2026-11-13 改放這裡，
+        quartiles 改記 SCImago 的 SJR 分區。）
+    acceptance_rate:
+      value: 27
+      unit: percent
+      year: 2025
+      basis: 頁面只標 "2025 Acceptance rate"，沒有說明母體（投稿數、是否含 desk reject）與計算方式
+      quote: "2025 Acceptance rate:"
+      as_of: 2026-11-13
+      src: [journal_metrics, journal_home]
+      note: 數值 27% 在 "2025 Acceptance rate:" 下一行；首頁摘要寫 "27% Acceptance Rate"。
+    time_to_first_decision:
+      value: 21
+      unit: days
+      statistic: median
+      year: 2025
+      basis: 頁面標 "2025 Submission to first decision (median) :"，沒有說明起迄點與是否含 desk reject
+      as_of: 2026-11-13
+      src: [journal_metrics, author_guidelines]
+      note: >-
+        與 author_guidelines 的目標 "We aim to provide authors with a first decision within 90 days of submission." 是兩種不同口徑
+        （前者是 2025 年的實際中位數，後者是對作者的目標），不可互換。
+    time_submission_to_acceptance:
+      value: 208
+      unit: days
+      statistic: median
+      year: 2025
+      basis: 頁面標 "2025 Submission to acceptance (median) :"，沒有說明母體與計算方式
+      as_of: 2026-11-13
+      src: journal_metrics
+    time_acceptance_to_publication:
+      value: 20
+      unit: days
+      statistic: median
+      year: 2025
+      basis: 頁面標 "2025 Acceptance to publication (median) :"
+      as_of: 2026-11-13
+      src: journal_metrics
+    articles_published:
+      value: 44
+      year: 2025
+      basis: 頁面標 "2025 Total articles published:"，未說明是否含 issue information、editorial 等非研究文章
+      as_of: 2026-11-13
+      src: journal_metrics
+    full_text_views:
+      value: 112138
+      year: 2025
+      as_of: 2026-11-13
+      src: journal_metrics
+    top_author_countries: {year: 2025, list: ["United States 36%", "Netherlands 14%", "Germany 11%", "Spain 7%", "Italy 7%"], src: journal_metrics}
+    indexing:
+      clarivate_mjl:
+        scie: true
+        ssci: true
+        esci: false
+        ahci: false
+        web_of_science_core_collection: Science Citation Index Expanded | Social Sciences Citation Index
+        additional_indexes: [Current Contents Social And Behavioral Sciences, Essential Science Indicators]
+        checked: 2026-11-13
+        search_issn: "2044-8317"
+        mjl_publisher_string: "WILEY , 111 RIVER ST, HOBOKEN, USA, NJ, 07030-5774"
+        src: mjl
+        note: >-
+          搜尋 2044-8317 得 1 筆 "Exact Match Found"（BRITISH JOURNAL OF MATHEMATICAL & STATISTICAL PSYCHOLOGY，
+          ISSN / eISSN 0007-1102 / 2044-8317），Web of Science Core Collection 欄列 Science Citation Index Expanded 與
+          Social Sciences Citation Index。搜尋時頁面的篩選條件為預設的四項（SCIE、SSCI、AHCI、ESCI 皆勾選），
+          所以 AHCI 與 ESCI 的缺席是有效的負面結果。
+      publisher_stated:
+        src: overview
+        note: >-
+          出版社自述的 Abstracting and Indexing 清單（overview 頁），其中含 Science Citation Index Expanded、Social Sciences Citation Index、
+          Web of Science、SCOPUS、MEDLINE/PubMed、PsycINFO、ZBMATH、Current Index to Statistics 等 34 項。
+          Web of Science 的 SCIE 與 SSCI 已用 MJL 核對相符；其他項目沒有另外核對。
+
+# ─────────────────────────────────────────────────────────────
+# SLOW — 數年不變。
+# ─────────────────────────────────────────────────────────────
+requirements:
+  refresh:
+    check_every: P6M
+    method: manual
+    note: 所有 authoritative 來源都是 browser 讀取（Cloudflare 挑戰），verify.py 無法自動比對；重新驗證要用 Safari 打開被引用的頁面確認原文仍在。
+
+  unread_linked_pages:
+    checked: 2026-11-13
+    note: 這些是 author_guidelines 或相關頁面連出去、本記錄沒有讀的頁面；其中的規定不在本記錄內。
+    list:
+      - BPS Journals Terms and Conditions of Submission（.doc）
+      - BPS Journals Declaration of Competing Interests（.doc）
+      - '"What happens to my paper?"（PDF）'
+      - BPS Journals appeals policy and procedure（PDF）
+      - Wiley 的 AI guidance for researchers 與 AI guidelines 頁
+      - Wiley 的 self-archiving、licensing FAQs、funder 合規工具、Refer and Transfer 頁
+      - BPS ECR Best Paper Award 細則
+      - 首頁 About 選單的 "OA Advantages" 與 "News"、"Permissions"
+      - Registered Reports 頁 Stage 2 以後的內容（只讀了 Stage 1 為止的前段）
+      - 圖檔規格頁（figure-preparation）與 Wiley 的 supporting information FAQs
+
+  scope:
+    aims: >-
+      官方有三種寫法（見 aims_variants）。共同點：收「發展新的量化方法或模型，或延伸、比較、批評既有方法」的文章，
+      重點是這些方法要用在心理學問題上；Author Guidelines 的寫法最強調「數學或統計論證的比例比其他心理學期刊通常能接受的更高」。
+    src: [overview, author_guidelines, journal_home]
+    aims_variants:
+      - id: overview
+        quote: "The British Journal of Mathematical and Statistical Psychology publishes articles that develop new quantitative methods or models, or extend/compare/critique existing ones that have explicit applications to psychological and behavioral research. The journal welcomes research articles, review articles, expert tutorials, and registered reports."
+        topics_quote: "mathematical psychology; psychometrics; decision making; psychophysics; relevant areas of computational modeling, computing and computer software."
+        src: overview
+        note: 頁面把五個主題領域分行列出，這裡用分號串接；原文是五行清單。
+      - id: author_guidelines
+        quote: "The British Journal of Mathematical and Statistical Psychology publishes articles relating to areas of psychology which have a greater mathematical or statistical aspect of their argument than is usually acceptable to other journals including:"
+        topics_quote: "mathematical psychology; statistics; psychometrics; decision making; psychophysics; classification; relevant areas of mathematics, computing and computer software"
+        src: author_guidelines
+        note: 頁面把七個領域分行列出，這裡用分號串接；與 overview 相比多了 statistics 與 classification，少了 computational modeling。
+      - id: journal_home
+        quote: "The British Journal of Mathematical and Statistical Psychology is an international, interdisciplinary journal publishing advances in quantitative methodologies in psychology, such as new models for psychological processes, new approaches to analyzing psychological data, critiques of existing models and improved algorithms for estimating the parameters of a model."
+        src: journal_home
+    favoured_quote: "These include articles that address substantive psychological issues or that develop and extend techniques useful to psychologists. New models for psychological processes, new approaches to existing data, critiques of existing models and improved algorithms for estimating the parameters of a model are examples of articles which may be favoured."
+    favoured_src: author_guidelines
+    evaluation_criteria:
+      lead_in_quote: "The following series of questions are used in relation to those papers submitted for review:"
+      questions:                  # author_guidelines 第 5 節，逐字
+        - "Is a psychological or substantive context identified?"
+        - "Is the relevance and importance of the work to psychology or related disciplines sufficiently clear?"
+        - "Is relevant previous work referred to?"
+        - "Is the problem well identified?"
+        - "Are alternative solutions considered?"
+        - "Are the mathematical or statistical arguments competent and correct?"
+        - "Is an example necessary? If given, is the example trivial?"
+        - "Is the abstract adequate?"
+      src: author_guidelines
+      note: >-
+        這八題是官方列給審稿的問題，不是計分表，也沒有說明權重。給 Review Article 與 Expert Tutorial 的判準另寫在 cfp_advanced_methods
+        （見 article_types）。
+    out_of_scope_hints:
+      - case: 沒有把論文的心理學相關性交代清楚，或不符合最低的清晰度與呈現標準
+        verdict: 政策是不送審直接退
+        quote: "In particular, it is policy to reject without review articles that do not set out the psychological relevance of the paper sufficiently clearly or which fail to meet minimum standards of clarity and presentation."
+        src: author_guidelines
+      - case: 超出範圍或其他不適當的投稿
+        verdict: 編輯可不經外審直接退（triage）
+        quote: "We also operate a triage process in which submissions that are out of scope or otherwise inappropriate will be rejected by the editors without external peer review."
+        src: author_guidelines
+      - case: 沒有預先註冊的系統性回顧（只適用 Review Article 中的 systematic review）
+        verdict: 投稿時退回作者
+        quote: "All systematic reviews must be pre-registered and an anonymous link to the pre-registration must be provided in the main document, so that it is available to reviewers. Systematic reviews without pre-registration details will be returned to the authors at submission."
+        src: author_guidelines
+    lower_priority_hints:
+      status: not_published
+      checked: 2026-11-13
+      src: [author_guidelines, overview, journal_home]
+      note: >-
+        查過 author_guidelines、overview、首頁，通則頁面沒有「低優先」或「通常不適合」的類型清單；
+        最接近的是上面兩條不送審的條件，以及 "articles which may be favoured" 的正面清單。
+        特刊徵稿 cfp_xai 另有自己的 Submission Priorities（只適用該特刊），見 cycle.rolling_calls。
+    topical_signal:
+      note: >-
+        首頁 2026-11-13 的 "Most Recent" 文章標題：Two-stage least squares as a mean and covariance structure estimator: Reconciling econometric
+        and psychometric formulations（Maydeu-Olivares 與 Rosseel）；Statistical inference regularized with neural networks and its application in
+        psychometrics（Belov、Lüdtke、Ulitzsch）；An uncomplicated introduction to representational measurement theory（Franco 等）；A taxonomy of
+        reliability indices for cluster-level constructs measured by multiple individual-level indicators（Jorgensen 與 Jak）。
+        已出的 special issue：Volume 79 Issue 2 "Multiple Multivariate Multimodal Time Series Data Analysis in Psychological Research"
+        （客座 Casper J. Albers、Michael D. Hunter）、Issue 3 "Reliability Revisited: Advances in Reliability Measures for Psychological Research"
+        （客座 L. Andries van der Ark、Terrence D. Jorgensen）。只看了標題，未讀內容。
+      src: [journal_home, all_issues]
+
+  article_types:
+    - id: article
+      label: Article（research article）
+      length: "normally no more than 5000 words（不含 abstract、reference list、tables、figures）"
+      note: 官方沒有給這一類另外的名稱或定義，Aims and Scope 與 Categories 兩節只稱 "articles"。
+      src: author_guidelines
+    - id: review_article
+      label: Review Article
+      length: "6000 words（author_guidelines 與 cfp_advanced_methods 一致）"
+      wants: >-
+        專家針對數學與統計心理學的重要主題，較長篇幅地回顧歷史、發展與未來。官方列的過往例子：Keselman 等 (2001)、Sheynin (2004)、Steinley (2006)。
+        系統性回顧必須預先註冊（見 scope.out_of_scope_hints）。
+      process: >-
+        官方建議投稿前先把摘要寄給 Editor；編輯也會不定期邀稿；全部走一般的匿名審查。
+        徵稿頁寫摘要為 1 頁、11 點字、寄主編（信箱印在徵稿頁），內容含 "a concise summary of the research topic, objectives, methods, expected results, and contributions"，
+        並註明 "acceptance for publication is not guaranteed"。
+      criteria_quote: "Review Articles will be evaluated based on the thoroughness of the review of existing literature, the ability to synthesize and critique key findings, and the clarity and organization in presenting these findings."
+      criteria_src: cfp_advanced_methods
+      src: [author_guidelines, cfp_advanced_methods]
+    - id: expert_tutorial
+      label: Expert Tutorial
+      length: "4000 words（author_guidelines）；cfp_advanced_methods 寫 5000 words，建議 4000"
+      conflict: >-
+        author_guidelines："Papers should normally be no more than 5000 words (6000 for Review Articles and 4000 for Expert Tutorials)"；
+        cfp_advanced_methods："Papers should generally not exceed 5000 words for Expert Tutorials (4000 words recommended) and 6000 words for Review Articles."
+        兩頁對 Expert Tutorial 的上限說法不同（4000 或 5000 加建議 4000）。
+      wants: >-
+        作者須有該主題的深入經驗，並 "have typically published several research papers in BJMSP and other high-ranking journals"；
+        對象是有良好量化基礎、但還不是該主題專家的心理學博士級研究者；徵稿頁另寫須含電腦程式碼與可運作的例子。
+      process: 同 Review Article（建議先寄摘要給 Editor；匿名審查）。
+      criteria_quote: "Expert Tutorials will be evaluated on the clarity with which advanced research methods are presented to non-specialist readers and their relevance in addressing emerging needs in the field."
+      criteria_src: cfp_advanced_methods
+      src: [author_guidelines, cfp_advanced_methods]
+    - id: registered_report
+      label: Registered Report
+      note: 另有獨立規定；兩階段審查，Stage 1 在資料蒐集前審查研究設計與分析計畫，通過者給 in principle acceptance。本記錄不展開。
+      src: [author_guidelines, registered_reports]
+    - id: special_issue_paper
+      label: Special issue / special section 稿件
+      note: 照各特刊徵稿的流程，見 cycle.rolling_calls。
+      src: cfp_index
+
+  length:
+    value: 5000
+    unit: words
+    basis:
+      counting_method: {status: not_published, checked: 2026-11-13, src: author_guidelines,
+                        note: '官方寫 "words"，沒有說明用哪個軟體計數、是否含標題頁、腳註、數學式或圖說。'}
+    excludes: [abstract, references, tables, figures]
+    unstated:
+      status: not_published
+      checked: 2026-11-13
+      src: author_guidelines
+      note: >-
+        頁面只列 "excludes the abstract, reference list, tables and figures"。附錄、補充材料（Supporting Information）、
+        腳註、數學式與證明是否計入沒有說明。
+    quote: "Papers should normally be no more than 5000 words (6000 for Review Articles and 4000 for Expert Tutorials) and excludes the abstract, reference list, tables and figures. The Editor retains discretion to publish papers beyond this length in cases where the clear and concise expression of the scientific content requires greater length."
+    exceptions: >-
+      官方用語 "normally"，並寫 Editor "retains discretion to publish papers beyond this length in cases where the clear and concise
+      expression of the scientific content requires greater length"。頁面沒有說明超長的稿件在投稿時會被退回，還是進入審查後再議；
+      也沒有說明要不要事先聯絡編輯。
+    by_type:
+      article: 5000
+      review_article: 6000
+      expert_tutorial: {value: 4000, note: "cfp_advanced_methods 另寫 5000（建議 4000），兩頁不一致"}
+    applies_to: [article, review_article, expert_tutorial]
+    src: author_guidelines
+
+  abstracts:
+    - id: main
+      min_words: 100
+      max_words: 200
+      structure: 不得有小標題（"The abstract should not include any sub-headings."）
+      required_at: submission
+      placement: 標題頁（title page）與主檔都列為應有的項目；Author Guidelines 的標題頁清單含 Abstract，主檔清單也含 "Abstract without any subheadings"
+      quote: "All articles should be preceded by an Abstract of between 100 and 200 words, giving a concise statement of the intention, results or conclusions of the article. The abstract should not include any sub-headings."
+      src: author_guidelines
+  keywords: {max: 7, quote: "Up to seven keywords;", note: "標題頁清單只寫 \"Please provide appropriate keywords.\"；\"Up to seven\" 出自主檔應有的項目清單", src: author_guidelines}
+  running_title: {max_chars: 40, quote: "A short running title of less than 40 characters;", src: author_guidelines}
+
+  structure:
+    submission_mode: free_format
+    quote: "British Journal of Mathematical and Statistical Psychology now offers free format submission for a simplified and streamlined submission process."
+    initial_submission: >-
+      初次投稿可以是單一檔（含文字、圖、表）或分開的檔案；必須含 abstract、introduction、methods、results、conclusions；
+      圖與表要有圖說；參考文獻可用任何格式，但全文要一致。官方原文："If your manuscript is difficult to read, the editorial office may send it back to you for revision."
+    title_page_contents:
+      - 簡短、含主要關鍵字的標題，不得含縮寫
+      - 少於 40 字元的 running title
+      - 作者全名
+      - 作者做研究時的所屬機構（現址不同者加註腳）
+      - Abstract
+      - Keywords
+      - Data and code availability statement
+      - 生成式 AI 內容（AIGC）工具的使用聲明
+      - Acknowledgments
+    main_file_contents: [短標題, "Abstract（無小標題）", "最多七個關鍵字", "正文：introduction、materials & methods、results、discussion、conclusion", References, "Tables（各含標題與註腳）", "Figure legends"]
+    main_file_note: 主檔的章節是通則寫法（introduction、materials & methods、results、discussion、conclusion），官方沒有為純理論或方法論文另列結構。
+    revised_manuscripts: >-
+      收到修稿邀請後，期刊會要求依期刊格式整理修稿；"Contributions must be typed in double spacing. All sheets must be numbered."
+      （此句在 "Revised Manuscript Submission" 小標下，不是初次投稿的要求）；修稿階段圖與表須為獨立檔案。
+    cover_letter:
+      required: false
+      quote: "Cover letters are not mandatory; however, they may be supplied at the author’s discretion."
+      note: 申請 ECR Best Paper Award 者要在 cover letter 寫明（官方原文 "should submit a cover letter stating this with their manuscript"）。
+      src: author_guidelines
+    src: author_guidelines
+
+  formatting:
+    style_manual: {name: APA Publication Manual, quote: "For guidelines on editorial style, please consult the APA Publication Manual published by the American Psychological Association.", src: author_guidelines}
+    citation_style:
+      name: APA
+      required_at_submission: false
+      quote: "This journal uses APA reference style; as the journal offers Free Format submission, however, this is for information only and you do not need to format the references in your article. This will instead be taken care of by the typesetter."
+      src: author_guidelines
+    spelling: {value: British, note: 投稿可用英式或美式，錄取後由製作端轉換, quote: "The journal uses British spelling; however, authors may submit using either option, as spelling of accepted papers is converted during the production process.", src: author_guidelines}
+    file_formats_at_submission:
+      main_document: [".doc", ".docx", ".tex"]
+      quote: "The main manuscript file can be submitted in Microsoft Word (.doc or .docx) or LaTex (.tex) format."
+      latex_pdf_required: true
+      latex_quote: "When submitting a LaTex Main Document, you must also provide a PDF version of the manuscript for Peer Review."
+      latex_upload_labels: ["Main Document – LaTeX .tex File", "Main Document - LaTeX PDF", "LaTeX Supplementary File"]
+      src: author_guidelines
+    templates:
+      latex: {status: not_published, checked: 2026-11-13, src: author_guidelines,
+              note: "官方沒有提供投稿用的 LaTeX 範本；只在 post-acceptance 的檔案清單提到 \"those used in the NJD LaTex Template class file\"，沒有連結。"}
+      word: {status: not_published, checked: 2026-11-13, src: author_guidelines, note: 只提供標題頁範本（見 title_page_template），沒有主檔的 Word 範本}
+      title_page_template:
+        url: https://bpspsychub.onlinelibrary.wiley.com/pb-assets/assets/20448317/BJMSP%20Sample_Manuscript_Title_Page-1713227067980.docx
+        note: author_guidelines 兩處 "this template" 連結之一（另一個連結的檔案在 2044835X 路徑下，是同一組 BPS 期刊的通用版本）；本記錄沒有下載這個檔案。
+        src: author_guidelines
+    anonymisation_of_files: "To fully anonymize Word files before submission, please remove the file properties."
+    line_numbers: {status: not_published, checked: 2026-11-13, src: author_guidelines, note: 初次投稿沒有行號規定；修稿規定只寫 "All sheets must be numbered."（頁碼）}
+    spacing: {value: double, applies_to: 修稿, src: author_guidelines}
+    figures_tables:
+      tables: 須為可編輯檔，不可貼成圖片（"They should be supplied as editable files, not pasted as images."）；註腳符號依序用 †、‡、§、¶，* ** *** 保留給 P 值
+      figures: 初次審查接受各種格式、大小與解析度；修稿階段圖與表須為獨立檔案；LaTeX 錄取後的圖要 EPS、PDF 或 TIFF，不要用 LaTeX 碼畫圖
+      legends: 圖與表連同圖說要能不看正文就讀懂
+      src: author_guidelines
+    equations: {status: not_published, checked: 2026-11-13, src: author_guidelines}
+    effect_size: {quote: "Effect size: In normal circumstances, effect size should be incorporated.", src: author_guidelines}
+
+  supplementary_material:
+    name: Supporting Information
+    contents: [software code, additional tables, data sets, figures, movie files, audio clips, 其他非必要的多媒體檔]
+    code_welcome: "Software code/syntax for widely available or open source software that enables researchers to use new procedures is particularly welcome and is likely to enhance the impact of your paper."
+    publication: 照作者提供的檔案原樣刊出，刊出前不提供校樣（"It is published as supplied by the author, and a proof is not made available prior to publication"）
+    citation: 須在正文引用並附說明性圖說
+    counted_in_length:
+      status: not_published
+      checked: 2026-11-13
+      src: author_guidelines
+      note: 字數規定沒有提補充材料；見 length.unstated。
+    src: author_guidelines
+
+  openness:
+    data_availability_statement:
+      required: true
+      applies_to: 所有稿件
+      placement: 標題頁（"Data and code availability statement"）
+      quote: "All papers need to be supported by a data archiving statement and the data set must be cited in the Methods section. The paper must include a link to the repository in order that the statement can be published."
+      src: author_guidelines
+    data:
+      level: expected
+      quote: "The journal expects that where possible all data supporting the results in papers, including reproducible computer code that is sufficiently annotated, are archived in an appropriate public archive offering open access and guaranteed preservation."
+      timing: >-
+        "It is not necessary to make data publicly available at the point of submission, but an active link must be included in the final accepted manuscript."
+      exceptions: >-
+        法律或倫理等理由無法分享時，作者須在投稿時告知編輯；編輯可核准例外。無法公開資料者，官方鼓勵提供模擬資料集，讓讀者能套用示範程式碼。
+        不分享時，稿件內要有說明與理由；沒有使用程式碼或資料集時，要在資料可得性聲明中寫明。
+      src: author_guidelines
+    code:
+      level: expected
+      quote: "reproducible computer code that is sufficiently annotated"
+      quote_context: 與上面 data.quote 同一句。
+      src: [author_guidelines, data_sharing]
+      conflict: >-
+        data_sharing（BPS 通用 FAQ）寫："Authors are welcome to submit additional materials, such as code, but this is not a requirement."
+        author_guidelines 把 "reproducible computer code that is sufficiently annotated" 列入期刊 "expects" 的歸檔內容（"where possible"）。
+        官方沒有說明兩者以何者為準；兩句都帶保留語氣（"where possible"、"welcome"）。
+    repository: >-
+      官方建議公開、開放取用、保證長期保存的 repository（例：OSF、Dataverse；re3data.org 列有更多）。
+      "Personal websites and most departmental websites do not qualify as repositories."（author_guidelines 與 data_sharing 皆有類似句）
+    data_in_article: 若重現分析所需的全部資料都在正文、表與圖內，不必另存 repository；也可作為補充資料上傳，但官方偏好 repository（data_sharing）
+    link_check: 編輯或出版社只檢查資料連結與檔案數量與類型，不檢查資料本身是否有效（data_sharing）
+    preregistration:
+      required: false
+      note: 只有 Registered Reports 與系統性回顧要求；一般文章沒有要求。
+      src: [author_guidelines, registered_reports]
+    reporting_guidelines: {required: false, quote: "We encourage authors to refer to and follow guidelines from:", note: 清單見 standards, src: author_guidelines}
+    top_guidelines: {status: not_published, checked: 2026-11-13, src: [author_guidelines, data_sharing, overview], note: 三頁都沒有提到 TOP Guidelines 或任何等級制度}
+
+  review:
+    type: double_anonymized
+    quote: "Important: the journal operates a double-anonymous peer review policy. Please anonymise your manuscript and prepare a separate title page containing author details."
+    type_src: author_guidelines
+    policy_quote: "Except where otherwise stated, the journal operates a policy of anonymous (double-anonymous) peer review."
+    anonymization:
+      required: true
+      rules:
+        - 主檔不得含可辨識作者的資訊；不提作者姓名或所屬，引用自己先前的研究一律用第三人稱（"always refer to any previous work in the third person"）
+        - 主檔中的 repository 連結（例：OSF）也要匿名化
+        - 作者詳情放在另一個標題頁檔案
+        - Word 檔要移除檔案屬性
+        - 機構、地理位置、未發表研究的引用都可能洩漏身分（官方列舉）
+      src: author_guidelines
+    triage: 編輯可在外審之前直接退稿（見 scope.out_of_scope_hints）
+    first_decision_target:
+      quote: "We aim to provide authors with a first decision within 90 days of submission."
+      src: author_guidelines
+    review_articles_and_tutorials: "All Review Article or Expert Tutorial submissions will undergo the normal process of anonymous peer review."
+    appeals:
+      grounds: >-
+        編輯決定若基於對稿件核心的重大誤解、未能理解稿件對文獻的推進、或對稿件處理流程的疑慮，可申訴；
+        "Differences in opinion regarding the novelty or significance of the reported findings are not considered as grounds for appeal."
+      deadline: 申訴須在編輯來信日期起兩個曆月內收到
+      process: 先寫信給做決定的 Editor（用期刊信箱，附稿件編號與理由），不滿意再寫 BPS 的 Academic.Publications@bps.org.uk；依 COPE 建議的程序處理
+      src: author_guidelines
+    author_may_suggest_reviewers: {status: not_published, checked: 2026-11-13, src: author_guidelines}
+    refer_and_transfer: 參與 Wiley 的 Refer and Transfer Program：被拒稿可能收到轉投其他 Wiley 期刊的建議（編輯推薦或 Transfer Desk Assistant）。
+    refer_and_transfer_src: author_guidelines
+
+  authorship:
+    criteria: 依 APA Publication Manual（APA Ethics Code Standard 8.12a）；頁面引了原文並註明 "(p.18)"
+    contributor_taxonomy: {required: true, name: CRediT, quote: "For all articles, the journal mandates the CRediT (Contribution Roles Taxonomy)", src: author_guidelines}
+    ai_as_author: forbidden
+    orcid: {required: true, scope: 投稿作者（只限 submitting author）, quote: "the journal requires the submitting author (only) to provide an ORCID iD when submitting a manuscript.", src: author_guidelines}
+    src: author_guidelines
+
+  submission:
+    portal:
+      system: Wiley Authors（Wiley 的作者投稿與追蹤入口）
+      url: https://authors.wiley.com/journal/BMSP
+      verified: false
+      login_page_opens: true
+      note: >-
+        verified 記為 false：2026-11-13 以 safari-browser 開啟這個網址，只確認它會轉到 Wiley 的 CONNECT 登入頁
+        （https://wiley.scienceconnect.io/login，頁內有「以继续访问 Wiley Authors」一句）；這個登入頁沒有任何 BJMSP 專屬內容。
+        沒有登入、沒有建立投稿，所以沒有看到 BJMSP 的投稿表單，無法證實這個網址能開到本刊的投稿流程。
+        curl 讀到的是 1,319 bytes 的 SPA 空殼。cfp_xai 寫的 https://wiley.atyponrex.com/journal/BMSP 以 curl 追蹤後落在 authors.wiley.com 的 dashboard（?groupCode=BMSP），本記錄沒有用 Safari 開它。
+        是否另有其他投稿系統網址沒有查。
+      src: [author_guidelines, submission_portal]
+    quote: "New submissions should be made via the Wiley Authors submission portal."
+    steps_quote: "To submit, login at https://authors.wiley.com/journal/BMSP and create a new submission. Follow the submission steps as required and submit the manuscript."
+    status_tracking: 以 authors.wiley.com 的 "My Submissions" 查詢（author_guidelines）
+    technical_help: submissionhelp@wiley.com
+    files_required:
+      - "Manuscript（單檔或分檔皆可，不要求依期刊格式）"
+      - 含 data availability statement 與共同作者詳情的標題頁（另一個檔案）
+      - 投稿作者的 ORCID iD
+    exclusivity:
+      quote: "Authors should kindly note that submission implies that the content has not been published or submitted for publication elsewhere except as a brief abstract in the proceedings of a scientific meeting or symposium."
+      src: author_guidelines
+    ref_panel: "All papers published in the British Journal of Mathematical and Statistical Psychology are eligible for Panel A: Psychology, Psychiatry and Neuroscience in the Research Excellence Framework (REF)."
+    ecr_award: 取得最高學位未滿五年者可在投稿時於 cover letter 申請 BPS Early Career Researcher Best Paper Award（細則另頁，未讀）
+    licence: 錄取後在 Wiley Author Services 簽出版授權（可選標準授權或 Creative Commons 授權）
+    licence_src: author_guidelines
+    src: author_guidelines
+
+  fees:
+    submission_fee: {status: not_published, checked: 2026-11-13, src: [author_guidelines, open_access]}
+    page_charges: {status: not_published, checked: 2026-11-13, src: [author_guidelines, open_access]}
+    color_charges: {status: not_published, checked: 2026-11-13, src: [author_guidelines, open_access]}
+    open_access_model: hybrid
+    open_access_note: >-
+      作者可選標準授權（訂閱文章）或 Open Access。官方措辭："WALS + standard CTA/ELA and/or Open Access for hybrid titles"
+      （author_guidelines 的 Author Licensing 小標）。
+    apc:
+      amount: 3570
+      currency: USD
+      mandatory: false
+      amounts:
+        - {currency: USD, amount: 3570}
+        - {currency: GBP, amount: 2380}
+        - {currency: EUR, amount: 2990}
+      quote: "If the Open Access option is selected, submissions will be subject to an APC if accepted and published in the journal: $3,570 USD / £2,380 GBP / €2,990 EUR"
+      applies_when: 作者選擇 Open Access，且稿件錄取刊出
+      taxes: "The prices quoted do not include any value-added tax (VAT), goods and services tax (GST), or other sales taxes."
+      waivers_and_coverage:
+        - "If the Corresponding Author's institution, funder, or society has a Wiley Open Access Account (WOAA), all or part of the APC might be covered."
+        - "BPS members and open access: if the corresponding author of an accepted article is a Graduate or Chartered member of the BPS, the Society will cover will cover 100% of the APC allowing the article to be published as open access and freely available."
+      waiver_note: 官方頁面沒有說明 WOAA 被拒或不適用時，是否有其他減免或豁免機制；只寫被拒時須簽訂閱文章授權。
+      as_of: 2026-11-13
+      src: [open_access, author_guidelines]
+    licences:
+      list: [CC BY, CC BY-NC, CC BY-NC-ND]
+      quote: "Most authors can choose between CC BY, CC BY-NC, and CC BY-NC-ND Creative Commons Licenses, though certain funders mandate a particular type of CC license is used."
+      note: author_guidelines 寫 "This journal uses the CC-BY/CC-BY-NC/CC-BY-NC-ND Creative Commons License."
+      src: [open_access, author_guidelines]
+    institution_check: {status: not_applicable, checked: 2026-11-13, note: 個別機構是否有 Wiley 協議屬投稿者層級資訊，本記錄未查；author_guidelines 連到 Wiley 的 funder 合規工具（author-compliance-tool），本記錄未開啟。}
+
+  policies:
+    dual_submission: forbidden
+    dual_submission_note: 只允許以會議論文集中的簡短摘要形式先行發表
+    dual_submission_src: author_guidelines
+    preprints:
+      allowed: true
+      quote: "This journal will consider for review articles previously available as preprints. Authors may also post the submitted version of a manuscript to a preprint server at any time."
+      after_publication: "Authors are requested to update any pre-publication versions with a link to the final published article."
+      src: author_guidelines
+    generative_ai:
+      authorship: AI 工具不得列為作者（"generative AI tools cannot fulfill the role of, nor be listed as, authors of an article"）
+      disclosure_required: true
+      placement: 標題頁的 "Disclosure of the Use of Artificial Intelligence-Generated Content (AIGC) Tools"；刊出後出現在文章末尾
+      none_used_statement: "No generative AI tools were used in the creation of this article."
+      detail_source: 官方請作者參考 Wiley 的 AI guidance for researchers，決定何種使用要聲明、聲明要含什麼；本記錄沒有讀該頁。
+      src: author_guidelines
+    conflict_of_interest:
+      disclosure_required: true
+      scope: 所有作者；無利益衝突也必須在投稿時聲明
+      src: author_guidelines
+    funding_statement: {required: true, placement: Acknowledgments 節, src: author_guidelines}
+    ethics:
+      human_participants: >-
+        涉及人類參與者的研究須在稿件內寫明倫理委員會名稱並聲明已取得倫理許可、參與者已知情同意（data_sharing 與 author_guidelines）；
+        author_guidelines 另寫 "affirm that the research has received permission from a stated Research Ethics Committee (REC) or Institutional Review Board (IRB)"。
+      cope_member: true
+      similarity_screening: "this journal uses iThenticate’s CrossCheck software to detect instances of overlapping and similar text in submitted manuscripts."
+      src: author_guidelines
+    language_editing: {required: false, note: "官方列出 Wiley Editing Services 的付費語言編修，沒有說明是否影響審查", src: author_guidelines}
+    self_archiving:
+      quote: "Self-Archiving Definitions and Policies: Note that the journal’s standard copyright agreement allows for self-archiving of different versions of the article under specific conditions."
+      conditions: {status: not_found, checked: 2026-11-13, src: author_guidelines, note: 各版本與條件寫在連結的 Wiley self-archiving 頁（authorservices.wiley.com/.../self-archiving.html），本記錄沒有讀}
+      src: author_guidelines
+    data_protection: 作者姓名、email、所屬等聯絡資料會用於期刊營運，必要時與出版社（Wiley）及夥伴分享（author_guidelines）
+    publication_process:
+      after_acceptance: 稿件進入 Wiley 製作後，通訊作者收到 email，登入或註冊 Wiley Author Services 並簽署出版授權
+      proofs: "proofs should be returned within 48 hours from receipt of first proof"
+      src: author_guidelines
+    diversity_statement: >-
+      官方 "strongly encouraged" 作者交代研究脈絡（樣本特徵、樣本限制、結果能否推廣到其他樣本或脈絡）；
+      這是鼓勵，不是投稿門檻。對不涉及樣本的理論稿，頁面沒有說明如何適用。
+    src: author_guidelines
+
+  standards:
+    - id: force11
+      label: Future of Research Communications and e-Scholarship (FORCE11)
+      url: http://www.force11.org/node/4433
+      required: false
+      note: 列在 "Research Reporting Guidelines" 下的 "We encourage authors to refer to and follow guidelines from"；data_sharing 另寫期刊 "aim to comply with the FAIR guidelines laid out in FORCE11"。
+    - id: gold-standard-publication-checklist
+      label: The Gold Standard Publication Checklist (Hooijmans et al.)
+      url: https://www.ncbi.nlm.nih.gov/pubmed/20507187
+      required: false
+      note: 同上清單；頁面沒有說明對方法論文是否適用，本記錄未查這份清單本身。
+    - id: fairsharing
+      label: FAIRsharing
+      url: http://www.biosharing.org/
+      required: false
+
+# ─────────────────────────────────────────────────────────────
+# FAST — 期刊無年度週期；徵稿放這裡。
+# ─────────────────────────────────────────────────────────────
+cycle:
+  applies_to: null
+  rolling_calls:
+    - id: review_and_tutorial
+      label: "Review Articles and Expert Tutorials on Advanced Research Methods"
+      type: rolling
+      wants: >-
+        Review Articles：批判性地回顧進階研究方法；Expert Tutorials：由在 BJMSP 等高排名期刊有發表紀錄的研究者撰寫，
+        含電腦程式碼與可運作的例子，讓研究生層級的心理學讀者能用。
+      process: >-
+        投稿前把 11 點字、1 頁的摘要寄給主編（信箱印在徵稿頁）；全文走一般的匿名審查。官方寫明 "Submissions are accepted on a rolling basis with no specific deadline."
+      deadlines:
+        - {id: rolling, date: null, status: not_applicable, checked: 2026-11-13, note: 官方寫 "no specific deadline"}
+      url: https://bpspsychub.onlinelibrary.wiley.com/hub/journal/20448317/call-for-papers/advanced-research-methods
+      src: cfp_advanced_methods
+    - id: interpretable_explainable_ai_ml
+      label: "Special issue: Interpretable and Explainable AI/ML for Psychological Research"
+      type: special_issue
+      wants: >-
+        讓 AI/ML 方法透明、有統計原則、能支撐心理過程推論的方法學進展；歡迎理論貢獻、方法發展與批判性回顧。
+        徵稿頁列了十五個主題（例：intrinsically interpretable models、post hoc 解釋方法的統計性質、潛在表徵的可辨識性）。
+      priorities_quote: "Applications of existing AI/ML models and explanation methods are discouraged, except insofar as they are needed to demonstrate, compare, or validate new methodological contributions. Mere benchmarking or simulation studies that compare existing algorithms or explanation tools without novel theoretical or analytical development are also discouraged."
+      priorities_note: 這段 Submission Priorities 只適用這個特刊，不是期刊通則。
+      process: >-
+        先寄不超過 1,000 字的提案到 bmsp@wiley.com（主旨須為 "Special Issue: Interpretable and Explainable AI/ML for Psychological Research"）；
+        編輯委員會挑選後寄邀請；全文用 Wiley 的投稿系統提交，並依期刊的 Author Guidelines 準備；全部稿件走一般審查，
+        提案獲接受不保證刊出（官方寫 "Acceptance of a proposal does not guarantee publication."）。須附有註解的可重現程式碼。
+      deadlines:
+        - id: abstract_proposal
+          date: 2027-08-02
+          timezone: {status: not_published, checked: 2026-11-13}
+          note: '官方寫 "Abstract Submission deadline - August 2, 2027"；提案上限 1,000 字'
+        - id: invitations
+          date: 2027-08-23
+          note: '官方寫編輯委員會 "by August 23, 2027" 寄出邀請'
+        - id: full_manuscript
+          date: 2028-06-15
+          timezone: {status: not_published, checked: 2026-11-13}
+          note: '官方寫 "Full Manuscript deadline - June 15, 2028"'
+      guest_editors: ["Rudolf Debelak（Federal Institute of Technology, Lausanne, Switzerland）", "Qian Zhang（Florida State University, United States）"]
+      url: https://bpspsychub.onlinelibrary.wiley.com/hub/journal/20448317/call-for-papers/si-2026-001288
+      src: cfp_xai
+  published_special_issues:
+    - {volume_issue: "79(2)", month: 2026-05, title: "Multiple Multivariate Multimodal Time Series Data Analysis in Psychological Research", guest_editors: [Casper J. Albers, Michael D. Hunter], src: all_issues}
+    - {volume_issue: "79(3)", month: 2026-11, title: "Reliability Revisited: Advances in Reliability Measures for Psychological Research", guest_editors: [L. Andries van der Ark, Terrence D. Jorgensen], src: all_issues}
+
+# ─────────────────────────────────────────────────────────────
+warnings:
+  - >-
+    字數上限是 "should normally be no more than 5000 words"（Review Article 6000、Expert Tutorial 4000），官方只說不含 abstract、reference list、tables 與 figures；
+    附錄、補充材料、腳註與數學式是否計入沒有說明，Editor 對超長稿件 "retains discretion"。
+    官方也沒有說明超長稿件在投稿時如何處理。
+  - >-
+    心理學相關性是第一道門檻：官方政策是 "to reject without review articles that do not set out the psychological relevance of the paper sufficiently clearly or which fail to meet minimum standards of clarity and presentation"，
+    審稿問題的第一、二題也問心理學脈絡與相關性是否清楚。Aims and Scope 的措辭是方法 "that have explicit applications to psychological and behavioral research"。
+  - >-
+    雙匿名審查：標題頁與主檔分成兩個檔；主檔不得含作者姓名或所屬，引用自己的研究用第三人稱，repository 連結（例如 OSF）也要匿名化，Word 檔要移除檔案屬性。
+    另外，投稿作者須提供 ORCID iD（官方寫 "the submitting author (only)"），CRediT 作者貢獻聲明為必填。
+  - >-
+    所有稿件都要有資料與程式碼可得性聲明（標題頁），且須有 repository 連結才能刊出；官方 "expects that where possible" 公開資料與有註解的可重現程式碼，
+    但通用 FAQ 又寫程式碼 "is not a requirement"，兩頁說法不同。無法公開者要在投稿時告知編輯。
+  - >-
+    Hybrid：作者可選 Open Access，錄取後收 APC（USD 3,570／GBP 2,380／EUR 2,990，未含稅）；通訊作者是 BPS Graduate 或 Chartered 會員時，學會負擔 100% APC。
+    官方沒有公布投稿費、頁面費或彩色費用。
+  - >-
+    官方頁面彼此有出入：期刊宗旨有三種寫法、Expert Tutorial 字數（4000 或 5000）、編輯部信箱（bmsp@wiley.com 或 bjmsp@wiley.com）、
+    首次決定（2025 年中位數 21 天，另有 "within 90 days" 的目標）。投稿前宜向編輯部確認。

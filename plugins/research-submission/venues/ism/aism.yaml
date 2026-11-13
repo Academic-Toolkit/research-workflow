@@ -1,0 +1,1010 @@
+--- # research-submission venue record
+# 內容擷取自 Annals of the Institute of Statistical Mathematics（AISM）的兩組官方頁面，2026-11-13：
+#   (1) 統計數理研究所（ISM，東京）自己的期刊站 www.ism.ac.jp/editsec/aism/（首頁、Information for Authors、
+#       Research Data Policy、Editorial Board、Permission to reproduce）；
+#   (2) Springer Nature Link 的期刊頁（link.springer.com/journal/10463：首頁、aims and scope、submission guidelines、
+#       how to publish with us、ethics and disclosures、editorial board、contact、volumes and issues）；
+#   另有 Springer 全品牌期刊政策頁、Editorial Manager 登入頁、SCImago 與 Clarivate Master Journal List。
+# 讀取方式：Springer 與 ISM 的 HTML 頁都先用 curl 取得完整頁面（200），文字用 Python html.parser 自行去標籤；
+#   SCImago 與 MJL 用 Safari（--profile 個人）讀 document.body.innerText；本記錄的引文都出自這些自行抽取的文字，
+#   沒有用摘要型抓取器當引文來源。
+# 兩組官方頁面的內容已經不同步：ISM 的 Information for Authors 標 "Revised on January 1, 2026"，
+#   Springer 的 submission guidelines 沒有修訂日期，著作權、重印本、審稿描述的文字與 ISM 頁不同；
+#   編輯群名單與影響係數也不一致。見 warnings 與各欄的 src。
+# 本刊沒有 Instructions for Authors PDF；投稿規定全部在上述兩個 HTML 頁。
+# 本記錄只放期刊公開規定，不含任何投稿者或稿件資訊。
+
+schema_version: 1
+id: ism/aism
+kind: journal
+family: statistics-journals
+status: active
+
+# ─────────────────────────────────────────────────────────────
+# 來源與 provenance。所有網址由期刊首頁、ISM 站的選單與頁內連結取得，非推測。
+# ─────────────────────────────────────────────────────────────
+sources:
+  - id: ism_info_for_authors
+    role: authoritative
+    url: https://www.ism.ac.jp/editsec/aism/aism-info-author.html
+    note: >-
+      ISM 自己的 Information for Authors，頁首標 "Revised on January 1, 2026"，各節標題分八項
+      （General、Copyright (effective on January 1, 2026)、Submission of Papers、Manuscripts、Supplementary Material、
+      Proofs、Page charges and Reprints (effective on January 1, 2026)、Research Data Policy）。
+      Editorial Manager 的 About 選單 "Instructions For Authors" 連到這一頁
+      （http://www.ism.ac.jp/editsec/aism/aism-info-author.html，由 editorial_manager 來源的原始碼取得）。
+      與 springer_submission_guidelines 的文字大部分相同，但著作權、頁費與重印本、審稿描述三處不同，見 warnings。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Papers are screened by the Editors"
+        min_extracted_chars: 5000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: springer_submission_guidelines
+    role: authoritative
+    url: https://link.springer.com/journal/10463/submission-guidelines
+    note: >-
+      Springer Link 上的 Instructions for Authors（單一 HTML 頁，沒有 PDF 版）：General、Copyright、Submission of Papers、
+      Manuscripts、Supplementary Material、Proofs、Page charges and Reprints、Research Data Policy、Open access publishing。
+      頁面沒有修訂日期，著作權與重印本的文字與 ISM 站 2026-01-01 版不同（見 warnings）。
+      目錄另列 "Mistakes to avoid during manuscript preparation"，連到 https://link.springer.com/pre-submission?journalId=10463，
+      該頁只有勾選清單的框架，沒有本刊專屬規定，未列為來源。
+      頁尾含讀者的 IP 位址與機構授權名單，抽取文字的 hash 會隨連線改變。Springer 對沒有 cookie 的請求會導向
+      ?error=cookies_not_supported&code=... 的網址，內容相同。
+      抓取方式（適用所有 link.springer.com 的 HTML 來源）：curl 可取得完整頁面（200），但 verify.py 用的 Python urllib
+      只會拿到約 3 KB 的 Client Challenge 頁（HTTP 200，2026-11-13 實測），所以記為 browser／http_viable: false，
+      verify.py 只會回 NEEDS_AGENT；重新驗證時用 Safari 或 curl 讀頁面，確認 must_contain 仍在。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 取得完整頁面（200、203358 bytes），但 Python urllib（verify.py 的抓取器）只拿到 3036 bytes、209 字元的 Client Challenge 頁（HTTP 200）"
+      validity:
+        must_contain: "The maximum length of the manuscript should not normally exceed 35 pages"
+        min_extracted_chars: 6000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: springer_aims_and_scope
+    role: authoritative
+    url: https://link.springer.com/journal/10463/aims-and-scope
+    note: >-
+      一段文字（含收稿範圍、強調的三點、決定速度的敘述）。期刊首頁的 Overview 與 ISM 首頁是同一段。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 取得完整頁面（200、175103 bytes），但 Python urllib（verify.py 的抓取器）只拿到 3036 bytes 的 Client Challenge 頁（HTTP 200）"
+      validity:
+        must_contain: "AISM is trying to make faster decisions after the reception"
+        min_extracted_chars: 2500
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: springer_how_to_publish
+    role: authoritative
+    url: https://link.springer.com/journal/10463/how-to-publish-with-us
+    note: >-
+      出版模式（hybrid）、APC 金額與幣別、Creative Commons 授權。APC 以接受日期當天的價格為準。
+      頁面有一段依讀者所屬機構自動產生的 OA 經費提示，不屬於期刊規定，本記錄不採用。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 取得完整頁面（200、187363 bytes），但 Python urllib（verify.py 的抓取器）只拿到 3036 bytes 的 Client Challenge 頁（HTTP 200）"
+      validity:
+        must_contain: "The current APC for Annals of the Institute of Statistical Mathematics is"
+        min_extracted_chars: 4000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: ism_journal_home
+    role: authoritative
+    url: https://www.ism.ac.jp/editsec/aism/
+    note: >-
+      ISM 的 AISM 首頁：宗旨（與 Springer 的 aims and scope 同一段）、決定速度的敘述、影響係數、"What's New"
+      （含 "Information for Authors is revised. (2025/12/26)"）、各卷目錄連結。側欄連結：Editorial Board、
+      Information for Authors、Permission to reproduce、Subscription、Springer Link、Contact us。
+      "What's New" 與影響係數會更新，hash 會因此變動，比對時看 must_contain 與指標那幾行即可。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "AISM is an official publication of the Institute of Statistical Mathematics"
+        min_extracted_chars: 2500
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: springer_journal_home
+    role: authoritative
+    url: https://link.springer.com/journal/10463
+    note: >-
+      Springer Link 期刊首頁：Publishing model、Overview（同 aims and scope）、Chief Editor、Journal metrics
+      （影響係數、5 年影響係數、下載數）、最新期別、ISSN、收錄資料庫清單。「Submit your manuscript」連到
+      https://www.editorialmanager.com/aism/。指標與最新文章每週都在變，hash 會因此變動；比對時看 must_contain 與指標那幾行即可。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 取得完整頁面（200、211413 bytes），但 Python urllib（verify.py 的抓取器）只拿到 3036 bytes 的 Client Challenge 頁（HTTP 200）"
+      validity:
+        must_contain: "5-year Journal Impact Factor"
+        min_extracted_chars: 3000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: ism_data_policy
+    role: authoritative
+    url: https://www.ism.ac.jp/editsec/aism/aism-info-DataPolicy.html
+    note: >-
+      Information for Authors 第 8 項 "Research Data Policy" 的內文 "Please refer to this page." 連到這一頁；
+      文字與 Springer submission guidelines 的 Research Data Policy 段相同。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "The journal encourages authors, where possible and applicable, to deposit data"
+        min_extracted_chars: 800
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: springer_ethics_disclosures
+    role: supporting
+    url: https://link.springer.com/journal/10463/ethics-and-disclosures
+    note: >-
+      四段短文字：誠信承諾、competing interest policy 存在、COPE 會員、"Research content published in this journal is peer reviewed."
+      沒有寫審稿是單匿名或雙匿名。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 取得完整頁面（200、175470 bytes），但 Python urllib（verify.py 的抓取器）只拿到 3036 bytes 的 Client Challenge 頁（HTTP 200）"
+      validity:
+        must_contain: "The journal is a member of the Committee on Publication Ethics"
+        min_extracted_chars: 1500
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: springer_editorial_board
+    role: supporting
+    url: https://link.springer.com/journal/10463/editorial-board
+    note: Executive Editor、Chief Editor、Co-Editors（Kengo Kamatani、Kei Kobayashi）與 Associate Editors 名單。與 ism_editorial_board 的 Co-Editors 不同，見 warnings。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 取得完整頁面（200、204658 bytes），但 Python urllib（verify.py 的抓取器）只拿到 3036 bytes 的 Client Challenge 頁（HTTP 200）"
+      validity:
+        must_contain: "Yoshiyuki Ninomiya"
+        min_extracted_chars: 4000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: ism_editorial_board
+    role: supporting
+    url: https://www.ism.ac.jp/editsec/aism/aism-board.html
+    note: ISM 站的 Editorial Board（Co-editors 是 Kengo Kamatani 與 Ryo Okui）。ISM 首頁 "What's New" 寫 "Editorial Board is updated. (2026/6/23)"。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Yoshiyuki Ninomiya, The Institute of Statistical Mathematics"
+        min_extracted_chars: 1800
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: springer_contact
+    role: supporting
+    url: https://link.springer.com/journal/10463/contact-the-journal
+    note: 投稿相關詢問（投稿問題、審稿流程、稿件狀態）的窗口。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 取得完整頁面（200、175387 bytes），但 Python urllib（verify.py 的抓取器）只拿到 3036 bytes 的 Client Challenge 頁（HTTP 200）"
+      validity:
+        must_contain: "Queries about submission issues, peer review process, or the status of your manuscript should be sent to"
+        min_extracted_chars: 1500
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: ism_permissions
+    role: supporting
+    url: https://www.ism.ac.jp/editsec/aism/aism-permissions.html
+    note: ISM 站的 Reproduction and Permissions：作者保留的再利用權、作者版本自行張貼的條件、第三方轉載申請。頁面寫錄取後作者移轉著作權給 ISM，未提 ISM 的 Information for Authors 所寫的 OA 授權選項。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Permission Requests of Third Parties"
+        min_extracted_chars: 900
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: springer_volumes_issues
+    role: supporting
+    url: https://link.springer.com/journal/10463/volumes-and-issues
+    note: 各卷期與月份。本刊頁面沒有寫出版頻率，頻率只能從這一頁觀察（見 identity.frequency）。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 取得完整頁面（200、375949 bytes），但 Python urllib（verify.py 的抓取器）只拿到 3036 bytes 的 Client Challenge 頁（HTTP 200）"
+      validity:
+        must_contain: "Search all Annals of the Institute of Statistical Mathematics articles"
+        min_extracted_chars: 6000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: springer_policies
+    role: supporting
+    url: https://link.springer.com/brands/springer/journal-policies
+    note: >-
+      Springer 全品牌的期刊政策頁（不是本刊專屬）：作者責任、利益衝突、preprint、AI 使用、資料可用性、審稿。
+      本刊自己的頁面沒有 preprint、AI、審稿匿名度的條文，這些以此頁為準，但記錄裡一律標為 publisher-wide，
+      不當作本刊自己的規定。Springer Nature 的 ethics 頁「competing interest policy」也指向此頁。
+      頁面很長（約 105 KB 文字），有改版時 hash 一定變，CHANGED 時要人工找出變動的段落。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 取得完整頁面（200、334303 bytes），但 Python urllib（verify.py 的抓取器）只拿到 3036 bytes 的 Client Challenge 頁（HTTP 200）"
+      validity:
+        must_contain: "Springer Nature journals encourage posting of preprints"
+        min_extracted_chars: 40000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: editorial_manager
+    role: supporting
+    url: https://www.editorialmanager.com/aism/default.aspx
+    note: >-
+      投稿系統入口。Springer 首頁、各頁的「Submit your manuscript」按鈕與 ISM 的 Information for Authors 都指向
+      https://www.editorialmanager.com/aism/（轉址到 default.aspx）。2026-11-13 以 curl 取得 200 與 Safari 開啟都確認頁面可開
+      （標題 AISM）；框架內的歡迎頁 mainpage.html 寫 "Welcome to Editorial Manager ® for Annals of the Institute of Statistical Mathematics"；
+      點 "Submit a Manuscript"（submit_manuscript.asp）轉址到 login.ashx 登入頁。沒有登入，沒有送出任何東西。
+      原始碼內有一則 "Important Message: Site under development. Do not use for live manuscript submission." 的橫幅，
+      但該元素是 display:none，Safari 實際渲染時 computed display 為 none、不可見（用 JS 讀 getComputedStyle 確認），
+      所以不是頁面上看得到的公告；之後重驗時若這個元素變成可見，投稿前要先問編輯部。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Annals of the Institute of Statistical Mathematics"
+        min_extracted_chars: 200
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: ism_style_zip
+    role: supporting
+    url: https://www.ism.ac.jp/editsec/aism/aism-style.zip
+    note: >-
+      ISM 站的 AISM LaTeX2e style file（Information for Authors 第 3 項的連結；ISM 首頁寫 zip 178KB，下載實得 182082 bytes）。
+      zip 內 10 個檔：history.txt、natbib.sty（2014-09-03）、readme.txt、spbasic.bst（2025-05-13）、svglov3.clo、svjour3.cls、
+      template.tex（2025-05-14）、user_guide3.dvi、user_guide3.pdf。2026-11-13 下載的 sha256 為
+      39426dc12e9f231046174b4905f69b524c78676d236aacc545a33ee2d0395291。
+      本記錄的範本細節（class 與選項、關鍵字位置、參考文獻樣式）出自解壓後自行讀 template.tex 與 readme.txt。
+      verify.py 的 HTML 抽取器讀不到壓縮內容：must_contain 用的是壓縮檔目錄裡的成員檔名，只能斷言抓到的是這個壓縮檔，
+      不能斷言規定內容；hash 等於監看整個壓縮檔。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "aism-style/template.tex"
+        min_extracted_chars: 100000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: springer_style_zip
+    role: supporting
+    url: https://media.springer.com/full/springer-instructions-for-authors-assets/zip/1651738_aism-style.zip
+    note: >-
+      Springer submission guidelines 的 "Style file (Download zip, 169 kB)" 連結（下載實得 168463 bytes）。與 ISM 站的 zip 不同：
+      只有 7 個檔（history.txt、readme.txt、svglov3.clo、svjour3.cls、template.tex 2006-12-15、user_guide3.dvi、user_guide3.pdf），
+      沒有 natbib.sty 與 spbasic.bst。2026-11-13 下載的 sha256 為 e96ca14256de154bf68db05ea0c5e4afa88336f1cf759af8a664d000b3f05166。
+      兩個 zip 的 template.tex 只差兩行註解（ISM 版多 spbasic.bst 的說明）；readme.txt 與 svjour3.cls 位元組數相同。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "template.tex"
+        min_extracted_chars: 80000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: scimago
+    role: supporting
+    url: https://www.scimagojr.com/journalsearch.php?q=23213&tip=sid&clean=0
+    note: >-
+      SCImago（SJR）期刊頁：SJR、分區、H-index、Scope。sid 23213 由 journalsearch.php?q=0020-3157&tip=iss&clean=0 的搜尋結果取得
+      （搜尋頁只列這一筆）。curl 回 403 挑戰頁（2026-11-13 實測：HTTP 403、5577 bytes，標題 "Just a moment..."），只能用瀏覽器讀；
+      Safari 讀到約 19.7 K 字元。頁面會彈出廣告覆蓋層，網址可能被加上 #go 或 #google_vignette 片段，不影響內容。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "403, 5577-byte challenge page"
+      validity:
+        must_contain: "The set of journals have been ranked according to their SJR and divided into four equal groups"
+        min_extracted_chars: 12000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: mjl
+    role: supporting
+    url: https://mjl.clarivate.com/home
+    note: >-
+      Clarivate Master Journal List。JS 單頁應用，結果頁網址不帶查詢字串，無法用網址重現；只能在頁內於 #search-box 填 ISSN、
+      按 #search-button 後讀結果列（2026-11-13 以 Safari 操作：填 0020-3157，得 "Found 1 results"、"Exact Match Found"）。
+      curl 取 /home 只拿到 11 KB 的空殼（2026-11-13 實測：HTTP 200、11428 bytes），沒有任何期刊資料。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "200 但只有 SPA 空殼（11428 bytes），查詢結果需在頁內操作"
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+
+# ─────────────────────────────────────────────────────────────
+identity:
+  name: Annals of the Institute of Statistical Mathematics
+  abbreviation: AISM
+  publisher: Springer Nature（Springer；SCImago 標 "Springer Netherlands"，MJL 標 "SPRINGER HEIDELBERG"）
+  publisher_src: [springer_journal_home, scimago, mjl]
+  owner:
+    name: The Institute of Statistical Mathematics, Tokyo
+    note: >-
+      ISM 頁寫 "AISM is an official publication of the Institute of Statistical Mathematics."；Springer 首頁頁尾
+      "© The Institute of Statistical Mathematics, Tokyo"，Societies and partnerships 欄列 ISM；著作權依 ISM 頁移轉或授權給 ISM。
+      ISM 訂閱頁寫 "Issues from Vol.40 onwards are distributed by Springer."
+    src: [ism_journal_home, springer_journal_home, ism_info_for_authors]
+  issn: {print: "0020-3157", electronic: "1572-9052"}
+  issn_src: [springer_journal_home, scimago, mjl]
+  homepage: https://link.springer.com/journal/10463
+  society_site: https://www.ism.ac.jp/editsec/aism/
+  editorial_office:
+    organization: Editorial Office, The Institute of Statistical Mathematics, 10-3 Midori-cho, Tachikawa, Tokyo 190-8562, Japan
+    email: editsec@ml1.ism.ac.jp
+    note: >-
+      Springer 的 contact 頁寫 "(external support: editsec@ml1.ism.ac.jp)"；ISM 頁寫成 "editsec (at) ml1.ism.ac.jp"。
+      投稿問題、審稿流程、稿件狀態的詢問寄這裡。
+    src: [springer_contact, ism_journal_home]
+  editors:
+    # 兩個官方頁面對 Co-Editors 的名單不同：Springer 頁是 Kengo Kamatani 與 Kei Kobayashi，ISM 頁是 Kengo Kamatani 與 Ryo Okui
+    #（Springer 頁把 Ryo Okui 列在 Associate Editors，ISM 頁把 Kei Kobayashi 列在 Associate Editors）。不判斷哪份是新的。
+    chief_editor: {name: Yoshiyuki Ninomiya, affiliation: The Institute of Statistical Mathematics, src: [springer_editorial_board, ism_editorial_board, springer_journal_home]}
+    executive_editor: {name: Satoshi Yamashita, affiliation: The Institute of Statistical Mathematics, src: [springer_editorial_board, ism_editorial_board]}
+    co_editors_as_listed_by_springer_board:
+      - {name: Kengo Kamatani, affiliation: The Institute of Statistical Mathematics, src: springer_editorial_board}
+      - {name: Kei Kobayashi, affiliation: "Keio University, Tokyo, Japan", src: springer_editorial_board}
+    co_editors_as_listed_by_ism_board:
+      - {name: Kengo Kamatani, affiliation: The Institute of Statistical Mathematics, src: ism_editorial_board}
+      - {name: Ryo Okui, affiliation: The University of Tokyo, src: ism_editorial_board}
+    associate_editors: 兩個頁面各列 51 位；名單與機構略有出入（例：Springer 頁 Hiroshi Kurata 為 The University of Tokyo、ISM 頁為 Kanagawa University），本記錄不逐一轉錄，見 src 頁
+    associate_editors_src: [springer_editorial_board, ism_editorial_board]
+  frequency:
+    status: not_published
+    checked: 2026-11-13
+    src: [springer_journal_home, ism_journal_home, springer_aims_and_scope, springer_volumes_issues]
+    note: >-
+      Springer 與 ISM 頁面都沒有寫出版頻率。只能觀察 volumes-and-issues：Volume 76、77、78 各有 Issue 1 至 5
+      （Volume 78 為 2026-02 至 2026-10，Issue 1–5 分別是 Feb、Apr、Jun、Aug、Oct）；Volume 72 至 75 各有 6 期。
+      這是觀察，不是官方聲明。Springer 首頁最新期為 Volume 78、Issue 5（October 2026）。
+  coverage: "Vol. 1 (1949) onward（ISM 站目錄）；SCImago 標 1949-1957, 1959-2026"
+  external_ids:
+    scimago: "23213"
+    crossref: "0020-3157"
+    openalex: issn:0020-3157
+  open_access:
+    value: hybrid
+    src: [springer_journal_home, springer_how_to_publish]
+    note: >-
+      Springer 首頁與 how-to-publish 頁的 "Publishing model" 標 Hybrid：錄取後作者可選訂閱路徑（無 APC）或開放取用（付 APC）。
+      ISM 頁（2026-01-01 起）寫錄取後可選 non-open access (standard) license 或 open access (Creative Commons) license。
+      費用見 requirements.fees。
+  indexing:
+    clarivate_mjl:
+      scie: true
+      ssci: false
+      ahci: false
+      esci: false
+      web_of_science_core_collection: Science Citation Index Expanded
+      additional_indexes: [Essential Science Indicators]
+      checked: 2026-11-13
+      search_issn: "0020-3157"
+      mjl_title_string: "ANNALS OF THE INSTITUTE OF STATISTICAL MATHEMATICS"
+      mjl_publisher_string: "SPRINGER HEIDELBERG , Europaplatz 3, HEIDELBERG, Germany, D-69115"
+      src: mjl
+      note: >-
+        搜尋 0020-3157 得 "Found 1 results"、"Exact Match Found"（ISSN / eISSN 0020-3157 / 1572-9052），Web of Science Core
+        Collection 欄只列 Science Citation Index Expanded；沒有 SSCI、AHCI、ESCI。Additional Web of Science Indexes 欄只列
+        Essential Science Indicators。
+    publisher_stated:
+      src: springer_journal_home
+      note: 出版社頁面自述的收錄清單（含 SCIE、Mathematical Reviews、zbMATH、Current Index to Statistics），SCIE 以上方 MJL 為準。
+      list: [ANVUR, Australian Business Deans Council (ABDC) Journal Quality List, BFI List, Baidu, CLOCKSS, CNKI, CNPIEC, Chinese Academy of Medical Science (CAMS), Current Index to Statistics, Dimensions, EBSCO, EI Compendex, Google Scholar, INIS Atomindex, Japanese Science and Technology Agency (JST), Mathematical Reviews, Naver, OCLC WorldCat Discovery Service, Ovid Discovery, Portico, ProQuest, Research Papers in Economics (RePEc), SCImago, SCOPUS, Science Citation Index Expanded (SCIE), TD Net Discovery Service, Wanfang, eLibrary.ru, zbMATH]
+  metrics:
+    impact_factor:
+      value: 1.4
+      year: 2025
+      as_of: 2026-11-13
+      provider: 頁面沒有印提供者
+      src: springer_journal_home
+      note: >-
+        Springer 首頁 Journal metrics 原文 "Journal Impact Factor 1.4 (2025)"。頁面沒有點名提供者（沒寫 Clarivate 或 JCR），
+        也沒有說明 2025 是 JCR 發布年或資料年；本次未另以 JCR 核對（JCR 需登入）。
+        ISM 首頁印的數字不同：Impact factor 0.6 (2024)，見 impact_factor_ism_page。
+    impact_factor_ism_page:
+      value: 0.6
+      year: 2024
+      as_of: 2026-11-13
+      provider: 頁面沒有印提供者
+      src: ism_journal_home
+      note: ISM 首頁原文 "Impact factor 0.6 (2024)"，同樣沒有點名提供者。與 Springer 頁的 1.4 (2025) 是不同年度，兩者都是官方頁面自述。
+    five_year_impact_factor:
+      value: 1.1
+      year: 2025
+      as_of: 2026-11-13
+      src: springer_journal_home
+      note: Springer 首頁原文 "5-year Journal Impact Factor 1.1 (2025)"，標示方式同上。
+    five_year_impact_factor_ism_page:
+      value: 1.0
+      year: 2024
+      as_of: 2026-11-13
+      src: ism_journal_home
+      note: ISM 首頁原文 "Five year impact factor 1.0 (2024)"。
+    sjr:
+      value: 0.650
+      year: 2025
+      as_of: 2026-11-13
+      src: scimago
+    h_index: {value: 54, as_of: 2026-11-13, src: scimago}
+    quartiles:
+      - system: SJR
+        category: Statistics and Probability
+        subject_area: Mathematics
+        quartile: Q2
+        year: 2025
+        as_of: 2026-11-13
+        src: scimago
+        note: >-
+          SCImago 只列這一個類別。2020 至 2025 每年皆為 Q2（2018、2019 也是 Q2；2016、2017 為 Q1）；頁面不給名次。
+          這是 SJR 分區，不是 JCR。
+    jcr_quartile:
+      status: not_found
+      checked: 2026-11-13
+      note: >-
+        JCR 分區與名次需登入 Clarivate JCR，本次未查。Springer 與 ISM 頁面只自述影響係數，沒有列分區。
+        上方 quartiles 是 SJR 分區，不是 JCR。
+    acceptance_rate:
+      status: not_published
+      checked: 2026-11-13
+      src: [springer_journal_home, springer_aims_and_scope, springer_submission_guidelines, ism_journal_home, ism_info_for_authors, scimago]
+      note: Springer 首頁、aims and scope、submission guidelines、ISM 首頁與 Information for Authors、SCImago 頁都未列接受率或拒絕率。
+    time_to_first_decision:
+      status: not_published
+      checked: 2026-11-13
+      src: [springer_aims_and_scope, ism_journal_home]
+      note: >-
+        官方沒有公布中位數或平均值。Springer aims and scope 與 ISM 首頁有一句分布描述（口徑不同於中位數，不換算）：
+        "AISM is trying to make faster decisions after the reception. For example, around 60%, 80%, and 90% of submissions
+        received from July 2019 to June 2020 had a review time from receipt to first decision of 1, 3, and 5 months or less, respectively."
+        統計對象是 2019 年 7 月至 2020 年 6 月收到的稿件，頁面沒有更近期的數字。
+      distribution_statement:
+        period: "July 2019 to June 2020"
+        share_within: [{share_percent: 60, months: 1}, {share_percent: 80, months: 3}, {share_percent: 90, months: 5}]
+        qualifier: '"around"（約）；"or less" 表示不超過'
+    time_submission_to_acceptance:
+      status: not_published
+      checked: 2026-11-13
+      src: [springer_journal_home, springer_submission_guidelines, ism_journal_home, ism_info_for_authors]
+      note: 官方頁面沒有投稿到接受的時間；也沒有自行抽樣估計（本記錄未跑 sample_review_times.py）。
+    downloads: {value: "53.5k (2025)", as_of: 2026-11-13, src: springer_journal_home}
+
+# ─────────────────────────────────────────────────────────────
+# SLOW — 數年不變。
+# ─────────────────────────────────────────────────────────────
+requirements:
+  refresh: {check_every: P6M, method: manual}
+
+  scope:
+    aims: >-
+      宗旨是提供統計學者公開交流的論壇，並推進「讓人類能處理資訊、因應不確定性」的統計科學；收錄在統計科學的
+      理論、計算與／或方法面向有新啟發的高品質論文；強調 (a) 由真實資料促成的新方法、(b) 統一理論的發展、
+      (c) 既有方法與理論的分析與改進；也想對機器學習與計量經濟學的統計科學有貢獻。
+    quote: >-
+      Annals of the Institute of Statistical Mathematics (AISM) aims to provide a forum for open communication among
+      statisticians, and to contribute to the advancement of statistics as a science to enable humans to handle information
+      in order to cope with uncertainties. It publishes high-quality papers that shed new light on the theoretical,
+      computational and/or methodological aspects of statistical science. Emphasis is placed on (a) development of new
+      methodologies motivated by real data, (b) development of unifying theories, and (c) analysis and improvement of
+      existing methodologies and theories. It also seeks to contribute to statistical science in machine learning and
+      econometrics.
+    src: [springer_aims_and_scope, ism_journal_home, springer_journal_home]
+    emphasis:
+      quote: >-
+        Emphasis is placed on (a) development of new methodologies motivated by real data, (b) development of unifying
+        theories, and (c) analysis and improvement of existing methodologies and theories.
+      src: springer_aims_and_scope
+    evaluation_criteria:
+      status: not_published
+      checked: 2026-11-13
+      src: [springer_aims_and_scope, springer_submission_guidelines, ism_info_for_authors, ism_journal_home]
+      note: >-
+        官方頁面沒有列審稿或錄取判準（沒有 referee guidelines 頁，也沒有 novelty、importance 之類的判準清單）。能引用的只有
+        scope 的 "high-quality papers that shed new light on ..." 與上方 Emphasis 三點。ISM 的 Information for Authors 只寫
+        "Papers are screened by the Editors. Papers not rejected by the screening are assigned to an associate editor who will handle
+        the review process."，沒有說初篩看什麼。
+    explicit_exclusions:
+      status: not_published
+      checked: 2026-11-13
+      src: [springer_aims_and_scope, springer_journal_home, springer_submission_guidelines, ism_info_for_authors, ism_journal_home, ism_data_policy]
+      note: >-
+        在 aims and scope、Springer 首頁、submission guidelines、ISM 首頁與 Information for Authors、Research Data Policy 全文，
+        沒有任何一句說本刊不收或低優先處理某類主題或稿件類型（以 "not"、"do not"、"discouraged"、"outside" 等字檢查，
+        命中的句子都不是談收稿範圍：見 limiting_statements_verbatim）。官方沒有說機率論、純應用、軟體或套件論文收或不收；
+        頁面出現 "probab" 只在參考文獻格式範例的書名，出現 "applic" 只在參考文獻範例的書名與資料政策的 "where possible and applicable"，"software" 在這些頁面完全沒出現
+        （2026-11-13 全文搜尋）。這是官方沉默，不是同意也不是反對。
+    limiting_statements_verbatim:
+      # 對稿件有界定或限制作用的句子，逐字列出；官方沒有用排除語氣談過主題。
+      - quote: >-
+          The Editors encourage prospective authors to submit manuscripts within the scope of Annals of the Institute of
+          Statistical Mathematics (AISM).
+        effect: 鼓勵投稿在範圍內的稿件；範圍就是上方 scope 那一段，官方沒有進一步定義。
+        src: [springer_submission_guidelines, ism_info_for_authors]
+      - quote: >-
+          To qualify for publication, papers must be previously unpublished and not be under consideration for publication elsewhere.
+        effect: 資格條件是未發表且未在他處審查中，與主題無關。
+        src: [springer_submission_guidelines, ism_info_for_authors]
+      - quote: >-
+          The Editors reserve the right to refuse to receive manuscripts that have excessive lengths or have overstuffed pages
+          with immoderately small fonts.
+        effect: 篇幅與版面的限制，不是主題限制。措辭是 "reserve the right"，屬保留權利，不是一律退稿。
+        src: [springer_submission_guidelines, ism_info_for_authors]
+      - quote: >-
+          Papers are screened by the Editors. Papers not rejected by the screening are assigned to an associate editor who
+          will handle the review process.
+        effect: 說明有編輯初篩；沒有說初篩的標準，也沒有說多少比例被初篩退稿。只出現在 ISM 頁，Springer 頁沒有這兩句。
+        src: ism_info_for_authors
+    named_topics:
+      value: [machine learning, econometrics]
+      note: scope 最後一句 "It also seeks to contribute to statistical science in machine learning and econometrics." 是唯一點名的領域。
+      src: springer_aims_and_scope
+    theory_vs_application: >-
+      scope 同時列 "theoretical, computational and/or methodological aspects"，強調的三點含 "development of unifying theories"
+      與 "development of new methodologies motivated by real data"。官方沒有說純理論稿件需要附實證或模擬，也沒有說純應用稿件不收。
+    audience: {status: not_published, checked: 2026-11-13, src: [springer_aims_and_scope], note: scope 沒有列出目標讀者}
+    scimago_subject_areas: [Mathematics / Statistics and Probability]
+    scimago_subject_areas_src: scimago
+
+  article_types:
+    status: not_published
+    checked: 2026-11-13
+    src: [springer_submission_guidelines, ism_info_for_authors, springer_aims_and_scope, springer_journal_home]
+    note: >-
+      submission guidelines 與 ISM 的 Information for Authors 都沒有文章類型清單，也沒有各類型的篇幅規格；
+      通篇只說 "papers" 與 "manuscripts"。投稿系統是否另有類型選單，本記錄無法得知（需登入）。
+  article_type_labels_observed:
+    labels: [OriginalPaper]
+    src: springer_journal_home
+    as_of: 2026-11-13
+    note: 這是 Springer 首頁「最新文章」五筆在列表上的標籤，不是投稿規定，也不代表沒有其他類型。
+
+  length:
+    value: 35
+    unit: pages_typeset
+    basis:
+      unit_as_stated: pages
+      note: >-
+        官方只寫 "35 pages"，沒有說行距、字級、邊界或排版樣式，也沒有說是否以 AISM style file 計頁。schema 的單位列舉
+        沒有「未指定」，pages_typeset 是最接近的選項（作者交 PDF、頁面自己排版），不代表官方定義了排版樣式。
+        官方頁面確有的相關句子是 "All pages should be numbered." 與 "overstuffed pages with immoderately small fonts"。
+    wording: >-
+      Manuscripts should be arranged as follows: (1) title page, (2) abstract, keywords, (3) text, (4) appendices (if necessary),
+      (5) acknowledgements (when appropriate), (6) references, (7) tables and (8) figures. All pages should be numbered.
+      The maximum length of the manuscript should not normally exceed 35 pages. The Editors reserve the right to refuse to receive
+      manuscripts that have excessive lengths or have overstuffed pages with immoderately small fonts.
+    includes_note:
+      status: not_published
+      checked: 2026-11-13
+      src: [springer_submission_guidelines, ism_info_for_authors]
+      note: >-
+        官方沒有說 35 頁是否含附錄、參考文獻、表、圖。前一句列出的稿件排列順序含這些部分，但那是「怎麼排列」，沒有說這些都計入頁數，
+        所以 schema 的 includes 欄留空，不替官方補。
+    exceptions: >-
+      措辭是 "should not normally exceed"，屬軟性上限；官方沒有寫超過時的處理方式，也沒有寫超過需事先聯絡編輯。
+      補充材料可放技術推導、證明、額外圖表、資料與程式（見 supplementary_material），但官方沒有說補充材料是否計入頁數。
+    src: [springer_submission_guidelines, ism_info_for_authors]
+    word_limit: {status: not_published, checked: 2026-11-13, src: [springer_submission_guidelines, ism_info_for_authors]}
+    figures_tables_max: {status: not_published, checked: 2026-11-13, src: [springer_submission_guidelines], note: 只寫 "Tables should be restricted to the minimum necessary" 與 "The number of figures is to be restricted as much as possible"，沒有數字上限}
+    references_max: {status: not_published, checked: 2026-11-13, src: [springer_submission_guidelines]}
+
+  abstracts:
+    - id: single
+      applies_to: all_manuscripts
+      max_words: 150
+      paragraphs: 1
+      required_at: submission
+      quote: >-
+        Abstract: Each manuscript should be preceded by an abstract of no more than 150 words in a single paragraph.
+        The abstract should state results in such a way that the reader can evaluate their significance.
+        References should not be cited in the abstract.
+      note: 不是結構化摘要；官方沒有要求分段標題。Springer 頁與 ISM 頁文字相同。
+      src: [springer_submission_guidelines, ism_info_for_authors]
+  keywords:
+    max: 10
+    unit: "key words or phrases"
+    position: 緊接在摘要之後
+    quote: >-
+      Keywords: Immediately after the abstract no more than ten key words or phrases are to be supplied to represent the
+      subject matter of the paper.
+    msc_classification: {status: not_published, checked: 2026-11-13, src: [springer_submission_guidelines, ism_info_for_authors, ism_style_zip], note: 須知與 template.tex 都沒有 MSC 分類碼的要求}
+    src: [springer_submission_guidelines, ism_info_for_authors]
+
+  title_page:
+    required_fields:
+      - 標題（簡短、清楚、能反映內容）
+      - 作者姓名
+      - 作者單位與地址（與現在地址不同時用腳註）
+      - 通訊作者與校樣收件人的標示（建議寫在最後一個腳註；沒寫則寄給第一作者）
+      - 建議的 running head（少於 60 個字元含空格，放在腳註）
+    quote: >-
+      The title page should include the article title, the authors’ names, the authors’ affiliations and addresses, and any
+      necessary footnotes. Authors’ present addresses, if different, should be footnoted. The title should be brief, clear and
+      informative of the contents of the paper. A proposed running head of less than 60 characters and spaces should be included
+      in the footnote. For co-authors, it is desirable to indicate in the last footnote the author to whom correspondence and
+      proofs should be sent, otherwise they will be sent to the first-named author.
+    note: >-
+      引文取自 Springer 頁（用彎引號 ’）；ISM 頁文字相同但用直引號。官方沒有提到 ORCID、作者貢獻聲明或利益衝突聲明的位置。
+    src: [springer_submission_guidelines, ism_info_for_authors]
+
+  formatting:
+    submission_file: PDF（"Manuscripts in pdf format should be submitted via the Editorial Manager online submission for the journal."）
+    latex:
+      status: recommended
+      quote: It is recommended to use the AISM style file for LaTeX2e below.
+      note: >-
+        是「建議」，不是強制；須知沒有要求原始 tex 檔，也沒有要求 Word 或 LaTeX 以外的格式說明。
+        ISM 頁的版本把連結寫成 https://www.ism.ac.jp/editsec/aism/aism-style.zip。
+      src: [springer_submission_guidelines, ism_info_for_authors]
+    template:
+      class: svjour3
+      documentclass: "\\documentclass[smallextended,natbib,runningheads]{svjour3}"
+      files_in_ism_zip: [history.txt, natbib.sty, readme.txt, spbasic.bst, svglov3.clo, svjour3.cls, template.tex, user_guide3.dvi, user_guide3.pdf]
+      files_in_springer_zip: [history.txt, readme.txt, svglov3.clo, svjour3.cls, template.tex, user_guide3.dvi, user_guide3.pdf]
+      journalname_command: "\\journalname{Annals of the Institute of Statistical Mathematics}"
+      bibliography_style: spbasic（作者年份式；ISM 版 zip 內附 spbasic.bst，Springer 版 zip 沒有）
+      keywords_in_template: 範本把關鍵字放在 abstract 環境內（\keywords{First keyword \and Second keyword \and More}）
+      note: >-
+        template.tex 的檔頭寫 "Springer Heidelberg 2006/07/26"，svjour3.cls 是 2006 版；ISM 版 zip 的 template.tex 與 spbasic.bst
+        是 2025-05 更新的。範本註解是範本層級的說明，不是期刊頁面規定。
+      src: [ism_style_zip, springer_style_zip]
+    arrangement: >-
+      標題頁、摘要與關鍵字、正文、附錄（必要時）、致謝（適當時）、參考文獻、表、圖；"All pages should be numbered."
+    text_and_footnotes: >-
+      "The text should be reasonably subdivided into sections and subsections as necessary. In the text, footnotes should be avoided
+      as far as possible."
+    equations: >-
+      "Only the equations to which reference is made in the text should be numbered consecutively at the right-hand margin by
+      enclosing in parentheses as (1), (2), etc."
+    tables: >-
+      表要精簡（"Tables should be restricted to the minimum necessary"）；阿拉伯數字依出現順序編號；簡短描述性標題放在表上方；
+      表註用參考記號或上標小寫字母；原文寫 "typed on separate sheets"，並要在正文標出表的大約插入位置。
+    figures: >-
+      所有插圖都算 figure，阿拉伯數字依出現順序編號；品質要能直接複製（"suitable for direct reproduction"）；數量盡量少；
+      必要時錄取後會要求專業繪圖。線上版彩色圖照樣是彩色，紙本彩色費用由出版商在校對階段通知（見 fees.color_in_print）。
+    references:
+      style: 作者年份式（正文括號內放作者姓與年份；清單依作者姓氏字母排序，同一作者依年份排序）
+      rules:
+        - "正文引用範例：Fisher (1932)、Brown (1985, 1986)、Hall (1978a, b)；兩位作者 Johnson and Kotz (1982)；三位以上 Davis et al. (1977)"
+        - 同一作者同年有多篇時在年份後加 a、b、c
+        - 期刊名要完整拼出，不用縮寫（除非縮寫就是刊名）
+        - 每筆要有年份、完整標題、出處、卷號與起訖頁碼
+      journal_example: "Akaike, H. (1974). A new look at the statistical model identification. IEEE Transactions on Automatic Control, AC-19, 716-723."
+      data_citation: >-
+        有 DOI 的資料集可列入參考文獻，引用內容含作者（年）、標題、出版者（儲存庫名稱）、識別碼（見 openness.data_and_code）。
+      src: [springer_submission_guidelines, ism_info_for_authors]
+    language: English（"The accepted language is English."）
+    src: [springer_submission_guidelines, ism_info_for_authors]
+
+  supplementary_material:
+    allowed: true
+    contents: [technical derivations and proofs, additional figures and tables, datasets, computer codes, computer programs]
+    quote: >-
+      Supplementary material may contain technical derivations and proofs, additional figures and tables, datasets, computer codes,
+      and computer programs. Supplementary material can be viewed online at the AISM website. An executable file is not acceptable.
+    executable_files: not_acceptable
+    counted_in_page_limit: {status: not_published, checked: 2026-11-13, src: [springer_submission_guidelines, ism_info_for_authors]}
+    how_to_submit: {status: not_published, checked: 2026-11-13, src: [springer_submission_guidelines, ism_info_for_authors], note: 須知沒有說補充材料如何命名、合併成單一檔或另傳；投稿系統內的上傳欄位需登入才能看}
+    src: [springer_submission_guidelines, ism_info_for_authors]
+
+  openness:
+    data_and_code:
+      level: encouraged
+      quote: >-
+        The journal encourages authors, where possible and applicable, to deposit data that support the findings of their research
+        in a public repository.
+      note: >-
+        原文接著說沒有偏好儲存庫的作者可參考 Springer Nature 的儲存庫清單與研究資料政策，figshare 與 Dryad 等通用儲存庫也可用。
+        "encourages" 不是要求；官方沒有要求公開資料，也沒有單獨規定程式碼。補充材料可含 "computer codes, and computer programs"
+        （見 supplementary_material），但那是可選的存放位置。
+      src: [ism_data_policy, springer_submission_guidelines]
+    data_citation:
+      required: false
+      quote: >-
+        Datasets that are assigned digital object identifiers (DOIs) by a data repository may be cited in the reference list.
+        Data citations should include: authors (year), title, publisher (repository name), identifier.
+      src: [ism_data_policy, springer_submission_guidelines]
+    data_availability_statement:
+      status: not_published
+      checked: 2026-11-13
+      src: [springer_submission_guidelines, ism_info_for_authors, ism_data_policy]
+      note: >-
+        本刊頁面沒有要求資料可用性聲明（Data Availability Statement）。Springer 全品牌政策頁寫 "This policy requires all Springer, Discover and
+        Palgrave Macmillan journals to implement a research data policy which requires data availability statements."，
+        並說 "For information whether or not this policy has yet been fully implemented by a journal, please check the journal's
+        submission information."；本刊的 submission information 沒有這項要求。本記錄不替官方判斷本刊是否已實施。
+    code:
+      status: not_published
+      checked: 2026-11-13
+      src: [springer_submission_guidelines, ism_info_for_authors, ism_data_policy]
+      note: 研究資料政策段沒有單獨規定程式碼；唯一相關的是補充材料可以含程式。
+    reproducibility_policy: {status: not_published, checked: 2026-11-13, src: [springer_submission_guidelines, ism_info_for_authors, ism_data_policy, springer_aims_and_scope], note: 四頁以 "reproduc" 搜尋，只命中 "suitable for direct reproduction"（圖的品質）與 "Reproduction and Permissions"，與可重現性政策無關}
+    preregistration: {status: not_published, checked: 2026-11-13, note: 頁面沒有提到}
+
+  review:
+    type: not_published
+    checked: 2026-11-13
+    src: [springer_ethics_disclosures, springer_submission_guidelines, ism_info_for_authors, springer_policies]
+    note: >-
+      AISM 的頁面沒有寫審稿是單匿名、雙匿名或其他制度。Springer 的 ethics 頁只寫 "Research content published in this journal is peer reviewed."；
+      Springer 全品牌政策頁寫 "Individual journals may differ in their peer review processes (e.g. open or anonymized), please refer to the
+      specific journal for details."，並說 "Most journals use a single-anonymized peer review process"。這是出版社對多數期刊的描述，
+      不是本刊的聲明，所以 type 不填 single_anonymized。另一方面，須知要求標題頁列作者姓名與單位，也沒有提供去識別化稿件的選項或說明（這是事實，
+      不是對審稿制度的推論）。
+    author_anonymization: {status: not_published, checked: 2026-11-13, src: [springer_submission_guidelines, ism_info_for_authors], note: 官方沒有去識別化稿件的要求或選項}
+    number_of_reviewers:
+      quote: All manuscripts will be reviewed by at least two reviewers.
+      note: 出自 Springer 的 submission guidelines。ISM 的 Information for Authors 沒有這一句，改寫成 "Papers are screened by the Editors. Papers not rejected by the screening are assigned to an associate editor who will handle the review process."
+      src: [springer_submission_guidelines, ism_info_for_authors]
+    stages:
+      - id: editor_screening
+        detail: 編輯初篩，通過者交給一位副編輯負責審稿流程（只在 ISM 頁；初篩標準與退稿比例未公布）
+        quote: >-
+          Papers are screened by the Editors. Papers not rejected by the screening are assigned to an associate editor who
+          will handle the review process.
+        src: ism_info_for_authors
+      - id: peer_review
+        detail: 至少兩位審稿人（只在 Springer 頁）
+        quote: All manuscripts will be reviewed by at least two reviewers.
+        src: springer_submission_guidelines
+    revision_deadline:
+      quote: >-
+        A revision is expected to arrive within two years after the decision is sent to authors. After two years, the right is
+        reserved to view the paper as a new submission.
+      src: [springer_submission_guidelines, ism_info_for_authors]
+    author_may_suggest_reviewers: {status: not_published, checked: 2026-11-13, src: [springer_submission_guidelines, ism_info_for_authors], note: 本刊頁面沒有談；Springer 全品牌政策頁說 "Some journals allow authors to suggest potential reviewers"，未說本刊是否允許}
+    decision_categories: {status: not_published, checked: 2026-11-13, src: [springer_submission_guidelines, ism_info_for_authors]}
+
+  submission:
+    portal: https://www.editorialmanager.com/aism/
+    system: Editorial Manager（Aries Systems）
+    portal_verified: true
+    portal_note: >-
+      2026-11-13 確認頁面可開：curl 取得 https://www.editorialmanager.com/aism/default.aspx 為 200，Safari 開啟標題為 AISM，
+      "Submit a Manuscript" 轉址到登入頁（login.ashx）；沒有登入，沒有送出任何東西。登入頁內容以 Editorial Manager 通用文字為主。
+      Springer 首頁的「Submit your manuscript」與 ISM 的 Information for Authors 指向同一個入口。原始碼有一則隱藏的 "site under development"
+      橫幅，實際不可見（見 editorial_manager 來源的 note）。
+    format: PDF
+    registration: Editorial Manager 歡迎頁寫首次使用者要在導覽列點 "Register"；已有帳號者直接登入並以 Author 角色登入
+    channels_note: ISM 頁寫 "Authors can submit manuscripts through Springer Link as well as through this site."，兩者實際都是上述 Editorial Manager 入口。
+    cover_letter: {status: not_published, checked: 2026-11-13, src: [springer_submission_guidelines, ism_info_for_authors], note: 須知沒有提到 cover letter}
+    conditions:
+      - quote: To qualify for publication, papers must be previously unpublished and not be under consideration for publication elsewhere.
+        src: [springer_submission_guidelines, ism_info_for_authors]
+    queries: >-
+      投稿問題、審稿流程、稿件狀態寄 Editorial Office（editsec@ml1.ism.ac.jp）。
+    after_acceptance:
+      proofs: >-
+        "Page proofs will be supplied by the publisher directly to the corresponding author. These should be corrected and returned within
+        48 hours of receipt; otherwise the paper might be published without the author’s proofreading."
+        修改範圍受限："No substantial changes by the author will be accepted at this stage of proofreading, except where advance permission
+        has been obtained from the Editorial Committee."
+      src: [springer_submission_guidelines, ism_info_for_authors]
+    src: [springer_submission_guidelines, ism_info_for_authors, editorial_manager, springer_contact]
+
+  fees:
+    submission:
+      status: not_published
+      checked: 2026-11-13
+      src: [springer_submission_guidelines, ism_info_for_authors, springer_how_to_publish]
+      note: 這些頁面都沒有提投稿費或審稿費。
+    page_charges:
+      amount: 0
+      quote: There will be no page charge.
+      note: ISM 頁（2026-01-01 起）寫 "No page charges will be incurred."；兩頁一致。
+      src: [springer_submission_guidelines, ism_info_for_authors]
+    apc:
+      mandatory: false
+      mandatory_note: >-
+        how-to-publish 頁寫本刊是 hybrid：錄取後作者可選訂閱路徑（無 APC）或開放取用（付 APC）。原文："Authors can also choose to publish
+        under the subscription publishing model (no APC charges apply); both options will be offered after the paper has been accepted."
+      amount: {usd: 3290, gbp: 2390, eur: 2790}
+      currency: USD
+      amount_quote: >-
+        The current APC for Annals of the Institute of Statistical Mathematics is £2390.00 GBP / $3290.00 USD / €2790.00 EUR.
+      tax: 另依適用情形加 VAT 或當地稅（原文 "This fee is subject to VAT or local taxes where applicable."）
+      price_rule: "The APC price will be determined from the date on which the article is accepted for publication."
+      payable: 開放取用路徑錄取後由作者或其經費來源支付（"the author/s or funder/s pay an article processing charge (APC)"）
+      license: CC BY-NC-ND 4.0 或 CC BY 4.0
+      waiver: {status: not_published, checked: 2026-11-13, src: springer_how_to_publish, note: 頁面沒有寫本刊的 APC 豁免或折扣制度；只指向 Springer Nature 的機構協議與 OA 經費支持頁}
+      as_of: 2026-11-13
+      src: [springer_how_to_publish, springer_journal_home]
+    reprints:
+      springer_page:
+        quote: Thirty reprints of each paper will be supplied free of charge. Additional copies may be purchased from the publisher and should be ordered when the proofs are returned.
+        src: springer_submission_guidelines
+      ism_page:
+        quote: >-
+          Authors will be provided with a link to download the PDF of their article. Paper reprints may be purchased from the publisher
+          and should be ordered at the stage designated by the publisher during the publication process, which may vary depending on circumstances.
+        note: 標 "(effective on January 1, 2026)"；與 Springer 頁「三十份免費重印本」的說法不同。
+        src: ism_info_for_authors
+    color_in_print:
+      status: not_published
+      checked: 2026-11-13
+      src: [springer_submission_guidelines, ism_info_for_authors]
+      note: >-
+        金額未列。原文："Color figures will appear in color on the Web regardless of whether or not these illustrations are reproduced in
+        color in the printed version. For color reproduction in print, the authors will receive information regarding the costs from the
+        publisher at the time of proofreading."
+    language_editing: Springer Nature 首頁導覽有 "Language editing" 頁；本記錄沒有讀取其條件與價格
+    src: [springer_how_to_publish, springer_submission_guidelines, ism_info_for_authors]
+
+  policies:
+    dual_submission: forbidden
+    dual_submission_quote: papers must be previously unpublished and not be under consideration for publication elsewhere.
+    dual_submission_src: [springer_submission_guidelines, ism_info_for_authors]
+    preprints:
+      journal_specific:
+        status: not_published
+        checked: 2026-11-13
+        src: [springer_submission_guidelines, ism_info_for_authors, springer_aims_and_scope, springer_ethics_disclosures, springer_how_to_publish, springer_journal_home, ism_journal_home, ism_permissions]
+        note: 本刊與 ISM 的頁面全文都沒有出現 "preprint" 或 "arXiv"。
+      publisher_wide:
+        quote: >-
+          Springer Nature journals encourage posting of preprints of primary research manuscripts on preprint servers of the authors’ choice,
+          authors’ or institutional websites, and open communications between researchers whether on community preprint servers or preprint
+          commenting platforms.
+        also: >-
+          "Posting of preprints is not considered prior publication and will not jeopardize consideration at Springer Nature journals."
+          以及 "Authors should disclose details of preprint posting, including DOI and licensing terms, upon submission of the manuscript or at
+          any other point during consideration at a Springer Nature journal."
+        src: springer_policies
+        scope_note: >-
+          這是 Springer Nature 全品牌政策，不是本刊自己的條文；本刊頁面沒有與它矛盾的文字，也沒有明說採用它。
+      author_version_posting:
+        quote: >-
+          The authors are allowed to post an author-created version of the article on their personal website or on the website of their
+          institutions, provided they include a link to the journal at https://www.ism.ac.jp/editsec/aism/ .
+        note: ISM 站 Reproduction and Permissions 頁，段落標題 "Authors of AISM Papers"；該頁寫的是著作權移轉給 ISM 的流程，與 ISM 的 Information for Authors 所寫的 OA 授權選項（2026-01-01 起）的關係未說明。
+        src: ism_permissions
+    generative_ai:
+      journal_specific:
+        status: not_published
+        checked: 2026-11-13
+        src: [springer_submission_guidelines, ism_info_for_authors, springer_ethics_disclosures, springer_how_to_publish, springer_aims_and_scope]
+        note: 本刊與 ISM 的頁面全文都沒有談 AI、LLM 或 generative；以 "artificial intell"、"language model"、"LLM"、"generative" 搜尋皆無命中。
+      publisher_wide:
+        quote: >-
+          Springer Nature supports the responsible and transparent use of artificial intelligence where it strengthens research quality,
+          upholds editorial independence, and preserves the integrity of the scientific and scholarly record.
+        framework: >-
+          Springer 政策頁用綠、黃、紅三級風險框架。綠（Permitted）的例子含 "Using an LLM to polish or refine the language"；
+          黃（Exercise caution）的例子含 "Extensive copy editing or writing support"；紅（Not permitted）的例子含
+          "Assigning authorship or accountability to AI systems or tools" 與 "Fabricating data, citations or results"。
+          作者責任：Authors "Remain fully accountable for originality, accuracy, and integrity" 並 "Disclose AI use for trust and transparency"。
+        src: springer_policies
+        scope_note: 這是 Springer Nature 全品牌政策，不是本刊自己的條文；是否逐條適用於本刊，本刊頁面沒有說明。
+    copyright:
+      ism_page_effective_2026_01_01:
+        quote: >-
+          Upon acceptance of an article, authors will be offered the option to publish under either a non-open access (standard) license or an
+          open access (Creative Commons) license. If the open access option is not selected, authors will be required to transfer copyright to
+          the Institute of Statistical Mathematics (for U.S. or U.K. government employees, to the extent permitted by law).
+        src: ism_info_for_authors
+      springer_page:
+        quote: >-
+          Upon acceptance of an article, authors will be asked to transfer their copyright to the Institute of Statistical Mathematics
+          (for U.S. or U.K. government employees: to the extent transferable).
+        note: 同頁接著寫 "Transfer of copyright becomes effective when the article is accepted for publication."；沒有提到 OA 選項。與 ISM 頁（2026-01-01 起）不同，見 warnings。
+        src: springer_submission_guidelines
+      author_reuse:
+        quote: The authors, however, reserve the right to use all or part of the article in future works of their own.
+        src: ism_permissions
+    ethics:
+      cope_member: true
+      quote: The journal is a member of the Committee on Publication Ethics (COPE).
+      competing_interests:
+        journal_text: >-
+          Springer ethics 頁只寫 "This journal has a competing interest policy in place."，沒有列條文。AISM 的投稿須知沒有要求利益衝突聲明。
+        publisher_wide: >-
+          Springer 政策頁寫 "Primary research articles require a disclosure statement."，聲明放在 "Declarations" 段（參考文獻之前）。
+          這是出版社層級的條文，未見本刊自己的規定，本記錄不判斷是否適用於本刊。
+        src: [springer_ethics_disclosures, springer_policies]
+    plagiarism_screening: {status: not_published, checked: 2026-11-13, src: [springer_ethics_disclosures, springer_submission_guidelines], note: 本刊頁面沒有談相似度偵測}
+    orcid: {status: not_published, checked: 2026-11-13, src: [springer_submission_guidelines, ism_info_for_authors]}
+    funding_statement: {status: not_published, checked: 2026-11-13, src: [springer_submission_guidelines, ism_info_for_authors]}
+    language_editing: Springer 首頁導覽有 Language editing 頁，本記錄未讀；須知沒有要求
+
+  standards: []
+
+# ─────────────────────────────────────────────────────────────
+# FAST — 期刊無年度週期。
+# ─────────────────────────────────────────────────────────────
+cycle:
+  applies_to: null
+  rolling_calls: []
+  special_issues:
+    status: not_found
+    checked: 2026-11-13
+    note: Springer 首頁與導覽選單、ISM 首頁與選單都沒有徵稿或特刊頁。
+
+# ─────────────────────────────────────────────────────────────
+warnings:
+  - >-
+    本刊有兩組官方須知，文字已經不同步：ISM 站的 Information for Authors 標 "Revised on January 1, 2026"，Springer 的 submission guidelines
+    沒有日期。差異有三處：(1) 著作權：ISM 頁寫錄取後可選 standard license 或 open access (Creative Commons) license，未選 OA 才移轉著作權給 ISM；
+    Springer 頁寫一律移轉。(2) 重印本：Springer 頁寫三十份免費，ISM 頁寫提供 PDF 下載連結、紙本重印本付費購買。
+    (3) 審稿描述：Springer 頁寫 "All manuscripts will be reviewed by at least two reviewers."，ISM 頁寫編輯初篩後交副編輯處理，沒有審稿人人數。
+    兩個 style file 的 zip 也不同（見 ism_style_zip 與 springer_style_zip 的 note）。投稿前兩邊都要讀，並以投稿系統的實際畫面為準。
+  - >-
+    篇幅上限 "should not normally exceed 35 pages" 是軟性措辭；官方沒有定義頁的版面（行距、字級、邊界），也沒有說是否含附錄、參考文獻、表、圖，
+    更沒有說補充材料是否計入。官方保留拒收「篇幅過長或用過小字體塞滿頁面」稿件的權利（"The Editors reserve the right to refuse to receive
+    manuscripts that have excessive lengths or have overstuffed pages with immoderately small fonts."）。摘要不超過 150 字、單一段落、不得引用文獻；
+    關鍵字不超過 10 個；以 PDF 投稿，AISM 的 LaTeX style file 只是 "recommended"。
+  - >-
+    審稿制度（單匿名或雙匿名）本刊頁面沒有寫，不能假設。須知要求標題頁列作者姓名與單位，也沒有提供匿名稿件的選項；Springer 全品牌政策頁只說
+    多數期刊用單匿名、各刊可不同。要確定時問編輯部（editsec@ml1.ism.ac.jp）或看投稿系統的稿件類型與上傳說明。
+  - >-
+    scope 沒有任何排除句：官方只說收「理論、計算與／或方法面向有新啟發的高品質論文」，強調新方法（由真實資料促成）、統一理論、既有方法與理論的分析與改進，
+    也想對機器學習與計量經濟學有貢獻。官方沒有談機率論、純應用或軟體論文，沒有列審稿判準，也沒有公布初篩退稿比例；
+    ISM 頁只說 "Papers are screened by the Editors."。官方沉默不等於收或不收。
+  - >-
+    費用：無投稿費（未見）、無頁費（"There will be no page charge."）。hybrid：錄取後可選訂閱路徑（免費）或開放取用（APC £2390 / $3290 / €2790，另加稅，
+    以接受日當天的價格為準）。資料公開只是 "encourages"，本刊頁面沒有資料可用性聲明、preprint、AI 使用的條文；這三項只有 Springer Nature
+    全品牌政策可引用，記錄裡都標為 publisher-wide，不是本刊自己的規定。
+  - >-
+    指標不一致且未點名提供者：Springer 首頁印 Journal Impact Factor 1.4 (2025)、5-year 1.1 (2025)；ISM 首頁印 Impact factor 0.6 (2024)、
+    Five year impact factor 1.0 (2024)；兩頁都沒寫是否出自 JCR。分區只有 SJR（SCImago，Statistics and Probability，2025 為 Q2），JCR 分區未查。
+    首次決定速度只有 "2019 年 7 月至 2020 年 6 月收到的稿件約 60%／80%／90% 在 1／3／5 個月內有首次決定" 這一句分布描述；
+    接受率、投稿到接受的時間官方都沒有公布。Editorial board 也不一致：Springer 頁 Co-Editors 是 Kamatani 與 Kei Kobayashi，ISM 頁是 Kamatani 與 Ryo Okui。

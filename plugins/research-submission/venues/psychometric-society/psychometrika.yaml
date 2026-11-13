@@ -397,6 +397,38 @@ sources:
       last_verified_at: 2026-10-08
       extracted_sha256: null
 
+  - id: mjl
+    role: supporting
+    url: https://mjl.clarivate.com/home
+    note: >-
+      Clarivate Master Journal List。JS 單頁應用，結果頁網址不帶查詢字串；只能在頁內於 #search-box 填 ISSN、按 #search-button
+      後讀結果列（2026-11-13 以 Safari 操作：填 0033-3123，得 "Found 1 results"、"Exact Match Found"）。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "200 但只有 SPA 空殼，查詢結果需在頁內操作"
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+
+  - id: scimago
+    role: supporting
+    url: https://www.scimagojr.com/journalsearch.php?q=14061&tip=sid&clean=0
+    note: >-
+      SCImago（SJR）期刊頁。sid 14061 由 journalsearch.php?q=0033-3123&tip=iss&clean=0 的搜尋結果取得（只列 "Psychometrika" 一筆）。
+      curl 回 403 Cloudflare 挑戰頁，以 Safari 讀到約 21.5 K 字元。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "403, Cloudflare challenge page (~5.7 KB)"
+      validity:
+        must_contain: "The set of journals have been ranked according to their SJR and divided into four equal groups"
+        min_extracted_chars: 12000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
 # ─────────────────────────────────────────────────────────────
 identity:
   name: Psychometrika
@@ -423,6 +455,22 @@ identity:
   external_ids:
     crossref: "0033-3123"
     openalex: issn:0033-3123
+  indexing:
+    clarivate_mjl:
+      scie: true
+      ssci: true
+      ahci: false
+      esci: false
+      web_of_science_core_collection: Science Citation Index Expanded | Social Sciences Citation Index
+      additional_indexes: ["Current Contents Social And Behavioral Sciences", "Essential Science Indicators"]
+      checked: 2026-11-13
+      search_issn: "0033-3123"
+      mjl_title_string: PSYCHOMETRIKA
+      mjl_publisher_string: CAMBRIDGE UNIV PRESS , EDINBURGH BLDG, SHAFTESBURY RD, CAMBRIDGE, ENGLAND, CB2 8RU
+      src: mjl
+      note: >-
+        搜尋 0033-3123 得 1 筆 "Exact Match Found"（ISSN / eISSN 0033-3123 / 1860-0980），Web of Science Core Collection 欄列
+        "Science Citation Index Expanded | Social Sciences Citation Index"；沒有 AHCI、ESCI（Active Filters 為預設的四項）。
   metrics:
     impact_factor: {value: 2.9, jcr_year: 2025, as_of: 2026-10-08, src: journal_home,
                     note: journal_metrics 頁同列 2.9 但未標年份；journal_home 標 "2025 Impact Factor"}
@@ -439,6 +487,33 @@ identity:
     acceptance_rate: {status: not_published, checked: 2026-10-08, src: journal_metrics}
     time_to_first_decision: {status: not_published, checked: 2026-10-08, src: journal_metrics,
                              note: review_process 頁也沒有}
+    time_submission_to_acceptance:
+      status: not_published
+      checked: 2026-11-13
+      pages_checked: [journal_metrics, journal_home]
+      note: >-
+        2026-11-13 以 curl 讀 journal_metrics 與 journal_home：journal_metrics 只列 2-year／5-year Impact Factor、Eigenfactor、
+        Article Influence Score、CiteScore、SJR、SNIP；journal_home 只印 "2025 Impact Factor" 與三個 JCR 類別名次。都沒有投稿到接受的時間。
+        也沒有自行抽樣估計。
+    quartiles:
+      - {system: SJR, category: "Applied Mathematics", subject_area: Mathematics, quartile: Q1, year: 2025, as_of: 2026-11-13, src: scimago}
+      - system: SJR
+        category: "Psychology (miscellaneous)"
+        subject_area: Psychology
+        quartile: Q1
+        year: 2025
+        as_of: 2026-11-13
+        src: scimago
+        note: >-
+          SCImago 的 Subject Area and Category 欄列這兩個類別；表格 "Category / Year / Quartile" 中 2025 年兩者皆為 Q1（2024 年也都是 Q1）。
+          頁面同列 "SJR 2025" 為 1.928、H-Index 94。這是 SJR 分區，不是 JCR。
+    jcr_quartile:
+      status: not_found
+      checked: 2026-11-13
+      note: >-
+        JCR 分區需登入 Clarivate JCR，本次未查。journal_home 只印三個類別的名次（"32 out of 137" Mathematics, Interdisciplinary Applications；
+        "17 out of 70" Social Sciences, Mathematical Methods；"5 out of 70" Psychology, Mathematical；標 "2025 Journal Citation Reports"，
+        見 category_rank），沒有印分區，這裡不由名次推算。
 
 # ─────────────────────────────────────────────────────────────
 # SLOW — 數年不變。驗證用 hash diff 即可。
@@ -690,6 +765,15 @@ requirements:
     submission_fee: {status: not_published, checked: 2026-10-08}
     model: 全面 Gold Open Access（"wholly open access journal"），作者可選六種 Creative Commons 授權之一
     apc:
+      amount: 3655
+      currency: USD
+      mandatory: true
+      mandatory_note: >-
+        全面開放取用期刊，沒有不付 APC 的訂閱路徑（fees 頁原文 "This journal is a wholly open access journal, which means all articles
+        are published Gold Open Access under a Creative Commons licence."）。但 APC 不一定由作者付：機構協議、COEI、第三方經費，
+        以及錄取後可申請的減免或全額豁免，見 funding_routes。amount 是 currency_rates 的 USD 標準價（非會員），2026-11-13 以 curl
+        重讀 fees 頁，表內數字未變（GBP 2610／1960，USD 3655／2740）。
+      as_of: 2026-11-13
       currency_rates:
         - {currency: GBP, standard: 2610, member: 1960}
         - {currency: USD, standard: 3655, member: 2740}

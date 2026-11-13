@@ -151,6 +151,38 @@ sources:
       last_verified_at: 2026-10-08
       extracted_sha256: null
 
+  - id: mjl
+    role: supporting
+    url: https://mjl.clarivate.com/home
+    note: >-
+      Clarivate Master Journal List。JS 單頁應用，結果頁網址不帶查詢字串；只能在頁內於 #search-box 填 ISSN、按 #search-button
+      後讀結果列（2026-11-13 以 Safari 操作：填 1464-3510，得 "Found 1 results"、"Exact Match Found"）。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "200 但只有 SPA 空殼，查詢結果需在頁內操作"
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+
+  - id: scimago
+    role: supporting
+    url: https://www.scimagojr.com/journalsearch.php?q=15049&tip=sid&clean=0
+    note: >-
+      SCImago（SJR）期刊頁。sid 15049 由 journalsearch.php?q=1464-3510&tip=iss&clean=0 的搜尋結果取得（只列 "Biometrika" 一筆）。
+      curl 回 403 Cloudflare 挑戰頁，以 Safari 讀到約 26 K 字元。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "403, Cloudflare challenge page (~5.7 KB)"
+      validity:
+        must_contain: "The set of journals have been ranked according to their SJR and divided into four equal groups"
+        min_extracted_chars: 12000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
 # ─────────────────────────────────────────────────────────────
 identity:
   name: Biometrika
@@ -165,6 +197,30 @@ identity:
   editor: {name: Paul Fearnhead, email: editor@biometrikatrust.org, note: 編務與投稿詢問寄這個信箱, src: instructions}
   editorial_office: {email: editorial@biometrika.org.uk, note: 審查中、即將刊出或已刊文章的查詢, src: trust_journal}
   frequency: {status: not_found, checked: 2026-10-08, note: instructions 與 About 頁都沒寫}
+  indexing:
+    clarivate_mjl:
+      scie: true
+      ssci: false
+      ahci: false
+      esci: false
+      web_of_science_core_collection: Science Citation Index Expanded
+      additional_indexes:
+        - Biological Abstracts
+        - BIOSIS Previews
+        - Current Contents Agriculture, Biology & Environmental Sciences
+        - Current Contents Life Sciences
+        - Current Contents Physical, Chemical & Earth Sciences
+        - Essential Science Indicators
+      checked: 2026-11-13
+      search_issn: "1464-3510"
+      mjl_title_string: BIOMETRIKA
+      mjl_publisher_string: OXFORD UNIV PRESS , GREAT CLARENDON ST, OXFORD, ENGLAND, OX2 6DP
+      mjl_issn_string: "0006-3444 / 1464-3510"
+      src: mjl
+      note: >-
+        搜尋 1464-3510 得 1 筆 "Exact Match Found"，ISSN / eISSN 欄 "0006-3444 / 1464-3510"；Web of Science Core Collection 欄只列
+        Science Citation Index Expanded，沒有 SSCI、AHCI、ESCI（Active Filters 為預設的四項）。MJL 列出的紙本 ISSN 0006-3444
+        沒有寫進上方 issn.print：那一欄記的是期刊官方頁面只印 Online ISSN。
   metrics:
     impact_factor: {value: 2.8, year: 2025, provider: Clarivate, as_of: 2026-10-08, src: about}
     impact_factor_5yr: {value: 4.1, year: 2025, provider: Clarivate, as_of: 2026-10-08, src: about}
@@ -172,16 +228,57 @@ identity:
     citescore: {value: 5.4, year: 2025, provider: Scopus, as_of: 2026-10-08, src: about}
     citescore_rank: {value: "37/303", category: "Statistics And Probability", as_of: 2026-10-08, src: about}
     acceptance_rate:
-      value: "around 13%"
+      value: 13
+      unit: percent
+      qualifier: around
+      basis: 頁面沒有說明統計期間與母體
       quote: "Of the many worthwhile submissions received, around 13% are accepted for publication."
-      note: 未載統計期間
+      note: 未載統計期間。2026-11-13 以 Safari 重讀 publishing 頁，原句未變。value 只放數字以符合標準欄位；原文是 "around 13%"，見 qualifier 與 quote。
       as_of: 2026-10-08
+      last_checked: 2026-11-13
       src: publishing
     time_to_first_decision:
-      value: "Nearly 75% of submissions receive a first decision within one month, and almost all receive a decision within five months."
-      note: 未載統計期間
-      as_of: 2026-10-08
+      status: not_published
+      checked: 2026-11-13
       src: publishing
+      note: >-
+        官方沒有公布中位數或平均值，只有一句分布描述（口徑不同於中位數，不換算）："Nearly 75% of submissions receive a first
+        decision within one month, and almost all receive a decision within five months."（未載統計期間；2026-10-08 記錄，
+        2026-11-13 重讀原句未變）。
+      distribution_statement:
+        quote: "Nearly 75% of submissions receive a first decision within one month, and almost all receive a decision within five months."
+        share_within:
+          - {share_percent: 75, months: 1, qualifier: "Nearly"}
+          - {share: "almost all", months: 5}
+        period: {status: not_published, checked: 2026-11-13}
+    time_submission_to_acceptance:
+      status: not_published
+      checked: 2026-11-13
+      pages_checked: [publishing, about]
+      note: >-
+        2026-11-13 以 Safari 讀 publishing 與 About 頁：publishing 頁只有錄取率、首次決定的分布與錄取後一週內上線，About 頁的
+        Journal metrics 表只有影響係數、名次與 CiteScore，都沒有投稿到接受的時間。也沒有自行抽樣估計。
+    quartiles:
+      - {system: SJR, category: "Statistics and Probability", subject_area: Mathematics, quartile: Q1, year: 2025, as_of: 2026-11-13, src: scimago}
+      - {system: SJR, category: "Statistics, Probability and Uncertainty", subject_area: Decision Sciences, quartile: Q1, year: 2025, as_of: 2026-11-13, src: scimago}
+      - {system: SJR, category: "Applied Mathematics", subject_area: Mathematics, quartile: Q1, year: 2025, as_of: 2026-11-13, src: scimago}
+      - {system: SJR, category: "Mathematics (miscellaneous)", subject_area: Mathematics, quartile: Q1, year: 2025, as_of: 2026-11-13, src: scimago}
+      - system: SJR
+        category: "Agricultural and Biological Sciences (miscellaneous)"
+        subject_area: Agricultural and Biological Sciences
+        quartile: Q1
+        year: 2025
+        as_of: 2026-11-13
+        src: scimago
+        note: >-
+          SCImago 的 Subject Area and Category 欄列這五個類別；表格 "Category / Year / Quartile" 中 2025 年五者皆為 Q1（2024 年也都是 Q1）。
+          頁面同列 "SJR 2025" 為 3.400、H-Index 142。這是 SJR 分區，不是 JCR。
+    jcr_quartile:
+      status: not_found
+      checked: 2026-11-13
+      note: >-
+        JCR 分區需登入 Clarivate JCR，本次未查。About 頁只印名次 "Statistics & Probability (Rank by Impact Factor) 22/170"
+        （見 category_rank），沒有印分區，這裡不由名次推算。
 
 # ─────────────────────────────────────────────────────────────
 # SLOW — 數年不變。
@@ -274,6 +371,17 @@ requirements:
         補充材料另交一份 PDF；style guide 要求不讀補充材料也能讀懂論文，但沒有明說補充材料
         不計入頁數
     over_length_handling: {status: not_published, checked: 2026-10-08, src: instructions}
+
+  # 給比較表讀的摘要（venue_table.py 讀 length／length_policy／length_note）。不放進 schema 的 length，理由見上方註解；
+  # unit 照原文寫 pages，不硬選 pages_typeset 或 pages_double_spaced。完整規定以 length_by_type 為準。
+  length_note:
+    value: 20
+    unit: pages
+    qualifier: "normally fewer than"
+    applies_to: regular paper 與 synthesis paper；miscellanea 另為 "max. 8 pages"
+    wording: "Biometrika publishes three types of paper: regular papers, synthesis papers (both normally fewer than 20 pages) and miscellanea articles (max. 8 pages)."
+    unit_definition: {status: not_published, checked: 2026-10-08, src: instructions, note: 未說明以何種版面計頁}
+    src: instructions
 
   abstracts:
     - id: summary
@@ -415,7 +523,10 @@ requirements:
     open_access_src: instructions
     apc:
       value: 2917.00
+      amount: 2917
       currency: GBP
+      mandatory: false
+      mandatory_note: 本刊是 hybrid（open_access_model）：可選標準授權（不收費）或開放取用授權（付費），錄取後才選。amount 與 value 是同一個數字，amount 是比較表讀的標準欄位名。
       applies_to: [Article, Miscellanea, Synthesis]
       excludes: 銷售稅（VAT、GST 等）另計；可用其他幣別支付，匯率在簽授權時決定
       note: OUP 查詢表單選 Journal = Biometrika 後，三種類別都顯示 "2917.00 GBP"；頁面註明價格可能變動

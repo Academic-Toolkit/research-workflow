@@ -1,0 +1,936 @@
+--- # research-submission venue record
+# 內容擷取自 Bernoulli Society 官網的期刊頁（bernoullisociety.org，curl 可讀）、IMS 的出版費頁
+# （imstat.org，Anubis 挑戰，Safari 讀）、Project Euclid 期刊頁（Incapsula，Safari 讀）、
+# 作者套件（e-publications.org、GitHub）與 Clarivate Master Journal List，2026-11-13。
+#
+# 2026-11-13 擷取時，期刊剛經歷一次規則更動，讀本記錄前先知道三件事（頁面原文見各欄位）：
+#   1. 2026-10-21 的公告：期刊暫停收稿到 2026-11-08（原因：投稿量大增，編輯群與出版方要訂新的編輯政策與指引）。
+#   2. 2026-11-05 的公告：Aims and Scope 已更新、採用新的 AI 政策；兩頁的 "Last Updated" 都是 2026-11-05。
+#   3. AI 政策頁寫明適用於 2026-11-08 起的投稿。
+# 所以任何在 2026-11-05 以前讀到的 Bernoulli 須知（含第三方網站與舊版記錄）都可能已過時，
+# 這份記錄裡的 scope、AI、篇幅文字都要在投稿前重新對照原頁。
+
+schema_version: 1
+id: bernoulli-society/bernoulli
+kind: journal
+family: statistics-journals
+status: active
+
+# ─────────────────────────────────────────────────────────────
+# 來源與 provenance。須知分散在 Bernoulli Society 官網的期刊頁（Aims and Scope、Notes for Authors、
+# Supplement Instructions、Policy on AI、Editorial Board、Subscription）與 IMS 的出版費頁。
+# 網址的來源：society 官網各頁、imstat.org 兩頁、e-publications.org 兩頁、GitHub 文件頁、Euclid 的 author-guidelines
+# 與 editorial-office，都是由期刊首頁側欄、Notes for Authors 內連結、Euclid 頁內導覽或作者套件頁內連結取得。
+# 三處不是這樣：(1) 擷取開頭曾對一個猜測的網址（.../bernoulli-journal-instructions-for-authors）發出請求，回 404，沒有使用；
+# (2) Euclid 的 scope-and-details 與 author-guidelines 是先以猜測的路徑請求的（curl 只拿到挑戰頁），事後由 Euclid 頁內導覽的
+# 連結確認路徑相同；(3) raw.githubusercontent.com 的 bj-template.tex、bj-sample.tex 兩個網址是用作者套件頁列出的
+# 檔名與 repo 位置組成的，已確認 HTTP 200 且內容是範本。
+# ─────────────────────────────────────────────────────────────
+sources:
+  - id: society_journal_home
+    role: supporting
+    url: https://www.bernoullisociety.org/publications/bernoulli-journal
+    note: >-
+      Bernoulli Society 官網的期刊首頁（Publications 選單）。側欄連到 Aims and Scope、Published Papers（Euclid）、
+      Forthcoming Papers、Editorial Board、Notes for Authors、Policy on AI、Subscription Information；
+      頁內另有一句 "The Bernoulli Journal has updated the Aims and Scope and adopted a new AI policy for authors, reviewers, and editors."
+      頁尾 "Last Updated: Wednesday, 11 November 2026 07:37"。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "You can sign up to receive notifications for new issues for Bernoulli"
+        min_extracted_chars: 800
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: aims_and_scope
+    role: authoritative
+    url: https://www.bernoullisociety.org/publications/bernoulli-journal/bernoulli-journal-aims-and-scope
+    note: >-
+      範圍、強調理論、不適合的稿件類型的正式文字。頁尾 "Last Updated: Thursday, 05 November 2026 12:58"
+      （society_news 2026-11-05 的公告說此頁是新更新的）。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "is the flagship journal of the Bernoulli Society for Mathematical Statistics and Probability"
+        min_extracted_chars: 900
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: notes_for_authors
+    role: authoritative
+    url: https://www.bernoullisociety.org/publications/bernoulli-journal/bernoulli-journal-notes-for-authors
+    note: >-
+      規定本體：投稿系統、LaTeX 範本、25 頁上限、title page、summary、keywords、參考文獻、出版費與開放取用、
+      版權。頁尾 "Last Updated: Thursday, 05 November 2026 06:19"。頁內連結：Bernoulli template →
+      e-publications.org/ims/support/bj-instructions.html；Policy on AI；Supplement Instructions for Accepted Papers；
+      出版費 → imstat.org/shop/publication-charge-funding-form/；Copyright, publication charges and offprints →
+      imstat.org/journals-and-publications/acceptance-of-papers/。頁尾的聯絡信箱被 JavaScript 遮蔽，
+      本紀錄不收錄遮蔽過的信箱；聯絡人見該頁（Kristina Mattson，Mattson Publishing Services）。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Bernoulli uses an electronic submission system, EJMS"
+        min_extracted_chars: 5500
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: supplement_instructions
+    role: authoritative
+    url: https://www.bernoullisociety.org/publications/bernoulli-journal/bernoulli-journal-notes-for-authors/supplemental-material
+    note: >-
+      Notes for Authors 內 "Supplement Instructions for Accepted Papers" 連結的目標（原連結為 /index.php/... 形式，
+      同一頁）。頁尾 "Last Updated: Monday, 26 April 2021 14:26"，是這批頁面中最舊的一頁，沒有隨 2026-11-05 的更新改動。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "To prevent a delay in the production process, please follow the three steps below"
+        min_extracted_chars: 2500
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: policy_on_ai
+    role: authoritative
+    url: https://www.bernoullisociety.org/publications/bernoulli-journal/policy-on-ai-3
+    note: >-
+      期刊頁側欄 "Policy on AI" 與 Notes for Authors 內 "Policy on AI" 連結的目標。頁面開頭寫明適用於
+      2026-11-08 起的投稿。頁尾 "Last Updated: Thursday, 05 November 2026 13:03"。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "For Reviewers and Editors"
+        min_extracted_chars: 2800
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: publication_charge_form
+    role: authoritative
+    url: https://imstat.org/shop/publication-charge-funding-form/
+    note: >-
+      Notes for Authors 說 "Please see https://imstat.org/shop/publication-charge-funding-form/ for the current rates"。
+      表單列出各期刊的出版費；Bernoulli Journal 在 "Print/Gated Electronic Access Journal" 清單內。
+      這是 IMS 全站頁面，不是 Bernoulli Society 的頁面。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: >-
+        imstat.org 全站由 Anubis proof-of-work 挑戰保護：curl 回 HTTP 200 + 7356 bytes 的挑戰頁（2026-11-13 實測，
+        本頁與 acceptance_of_papers 皆 7356 bytes，是同一個挑戰頁）。須以 Safari 開啟、等 JS 解完挑戰後讀 innerText。
+      validity:
+        must_contain: "The IMS collects publication charges for the journals listed below"
+        min_extracted_chars: 2000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: acceptance_of_papers
+    role: authoritative
+    url: https://imstat.org/journals-and-publications/acceptance-of-papers/
+    note: >-
+      Notes for Authors 內 "Copyright, publication charges and offprints" 連結的目標。IMS 各刊共用頁：
+      版權轉讓表單、出版費金額、offprint。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 publication_charge_form（Anubis 挑戰頁，HTTP 200 + 7356 bytes）。
+      validity:
+        must_contain: "Following the acceptance of papers in for publication in IMS journals"
+        min_extracted_chars: 2200
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: society_publications
+    role: supporting
+    url: https://www.bernoullisociety.org/publications
+    note: >-
+      主選單 Publications 的總頁。列出學會的 "Official publications"（Bernoulli、Stochastic Processes and their Applications、
+      SpringerBriefs in Probability and Mathematical Statistics）與 "Bernoulli Society co-sponsored publications"
+      （Electronic Communications in Probability、Electronic Journal of Probability、Electronic Journal of Statistics、
+      Probability Surveys、Statistics Surveys、ALEA、SemStat Elements）。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Official publications of the Bernoulli Society"
+        min_extracted_chars: 600
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: society_news
+    role: supporting
+    url: https://www.bernoullisociety.org/news
+    note: >-
+      學會新聞頁（主選單 News & Calls）。載有 2026-10-21 "Temporary Submission Pause" 與 2026-11-05
+      "A Message from the Editor of the Bernoulli Journal" 兩則公告。這是滾動更新的頁面，舊公告會被擠出去，
+      所以 must_contain 用的是固定的區塊標題；hash 會經常變動，CHANGED 不代表須知改版。
+      各則公告的 "Details" 沒有獨立連結，全文就在這一頁。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Announcements and News"
+        min_extracted_chars: 4000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: editorial_board
+    role: supporting
+    url: https://www.bernoullisociety.org/publications/bernoulli-journal/bernoulli-journal-editorial-board
+    note: >-
+      頁尾 "Last Updated: Monday, 11 May 2026 07:38"。列主編、副編輯（51 位）與歷任主編。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Current Editorial Staff"
+        min_extracted_chars: 1200
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: subscription
+    role: supporting
+    url: https://www.bernoullisociety.org/publications/bernoulli-journal/bernoulli-journal-subscription
+    note: >-
+      ISSN、刊期（每年 2、5、8、11 月）、會員與機構訂閱價。頁尾 "Last Updated: Monday, 29 December 2025 09:28"。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "The ISSN number of the Bernoulli journal is"
+        min_extracted_chars: 2200
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: euclid_scope
+    role: supporting
+    url: https://projecteuclid.org/journals/bernoulli/scope-and-details
+    note: >-
+      Project Euclid 的 "SCOPE & DETAILS" 分頁。期刊首頁側欄 "Published Papers" 連到 http://projecteuclid.org/bj，
+      轉到 /journals/bernoulli。Print ISSN、頻率、存取政策與 metrics 只在這一頁出現。
+      頁面寫 "Current: Nov 2026 : Volume 32 Issue 4"。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: >-
+        Incapsula bot 挑戰：curl（預設 UA 與 Safari UA）回 HTTP 200 + 1050–1161 bytes 空殼（iframe 指向 /_Incapsula_Resource）。
+        Safari 在 2026-11-13 第一次開啟時也只得到挑戰頁 iframe 內的文字 "Additional security check is required" 與
+        "If the problem continues, please try again in a few minutes."；幾分鐘後重新載入就拿到真實頁面。
+      validity:
+        must_contain: "Articles older than 3 years are open"
+        min_extracted_chars: 1200
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: euclid_author_guidelines
+    role: supporting
+    url: https://projecteuclid.org/journals/bernoulli/author-guidelines
+    note: >-
+      Euclid 的 "AUTHOR GUIDELINES" 分頁，全頁只有一句 "Author guidelines and submission instructions for Bernoulli are
+      available on the journal's website."，沒有實質規定。同站 "EDITORIAL OFFICE" 分頁
+      （/journals/bernoulli/editorial-office）也只有一句 "View Bernoulli’s full editorial office on the journal's website."，
+      2026-11-13 兩頁都讀過。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 euclid_scope（Incapsula 空殼，HTTP 200 + 1165 bytes）。
+      validity:
+        must_contain: "Author guidelines and submission instructions for Bernoulli are available on the journal's website"
+        min_extracted_chars: 800
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: ejms_portal
+    role: supporting
+    url: https://www.e-publications.org/ims/submission/
+    note: >-
+      Notes for Authors 內的投稿入口（頁面寫 www.e-publications.org/ims/submission/）。未登入時轉址到
+      /ims/submission/index/login，2026-11-13 curl 取得 HTTP 200、6420 bytes 的 EJMS 登入頁（IMS 各刊共用，
+      頁面本身沒有出現 Bernoulli 字樣）。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "EJMS - Electronic Journal Management System"
+        min_extracted_chars: 300
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: template_page
+    role: supporting
+    url: https://www.e-publications.org/ims/support/bj-instructions.html
+    note: Notes for Authors 內 "Bernoulli template" 連結的目標（VTeX 的 Bernoulli LaTeX 作者套件頁），連到 GitHub 與文件頁。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "LaTeX Author Package for the publications in Bernoulli Society journal"
+        min_extracted_chars: 300
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: template_docs
+    role: supporting
+    url: https://vtex-soft.github.io/texsupport.ims_supported-bj/
+    note: 作者套件說明（imsart.cls、imsart.sty、bj-template.tex、bj-sample.tex/pdf、spr-ims-nameyear.bst、spr-ims-number.bst）。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "bj-template.tex - the main template file"
+        min_extracted_chars: 1200
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: bj_template_tex
+    role: supporting
+    url: https://raw.githubusercontent.com/vtex-soft/texsupport.ims_supported-bj/master/bj-template.tex
+    note: >-
+      作者套件 repo（https://github.com/vtex-soft/texsupport.ims_supported-bj ，由 template_page 連入）中的投稿範本。
+      「以單一 .tex 檔投稿、不用 \input」與「補充材料不得只以外部連結提供」的說明只出現在這份範本的註解裡，
+      是範本層級的說明，不是期刊頁面規定。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Submit your LaTeX"
+        min_extracted_chars: 4000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: bj_sample_tex
+    role: supporting
+    url: https://raw.githubusercontent.com/vtex-soft/texsupport.ims_supported-bj/master/bj-sample.tex
+    note: >-
+      同一 repo 的範例檔（Notes for Authors 稱 bj-sample.tex/.pdf 是準備稿件的說明）。摘要 "not longer than 200 words"
+      的文字出現在這份範例的 abstract 環境；Notes for Authors 本身也寫 summary 不超過 200 字。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "than 200 words"
+        min_extracted_chars: 12000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: mjl
+    role: supporting
+    url: https://mjl.clarivate.com/home
+    note: >-
+      Clarivate Master Journal List。JS 單頁應用，結果頁網址不帶查詢字串，無法用網址重現；只能在頁內於 #search-box
+      填 ISSN（本次填 1350-7265）、按 #search-button 後讀結果列。結果列的 "View profile page" 需要免費登入
+      （頁面標 "* Requires free login."），所以 JCR 的類別與分區沒有取得。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 取 /home 只拿到 SPA 空殼；查詢結果需在頁內操作（見 note）"
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+
+  - id: scimago
+    role: supporting
+    url: https://www.scimagojr.com/journalsearch.php?q=4700152871&tip=sid&clean=0
+    note: >-
+      SCImago（SJR）期刊頁。sid 4700152871 由 journalsearch.php?q=1350-7265&tip=iss&clean=0 的搜尋結果取得（只列 "Bernoulli" 一筆，
+      出版者標 "Bernoulli Society for Mathematical Statistics and Probability"）。curl 回 403 Cloudflare 挑戰頁，以 Safari 讀到約 20.4 K 字元。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "403, Cloudflare challenge page (~5.7 KB)"
+      validity:
+        must_contain: "The set of journals have been ranked according to their SJR and divided into four equal groups"
+        min_extracted_chars: 12000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+# ─────────────────────────────────────────────────────────────
+identity:
+  name: Bernoulli
+  publisher: Bernoulli Society for Mathematical Statistics and Probability
+  publisher_src: euclid_scope
+  owner: Bernoulli Society for Mathematical Statistics and Probability
+  distribution: >-
+    頁面原文："Bernoulli is published by the Bernoulli Society for Mathematical Statistics and Probability and
+    disseminated by the Institute of Mathematical Statistics on behalf of the Bernoulli Society."
+  distribution_src: euclid_scope
+  copyright_holder: >-
+    © International Statistical Institute/Bernoulli Society for Mathematical Statistics and Probability
+    （期刊頁頁尾的 Copyright 段）
+  copyright_holder_src: society_journal_home
+  production_contact: {name: Kristina Mattson, organization: Mattson Publishing Services,
+                       email: {status: not_recorded, checked: 2026-11-13, note: "頁面以 JavaScript 遮蔽信箱；本紀錄不收錄，請到 Notes for Authors 頁取得"},
+                       note: "Notes for Authors：投稿系統問題與投稿流程詢問找她；錄取後最終 LaTeX 檔也交給 Mattson Publishing Services", src: notes_for_authors}
+  issn:
+    print: "1350-7265"
+    electronic: "1573-9759"
+    src: mjl
+    note: >-
+      Bernoulli Society 的 subscription 頁寫 "The ISSN number of the Bernoulli journal is 1350-7265"，Euclid 頁標
+      "Print ISSN: 1350-7265"；兩者都沒有列電子版 ISSN。電子版 1573-9759 只出自 MJL 結果列
+      "ISSN / eISSN: 1350-7265 / 1573-9759"。
+  homepage: https://www.bernoullisociety.org/publications/bernoulli-journal
+  hosting_platform: {name: Project Euclid, url: "https://projecteuclid.org/journals/bernoulli"}
+  editors:
+    - {role: Editor-in-Chief, name: Kengo Kato, term: {status: not_published, checked: 2026-11-13, note: 頁面未標任期}, src: editorial_board}
+  associate_editors: {count: 51, src: editorial_board, note: 名單在 editorial_board 頁（頁尾 Last Updated 2026-05-11）}
+  past_editors_in_chief_latest: {name: Davy Paindaveine, term: "2022-2024", src: editorial_board}
+  frequency:
+    value: quarterly
+    detail: "4 issues published in February, May, August and November（subscription 頁）；Euclid 寫 Quarterly；Aims and Scope 寫 'Issued four times per year'"
+    src: subscription
+  coverage: "1995 - current（Euclid）"
+  current_issue: {value: "Nov 2026 : Volume 32 Issue 4", src: euclid_scope}
+  external_ids:
+    crossref: "1350-7265"
+    openalex: issn:1350-7265
+  access:
+    model: >-
+      訂閱制（Bernoulli Society 會員的線上存取含在年費內；機構訂閱價見 subscription 頁，2026 年 US$658 電子版、
+      US$849 電子加印刷）；Euclid 寫超過 3 年的文章開放；作者付全額出版費則該文開放取用（見 requirements.fees）。
+    statement: "Access: Articles older than 3 years are open."
+    src: euclid_scope
+  indexing:
+    clarivate_mjl:
+      scie: true
+      ssci: false
+      ahci: false
+      esci: false
+      web_of_science_core_collection: Science Citation Index Expanded
+      additional_indexes: [Current Contents Physical, Chemical & Earth Sciences, Essential Science Indicators]
+      checked: 2026-11-13
+      search_issn: "1350-7265"
+      mjl_title_string: "BERNOULLI"
+      mjl_publisher_string: "INT STATISTICAL INST , 428 PRINSES BEATRIXLAAN, VOORBURG, NETHERLANDS, 2270 AZ"
+      src: mjl
+      note: >-
+        搜尋 1350-7265 得 1 筆 "Exact Match Found"（ISSN / eISSN 1350-7265 / 1573-9759），Web of Science Core Collection
+        欄只列 Science Citation Index Expanded；沒有 SSCI、AHCI、ESCI（結果頁的 Active Filters 四個都開著，
+        所以沒有被篩掉）。Additional Web of Science Indexes 欄列 Current Contents Physical, Chemical & Earth Sciences
+        與 Essential Science Indicators。
+  metrics:
+    impact_factor:
+      value: 1.393
+      year:
+        status: not_published
+        checked: 2026-11-13
+        note: >-
+          Euclid 頁面只印 "Impact Factor: 1.393"，沒有標年度
+      provider:
+        status: not_published
+        checked: 2026-11-13
+        note: >-
+          該行沒有標提供者；同頁的名次行寫 "Journal Citation Reports® Ranking"
+      as_of: 2026-11-13
+      src: euclid_scope
+      note: >-
+        as_of 是擷取日，不是 JCR 版次；沒有 Clarivate JCR 頁可核對（需登入，未查）。
+        推論（出自語料庫內其他記錄，不是 Euclid 頁面所說）：本庫 biometrika-trust/biometrika 記 JCR 2025 的
+        Statistics & Probability 為 22/170，而 Euclid 這裡寫 "of 123"，與 ims/annals-of-statistics 記的 Euclid 數字
+        （8/123）分母相同；同一類別同一版 JCR 不會同時有 123 與 170 本，所以 Euclid 的 JCR 數字很可能來自較舊的版次。
+        不要把 1.393 與其他刊的 2025 年數字並排比較。
+    impact_factor_5yr: {value: 1.663, as_of: 2026-11-13, src: euclid_scope, note: 同上，未標年度與提供者}
+    category_rank:
+      value: "43/123"
+      category: Statistics & Probability
+      as_of: 2026-11-13
+      src: euclid_scope
+      note: >-
+        頁面原文 "Journal Citation Reports® Ranking: #43 of 123 in Statistics & Probability"，未標年度。
+        分母 123 與 biometrika-trust/biometrika 記的 JCR 2025 分母 170 不同，很可能是較舊版次（推論，見 impact_factor 的 note）；
+        不要與其他刊的 2025 名次並排比較。
+    mcq: {value: 0.98, label: Mathematical Citation Quotient, as_of: 2026-11-13, src: euclid_scope, note: 未標年度}
+    quartiles:
+      - system: SJR
+        category: "Statistics and Probability"
+        subject_area: Mathematics
+        quartile: Q1
+        year: 2025
+        as_of: 2026-11-13
+        src: scimago
+        note: >-
+          SCImago 的 Subject Area and Category 欄只列這一個類別；表格 "Category / Year / Quartile" 中 2025 年為 Q1（2024 年也是 Q1）。
+          頁面同列 "SJR 2025" 為 1.343、H-Index 85。這是 SJR 分區，不是 JCR。
+    jcr_quartile:
+      status: not_published
+      checked: 2026-11-13
+      note: >-
+        官方頁面只給名次 #43 of 123（Euclid），沒有標 Q1–Q4；本記錄不自行由名次推算。MJL 的 JCR 類別與分區需要登入，未查。
+        （此段原為 quartiles 欄的內容，2026-11-13 改放這裡，quartiles 改記 SCImago 的 SJR 分區。）
+      src: euclid_scope
+    acceptance_rate:
+      status: not_published
+      checked: 2026-11-13
+      note: 期刊首頁、Aims and Scope、Notes for Authors、Policy on AI、Euclid 的 scope 頁都沒有錄取率或拒絕率
+      src: notes_for_authors
+    time_to_first_decision:
+      status: not_published
+      checked: 2026-11-13
+      note: 上列各頁都沒有首次決定時間的統計或承諾
+      src: notes_for_authors
+    time_submission_to_acceptance:
+      status: not_published
+      checked: 2026-11-13
+      note: >-
+        官方未公布。自行抽樣估計（add-venue 的 sample_review_times.py）沒有做：2026-11-13 讀過的一頁 Euclid 文章頁
+        只標 "Received"、"Published" 與 "First available in Project Euclid" 三種日期，沒有 "Accepted" 日期，無法算投稿到接受。
+      src: notes_for_authors
+
+# ─────────────────────────────────────────────────────────────
+# SLOW — 數年不變。驗證用 hash diff 即可。
+# 但本刊 2026-11 剛改版（見檔頭），這份記錄的 refresh 週期不要拉長。
+# ─────────────────────────────────────────────────────────────
+requirements:
+  refresh: {check_every: P6M, method: extracted_hash_diff}
+
+  scope:
+    aims:
+      quote: >-
+        The journal aims at publishing original research contributions of the highest quality in all subfields of
+        Mathematical Statistics and Probability (although, for some submissions, authors might be encouraged to submit
+        their work to other, more thematic, outlets sponsored by the Bernoulli Society).
+      src: aims_and_scope
+    emphasis:
+      quote: >-
+        The main emphasis of Bernoulli is on theoretical work. Articles published in the journal should contain
+        mathematical and statistical ideas worth understanding and transmitting.
+      src: aims_and_scope
+    presentation_expectation:
+      quote: >-
+        Each paper submitted to Bernoulli is expected to present its motivation, an overview of the results, and the key
+        mathematical and statistical ideas clearly and early in the paper.
+      src: aims_and_scope
+    flagship_statement:
+      quote: >-
+        Issued four times per year, Bernoulli is the flagship journal of the Bernoulli Society for Mathematical Statistics
+        and Probability.
+      src: aims_and_scope
+    evaluation_criteria:
+      quote: >-
+        Bernoulli places particular emphasis on the scientific interest of the problem and results, on mathematical and
+        statistical ideas worth understanding and transmitting, and on the quality of exposition.
+      src: policy_on_ai
+      note: >-
+        出自 Policy on AI 頁的 "For Reviewers and Editors" 段，是頁面上唯一一句明列評價重點的話；
+        Aims and Scope 與 Notes for Authors 沒有逐條的審稿判準，也沒有給審稿人的獨立指引頁（期刊頁側欄沒有）。
+        同一段另寫審稿人對 "novelty, importance, scientific interest, and quality of exposition" 的評估必須出自自己的專業。
+      criteria_listed_separately:
+        status: not_published
+        checked: 2026-11-13
+        note: 沒有像 Annals of Statistics 那種 Guidelines for Referees 頁
+    out_of_scope_hints:
+      - case: 缺乏明確動機、新的理解或可轉移想法的純技術執行
+        verdict: 不適合
+        quote: >-
+          Mere technical execution without clear motivation, without new understanding, or without a transferable idea
+          would not be suitable for the journal.
+        src: aims_and_scope
+      - case: 更適合學會旗下其他主題性期刊的稿件
+        verdict: 作者可能被建議改投
+        unless: {status: not_published, checked: 2026-11-13, note: 頁面沒有說哪類稿件、也沒有指名哪些期刊}
+        outlets_listed_on_society_site: >-
+          Aims and Scope 沒有指名這些 "more thematic, outlets"。學會 Publications 頁（society_publications）把
+          Stochastic Processes and their Applications 列為 Official publication，把 Electronic Communications in Probability、
+          Electronic Journal of Probability、Electronic Journal of Statistics、Probability Surveys、Statistics Surveys、ALEA、
+          SemStat Elements 列為 co-sponsored publications；哪些算「主題性期刊」是讀者的推論，頁面沒有這樣說。
+        quote: >-
+          (although, for some submissions, authors might be encouraged to submit their work to other, more thematic,
+          outlets sponsored by the Bernoulli Society)
+        src: aims_and_scope
+    applied_work_position:
+      status: not_published
+      checked: 2026-11-13
+      note: >-
+        新的 Aims and Scope 沒有談應用或方法論文章是否收。Euclid 頁仍寫 "offering an international forum for both
+        theoretical and applied work"（頁面沒有標更新日期），與 Aims and Scope 的 "main emphasis ... is on theoretical work"
+        不完全一致；兩句都照頁面抄錄，不判斷以何者為準。
+      src: aims_and_scope
+    euclid_scope_statement:
+      quote: >-
+        Bernoulli provides a comprehensive account of important developments in the fields of statistics and probability,
+        offering an international forum for both theoretical and applied work.
+      src: euclid_scope
+
+  article_types:
+    status: not_published
+    checked: 2026-11-13
+    note: >-
+      Aims and Scope 與 Notes for Authors 只談 "paper"、"manuscript" 與 "article"，沒有文章類型清單（沒有 review、
+      short communication 等分類）。出版費表另列 "discussion"（任一 IMS 期刊的討論文，見 fees），但 Bernoulli 頁面
+      沒有說明討論文如何投稿或受邀。
+    src: notes_for_authors
+
+  length:
+    value: 25
+    unit: pages_typeset
+    basis: {template: "Bernoulli template（bj 類別，\\documentclass[bj,authoryear]{imsart}）", note: 以期刊樣式檔排版後的頁數，非雙倍行距}
+    includes: [references]
+    includes_note: >-
+      頁面只寫 "including references but excluding the acknowledgments section"。圖表、附錄是否計入沒有明說
+      （圖表照字面在頁上，附錄沒有提）；Policy on AI 頁另寫 "The acknowledgments section is excluded from the page limit."
+    wording: >-
+      Papers printed in Bernoulli will generally be limited to 25 pages in the Bernoulli template, including references
+      but excluding the acknowledgments section, although exceptions may be granted.
+    exceptions: >-
+      原文："If you have strong reasons for exceeding the page limit for the main manuscript, please explain them in the
+      "comments to the editor" textbox during the initial submission (but the final decision belongs to the editor)."
+      需要更多篇幅時："additional material (such as further technical derivations or detailed numerical results) should be
+      placed as online supplementary material"。措辭是 "generally"，屬軟性上限；但同段另寫
+      "Failing to comply with these guidelines might result in immediate rejection."
+    src: notes_for_authors
+
+  abstracts:
+    - id: summary
+      label: Summary
+      max_words: 200
+      paragraphs: 1
+      required_at: submission
+      quote: >-
+        The summary should consist of a single paragraph not exceeding 200 words, with mathematical expressions reduced
+        to a minimum. Citations to other work should also be avoided.
+      note: >-
+        Notes for Authors 稱 "summary"，範本與範例檔（bj-sample.tex）的環境叫 abstract，範例檔文字為
+        "not longer than 200 words"。
+      src: notes_for_authors
+  keywords:
+    quote: "Keywords or phrases should be submitted (in alphabetical order) for indexing purposes."
+    order: alphabetical
+    min: {status: not_published, checked: 2026-11-13, src: notes_for_authors}
+    max: {status: not_published, checked: 2026-11-13, src: notes_for_authors}
+    msc_classification:
+      status: not_published
+      checked: 2026-11-13
+      note: Notes for Authors、bj-template.tex、bj-sample.tex 都沒有出現 MSC 分類碼的要求或環境（已搜尋 "MSC"）
+      src: notes_for_authors
+
+  formatting:
+    typesetting: LaTeX（Bernoulli 範本）
+    statement: >-
+      Manuscripts should be written in LaTex using the Bernoulli template. Please do not alter the margins or the font size.
+    template:
+      class: imsart
+      documentclass: "\\documentclass[bj,authoryear]{imsart}（numbers 選項見範本註解）"
+      files: [imsart.cls, imsart.sty, bj-template.tex, bj-sample.tex, bj-sample.pdf, figure1.eps, figure1.pdf, spr-ims-nameyear.bst, spr-ims-number.bst]
+      repository: https://github.com/vtex-soft/texsupport.ims_supported-bj
+      docs: https://vtex-soft.github.io/texsupport.ims_supported-bj/
+      src: template_docs
+    single_tex_file:
+      required: true
+      note: "範本註解：'Please do not use \\input{...} to include other tex files. Submit your LaTeX manuscript as one .tex document.'（範本層級的說明，期刊頁未寫）"
+      src: bj_template_tex
+    submission_file:
+      value: PDF
+      quote: "Complete the form and then upload your pdf file(s)."
+      src: notes_for_authors
+    initial_submission_files:
+      quote: >-
+        For the initial submission you may submit either a single file containing the main body (including references)
+        followed by the supplementary material (if any), or separate files for each.
+      src: notes_for_authors
+    after_acceptance: "On acceptance, you will be asked to provide Mattson Publishing Services with a LaTeX file of the final version of the paper."
+    title_page:
+      quote: >-
+        The title must include: the full title; full names and the affiliation and full addresses of all authors; a running
+        title (maximum 50 characters). Footnotes are not allowed. Any acknowledgement, including indicating corresponding
+        author should be placed at the end of the paper before the references.
+      src: notes_for_authors
+      footnote_note: >-
+        "Footnotes are not allowed." 位在 title page 那一段內，沒有說只限 title page 還是全文；bj-sample.tex 的內文
+        第 215 行卻有 "Footnotes\footnote{...} pose no problem." 的示範。兩處不一致，頁面沒有說明以何者為準。
+    equations: "Displayed equations should be numbered at the right-hand margin. Short formulae should be left in the text where possible, but should not increase the height of the line."
+    illustrations: "Illustrations are to be numbered consecutively and provided with a caption at the bottom in the journal style. They should be included as an integral part of the file."
+    tables: "Tables should be numbered consecutively and provided with a brief title or caption. Journal style should be followed."
+    references:
+      quote: >-
+        Use of the natbib package is strongly encouraged, jointly with \bibliographystyle{imsart-nameyear.bst}, to produce
+        author/year citations and references of the following form:
+      numbered_citations: 也接受 ("However, numbered citations are accepted, too.")
+      journal_abbreviations: 依 Mathematical Reviews 標準
+      only_cited: "Only references mentioned in the text should be included in the list of references."
+      author_list: "範本註解：List all authors when there are 9 or fewer; use 'et al.' starting at 10 authors."
+      mr_numbers: 選用；用 \MR{<number>}（Basic LaTeX）或 MRNUMBER={<number>}（BibTeX）
+      bst_name_mismatch: >-
+        Notes for Authors 寫 imsart-nameyear.bst，但作者套件實際列的檔名是 spr-ims-nameyear.bst 與 spr-ims-number.bst
+        （template_docs、範本註解皆然）。兩個名稱都照頁面抄錄，未判斷以何者為準。
+      src: notes_for_authors
+    orcid: {status: not_published, checked: 2026-11-13, src: notes_for_authors}
+    line_numbers: {status: not_published, checked: 2026-11-13, src: notes_for_authors}
+    cover_letter: {status: not_published, checked: 2026-11-13, note: Notes for Authors 沒有 cover letter 的規定；唯一提到的文字欄位是 "comments to the editor" 文字框, src: notes_for_authors}
+
+  supplementary_material:
+    role: 篇幅溢出時放技術推導、詳細數值結果等的指定位置
+    separate_file: true
+    typeset: false
+    initial_submission:
+      quote: >-
+        Unpublished or not easily available papers cited in the manuscript should be uploaded as supplementary files
+        during the submission process.
+      src: notes_for_authors
+    rules:
+      - >-
+        "The paper and supplement must be separate files. We do not edit or typeset the supplemental material; it is posted
+        as provided."（錄取且補充材料經 Editor 核可之後的三個步驟）
+      - "Do not include cross-references in the paper to cite objects from the supplement."
+      - 在正文以作者與年份引用，例："Explicit formulas for these quantities are provided in Section 4 of the Supplementary Material (Smith (2019))."
+      - 不可在主文用 \ref{} 引用補充材料內的物件，否則會變成 (??)
+      - 參考文獻須新增一筆 Supplement to "Title of paper"，DOI 由排版商補上
+      - 參考文獻之前要有 "Supplementary Material" 一節，每個補充檔案以 {supplement} 環境附 \stitle 與 \sdescription；多個檔案可打包成 zip，zip 算一個檔案
+      - 每個補充檔案會由排版商指定獨立 DOI
+    all_files_posted_on_euclid:
+      quote: >-
+        Note, it is the journal policy to post ALL supplemental files with the paper when it is published on Euclid. This
+        includes data, code or any other type of file. While it is acceptable to post code/data on other platforms (e.g.,
+        GitHub), these files must also be provided along with the files for the paper.
+      src: supplement_instructions
+    external_link_only:
+      allowed: false
+      note: "範本註解：'It cannot be available exclusively as external link.'（範本層級的說明）"
+      src: bj_template_tex
+    editor_approval: >-
+      頁面寫的條件是 "if your paper has been accepted and the supplemental material has also been approved by the Editor"，
+      但沒有說核可的標準或時機。
+    src: supplement_instructions
+
+  openness:
+    data_and_code_mandate:
+      status: not_published
+      checked: 2026-11-13
+      note: >-
+        Notes for Authors、Aims and Scope、Policy on AI、Supplement Instructions 都沒有要求公開資料或程式碼的條文，
+        也沒有資料可得性聲明的要求。唯一相關的是：補充材料（含資料、程式碼）要全部隨文張貼在 Euclid，
+        不能只放外部連結；以及投稿時未發表或不易取得的被引用論文要作為補充檔案上傳。
+      src: supplement_instructions
+    reporting_standards: {status: not_published, checked: 2026-11-13, note: 無 TOP、JARS 或其他報告標準要求, src: notes_for_authors}
+    preregistration: {status: not_published, checked: 2026-11-13, src: notes_for_authors}
+
+  review:
+    type: not_published
+    checked: 2026-11-13
+    note: >-
+      已讀的官方頁面（Aims and Scope、Notes for Authors、Supplement Instructions、Policy on AI、Euclid 兩個分頁、
+      Society 期刊首頁）都沒有說審查是 single-anonymised 還是 double-anonymised，也沒有給審稿人的指引頁。
+      能看到的只有：title page 要寫所有作者的全名、單位與地址（title_page 的 quote）；Policy on AI 鼓勵作者在投稿前
+      把稿件放到公開 preprint 伺服器（見 policies.preprints）。這兩點都不是審查模式的聲明，本記錄不據此推定。
+    src: notes_for_authors
+    author_may_suggest_reviewers: {status: not_published, checked: 2026-11-13, src: notes_for_authors}
+    ai_in_review:
+      quote: >-
+        Bernoulli allows reviewers and editors to use AI tools to assist in checking technical claims, subject to the
+        confidentiality and data-protection safeguards specified below. ... As a condition of submission, authors agree that
+        reviewers and editors may use AI tools to assist in evaluating their manuscripts under these safeguards.
+      note: 兩句在頁面上相隔一句；中間省略的是 "Authors are encouraged to deposit their manuscripts on public preprint servers, such as arXiv and HAL, before submission."
+      src: policy_on_ai
+    decision_timeline: {status: not_published, checked: 2026-11-13, src: notes_for_authors}
+
+  submission:
+    portal: https://www.e-publications.org/ims/submission/
+    system: EJMS（Electronic Journal Management System，VTeX；IMS 各刊共用）
+    portal_verified: true
+    portal_note: >-
+      2026-11-13 curl 開啟：HTTP 200，轉址到 /ims/submission/index/login，6420 bytes，頁面是 EJMS 登入頁
+      （有 Returning user / New user 區塊）。確認的只是入口頁會開；登入後有沒有 Bernoulli 的投稿選項沒有查
+      （需帳號；頁面說已註冊 EJMS 者須 "Register for another role" 加上各刊的角色）。
+    registration: >-
+      原文："If you are a first time user, you must complete the registration. You are only required to register once,
+      but must add roles for each journal in EJMS."
+    format: PDF
+    conditions:
+      quote: >-
+        Submission of a paper to Bernoulli will be taken to imply that it presents original unpublished work, not under
+        consideration for publication elsewhere.
+      src: notes_for_authors
+    problems_contact: Kristina Mattson（Mattson Publishing Services；信箱見 Notes for Authors 頁）
+    src: notes_for_authors
+    submission_pause:
+      announced_until: 2026-11-08
+      quote: >-
+        The Bernoulli Journal is temporarily pausing submissions until November 8 while the editorial board and publishers
+        develop new editorial policies, guidelines, and practical solutions to handle the substantial increase in
+        submissions. New submissions will not be possible during this period.
+      posted: 2026-10-21
+      note: >-
+        公告發布於 2026-10-21，寫到 11 月 8 日為止。2026-11-13 的新聞頁還留著這則公告，也沒有看到寫明「已恢復收稿」的
+        公告；這份記錄不判斷目前是否已恢復收稿（今天已過公告所寫的 11 月 8 日，但沒有登入 EJMS 驗證能否實際投稿）。
+      src: society_news
+
+  fees:
+    submission: {status: not_published, checked: 2026-11-13, note: Notes for Authors 與 IMS 出版費頁都沒有投稿費, src: notes_for_authors}
+    page_charges: {status: not_published, checked: 2026-11-13, note: 沒有按頁數收費的條文；只有自願性的出版費（見 publication_charges）, src: notes_for_authors}
+    color_charges: {status: not_published, checked: 2026-11-13, src: notes_for_authors}
+    publication_charges:
+      mandatory: false
+      amount: 1295
+      currency: USD
+      amount_note: >-
+        IMS 出版費頁（publication_charge_form）的 "Print/Gated Electronic Access Journal" 清單列 "Bernoulli Journal +$1,295.00"；
+        acceptance_of_papers 寫 "1295USD for articles in any Print/Gated Electronic Access journal"。
+        討論文另加 200 USD（"200USD for any discussion in any journal"）。
+      statement: >-
+        "Payment of some or all of the publication charges associated with an article is of course voluntary (the editorial
+        review of articles and administration of publication charges are separate activities: manuscripts are reviewed and
+        accepted prior to soliciting publication charges)."
+      encouraged: >-
+        Notes for Authors："Paying full publications charges (which can be done from available grants or institutional funds)
+        is strongly encouraged: (1) this will indeed make your publication open access, which will increase visibility of your
+        work; (2) this will also support the Bernoulli Society and make it possible to publish high-quality journals at moderate
+        costs for libraries."
+      partial_payment: "Partial payment (in any amount) of publication charges will be gratefully accepted if full payment is not possible."
+      open_access: "Open access is granted on any article for which full publication charges are paid."
+      src: [notes_for_authors, publication_charge_form, acceptance_of_papers]
+    open_access_model: >-
+      訂閱制期刊（gated），作者付全額出版費可使該文開放取用；出版費自願、錄取後才請求。
+    oa_licences: {status: not_published, checked: 2026-11-13, note: 兩個 IMS 頁與 Notes for Authors 沒有列開放取用的 Creative Commons 授權種類（只有 Plan S 資助者要求時的 CC BY 4.0 作者接受稿權利，見 policies.copyright）, src: acceptance_of_papers}
+    apc:
+      amount: 1295
+      currency: USD
+      mandatory: false
+      note: >-
+        IMS 稱這筆錢為 publication charges，不叫 APC：自願、錄取後才請求、付全額才開放取用，
+        所以這裡以 mandatory: false 填入，供比較表顯示為選付；和開放取用期刊強制的 APC 不是同一種費用。
+        金額、條件與原文見 publication_charges。
+      src: [publication_charge_form, acceptance_of_papers]
+    offprints: >-
+      Notes for Authors："Every corresponding author will receive via email a pdf file of the final article. Paper offprints
+      may be purchased by using Offprint Purchase Order Forms."
+    institutional_subscription_2026: {electronic_only_usd: 658, electronic_and_print_usd: 849, src: subscription}
+
+  policies:
+    dual_submission: forbidden
+    dual_submission_src: notes_for_authors
+    prior_publication: "投稿即表示 'original unpublished work'（notes_for_authors 的 Copyright 段）"
+    preprints:
+      allowed: true
+      quote: >-
+        Authors are encouraged to deposit their manuscripts on public preprint servers, such as arXiv and HAL, before submission.
+      src: policy_on_ai
+      author_rights_after_publication: >-
+        Notes for Authors 的保留權利第 3 項："The right to place the final version of this article (exactly as published in the
+        journal) on their own homepage or in a public digital repository, provided there is a link to the official journal site."
+    copyright:
+      transfer_required: true
+      quote: >-
+        By submitting a manuscript, the authors agree that the copyright for their article is transferred to the Publisher if
+        and when the article is accepted for publication.
+      reserved_rights: >-
+        作者保留：(1) 版權以外的所有專有權（例如專利）；(2) 在自己未來的作品（講課、新聞稿、評論、教科書、論文集）使用全部或部分；
+        (3) 最終出版版本放在自己的首頁或公開數位典藏；(4) 錄取後提供最終審查稿給 NIH，最晚出版後 12 個月存入 PubMed Central
+      forms: [General Copyright Transfer Agreement, Plan S/UKRI/Wellcome/NIHR Copyright License, US Government Copyright Transfer Agreement]
+      funder_oa: >-
+        acceptance_of_papers："The IMS complies fully with the open access requirements of Plan S, UKRI, Wellcome, and NIHR.
+        Where required by their funder, authors retain the right to distribute their author accepted manuscript (AAM), such as via
+        an institutional and/or subject repository (e.g. EuropePMC), under a Creative Commons Attribution 4.0 International
+        (CC BY 4.0) license for release no later than the date of first online publication."
+      permissions: "Permission to publish illustrations must be obtained by the author before submission and any acknowledgements should be included in the captions."
+      src: [notes_for_authors, acceptance_of_papers]
+    generative_ai:
+      applies_to: >-
+        頁面原文："The policy applies to submissions on or after November 8, 2026. The Bernoulli AI policy will be revisited and
+        subject to change as needed, especially as AI continues to evolve."
+      authorship: "Only humans may be listed as authors."
+      use_allowed: "Authors may use AI tools to assist with preparation of their manuscripts."
+      responsibility: >-
+        Authors, however, remain fully responsible for the content of their submissions, including correctness, originality,
+        presentation, and intellectual integrity. Accordingly, authors must carefully verify any AI-assisted material, fully
+        understand the work they submit, and ensure that their manuscripts are comprehensible to human readers.
+      disclosure_required: true
+      disclosure_quote: >-
+        Authors must include a statement in the acknowledgments section describing their use of AI tools. The AI disclosure
+        statement should explain whether and how AI tools were used in proof development, writing and exposition, and other
+        supporting tasks, such as numerical experiments and proofreading. Even if no AI tools were used, authors must include
+        an AI statement clarifying this. The acknowledgments section is excluded from the page limit.
+      disclosure_in: acknowledgments
+      disclosure_quote_note: 原頁在 "AI tools." 與 "The AI disclosure statement" 之間沒有空格（"tools.The"），上面的引文補了一個空格，字詞沒有改。
+      sanction: >-
+        "The editorial board has final discretion to determine whether the nature and extent of AI use are acceptable. Severe
+        violations of these guidelines may result in restrictions on future submissions to Bernoulli."
+      statement_wording: {status: not_published, checked: 2026-11-13, note: 頁面沒有給固定句型或範例聲明}
+      src: policy_on_ai
+    ethics: {status: not_published, checked: 2026-11-13, note: 已讀頁面沒有抄襲、作者資格或利益衝突條文（作者端）, src: notes_for_authors}
+    conflict_of_interest: {status: not_published, checked: 2026-11-13, src: notes_for_authors}
+    language_editing: {status: not_published, checked: 2026-11-13, src: notes_for_authors}
+    post_acceptance:
+      proofs: "Before publication, the corresponding author will receive an e-mail regarding galley proofs."
+      src: notes_for_authors
+
+  standards: []
+
+# ─────────────────────────────────────────────────────────────
+# FAST — 期刊無年度週期。
+# ─────────────────────────────────────────────────────────────
+cycle:
+  applies_to: null
+  rolling_calls: []
+  special_issues:
+    status: not_found
+    checked: 2026-11-13
+    note: >-
+      Aims and Scope、Notes for Authors 與期刊首頁沒有徵稿或特刊頁。Society 新聞頁列有一則特刊徵稿，但是 Revista Colombiana
+      de Estadística 的，與 Bernoulli 無關。
+    src: society_news
+
+# ─────────────────────────────────────────────────────────────
+warnings:
+  - >-
+    期刊剛改版：2026-10-21 公告暫停收稿到 2026-11-08（"to handle the substantial increase in submissions"），2026-11-05 更新
+    Aims and Scope 並採用新的 AI 政策，Notes for Authors 與兩個政策頁的 "Last Updated" 都是 2026-11-05。
+    2026-11-05 以前的任何 Bernoulli 須知（含記憶與第三方網站）都可能過時；投稿前重讀 aims_and_scope、notes_for_authors、policy_on_ai 三頁。
+  - >-
+    範圍以理論為主："The main emphasis of Bernoulli is on theoretical work." 並明寫 "Mere technical execution without clear
+    motivation, without new understanding, or without a transferable idea would not be suitable for the journal."
+    投稿前要能在引言前段交代動機、結果概觀與關鍵想法（"clearly and early in the paper"）。Euclid 頁仍寫 "both theoretical and applied work"，
+    與新版 Aims and Scope 不完全一致。
+  - >-
+    篇幅 "will generally be limited to 25 pages in the Bernoulli template, including references but excluding the acknowledgments section"；
+    要超過須在 EJMS 的 "comments to the editor" 說明理由，由編輯決定；同段警告 "Failing to comply with these guidelines might result in
+    immediate rejection." 多出的技術推導與數值結果放補充材料。
+  - >-
+    2026-11-08 起的投稿，acknowledgments 一定要有 AI 使用聲明，沒用 AI 也要寫明（"Even if no AI tools were used, authors must include an
+    AI statement clarifying this."）；AI 不得列為作者，嚴重違規可能被限制日後投稿。
+  - >-
+    補充材料與主文分開成不同檔案、不排版、照原樣張貼；主文不可用 \ref 指向補充材料內的物件；所有補充檔案（含資料與程式碼）都要隨文
+    放在 Euclid，不能只放 GitHub 連結。未發表或不易取得的被引用論文，投稿時就要作為補充檔案上傳。
+  - >-
+    審查模式（single 或 double anonymised）與首次決定時間、錄取率，官方頁面都沒有寫；title page 要列全部作者的全名、單位與地址。
+    出版費是自願的 USD 1,295（錄取後才請求，付全額才開放取用）；官方頁面沒有提到投稿費。
+    Euclid 頁的 IF 1.393 與名次 43/123 未標年度，分母與本庫 2025 年的 Statistics & Probability 數字（170 本）不同，很可能是舊版次，不可與其他刊的 2025 數字並排。

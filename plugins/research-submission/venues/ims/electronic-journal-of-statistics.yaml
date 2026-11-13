@@ -1,0 +1,793 @@
+--- # research-submission venue record
+# 內容擷取自 IMS 網站上的 Electronic Journal of Statistics 頁面（imstat.org，經 Safari 通過 Anubis 挑戰）、
+# Project Euclid 的期刊頁（Safari，Incapsula 擋 curl）、EJMS 投稿入口、VTeX 的 LaTeX 支援頁與 GitHub 範本、
+# Clarivate Master Journal List，2026-11-13。
+#
+# EJS 是 IMS 與 Bernoulli Society 共同贊助的開放取用期刊，須知很短：投稿須知只有 Manuscript Submission 一頁，
+# 沒有篇幅、審稿制度、評審判準、投稿條件的條文。編輯政策頁、referee 準則頁、Resources for Authors 頁在 EJS 的側欄
+# 選單裡都沒有（同選單的 EJP 與 ECP 有）。凡是 EJS 頁面沒寫的項目，一律標 not_published 並列出查過的頁面；
+# 本記錄的值只來自本次擷取的 EJS 頁面鏈，沒有從同出版社的其他期刊記錄搬來任何事實。
+#
+# 範本層級與頁面層級要分開讀：200 字摘要、MSC 關鍵字、每位作者一個地址、補充材料不得只放外部連結，
+# 都只出現在 GitHub 範本 ejs-sample.tex 的內文或註解，IMS 與 Euclid 的頁面沒有寫。
+
+schema_version: 1
+id: ims/electronic-journal-of-statistics
+kind: journal
+family: statistics-journals
+status: active
+
+# ─────────────────────────────────────────────────────────────
+# 來源與 provenance。所有網址都是從期刊自己的頁面連結取得：
+#   imstat.org 首頁 Publications 選單 → EJS 首頁 → 側欄四個子頁；
+#   EJS 首頁「Published Issues」→ projecteuclid.org/euclid.ejs（轉址到 /journals/electronic-journal-of-statistics）
+#   → 該頁 Scope & Details、Editorial Office、Author Guidelines 三個分頁；
+#   Manuscript Submission 頁的 EJMS 與 LaTeX support page 連結；Preparation of Manuscripts 頁的 GitHub 連結。
+# ─────────────────────────────────────────────────────────────
+sources:
+  - id: ejs_home
+    role: authoritative
+    url: https://imstat.org/journals-and-publications/electronic-journal-of-statistics/
+    note: >-
+      期刊首頁：範圍、開放取用與費用聲明、授權、編輯群。側欄列出 Policy on Use of AI、Preparation of Manuscripts、
+      Manuscript Submission、Published Papers、Ethical Principles、Copyright；沒有 editorial policy 或 referee 準則。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: >-
+        imstat.org 全站由 Anubis proof-of-work 挑戰保護：curl 回 HTTP 200 + 7356 bytes 的「Making sure you're not a bot!」頁
+        （非 403）。2026-11-13 實測 12 個 imstat.org URL（含本記錄用到的 8 頁）回應大小都是 7354–7356 bytes（全是同一個挑戰頁）。
+        內容須以 safari-browser 開啟、等 JS 解完挑戰後讀 document.body.innerText。
+      validity:
+        must_contain: "Author or publication fees are not required"
+        min_extracted_chars: 1500
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: ejs_submission
+    role: authoritative
+    url: https://imstat.org/journals-and-publications/electronic-journal-of-statistics/electronic-journal-of-statistics-manuscript-submission/
+    note: >-
+      投稿時須知的本體（LaTeX 範本、PDF、EJMS、可建議審稿人、寫作風格、程式碼）。EJS 首頁側欄 "Manuscript Submission" 連入。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Anubis proof-of-work 挑戰頁（curl 回 HTTP 200 + 7356 bytes），同 ejs_home
+      validity:
+        must_contain: "Manuscripts must be written in Latex using the EJS template"
+        min_extracted_chars: 1500
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: ejs_preparation
+    role: authoritative
+    url: https://imstat.org/journals-and-publications/electronic-journal-of-statistics/electronic-journal-of-statistics-preparation-of-manuscripts/
+    note: >-
+      這頁寫給「已被接受的文章」：步驟第四點是 "Copy the main body of the latex file of your accepted article"，
+      最後把原始檔寄給 VTeX。投稿時的規定在 ejs_submission，不在這頁。頁內 "supplementary files" 指排版所需的
+      額外檔案（圖等），不是 Supplementary Material。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Anubis proof-of-work 挑戰頁（curl 回 HTTP 200 + 7356 bytes），同 ejs_home
+      validity:
+        must_contain: "We need the LaTeX source file to prepare the paper for publication"
+        min_extracted_chars: 1200
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: ejs_copyright
+    role: authoritative
+    url: https://imstat.org/journals-and-publications/electronic-journal-of-statistics/electronic-journal-of-statistics-copyright/
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Anubis proof-of-work 挑戰頁（curl 回 HTTP 200 + 7355 bytes），同 ejs_home
+      validity:
+        must_contain: "Creative Commons Attribution License (CCAL)"
+        min_extracted_chars: 1500
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: ims_ai_policy
+    role: authoritative
+    url: https://imstat.org/journals-and-publications/policy-on-use-of-ai/
+    note: >-
+      IMS 全社的 AI 政策頁，頁首寫 "This policy takes effect from 8 November 2026"（擷取日 2026-11-13 已生效）。
+      EJS 首頁側欄的 Publications 子選單列有這一頁，頁內寫的範圍是 "all IMS journals"；EJS 的專頁沒有另寫 AI 條文，
+      頁面也沒有逐刊說明共同贊助期刊是否適用，本記錄依「側欄列有、措辭為 all IMS journals」套用到 EJS。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Anubis proof-of-work 挑戰頁（curl 回 HTTP 200 + 7356 bytes），同 ejs_home
+      validity:
+        must_contain: "The guiding principles for all IMS journals in the use of AI are transparency and responsibility"
+        min_extracted_chars: 3500
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: ims_ethics
+    role: authoritative
+    url: https://imstat.org/journals-and-publications/ims-co-sponsored-journals-and-publications/ethical-principles-for-authors-referees-associate-editors-and-editors/
+    note: >-
+      IMS 共同贊助期刊共用的倫理原則頁（EJS 首頁側欄 "Ethical Principles for Authors, Referees, Associate Editors and Editors"）。
+      頁末一句 "Current members of the EJP/ECP board ..." 是寫給 EJP 與 ECP 編輯群的，不是 EJS。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Anubis proof-of-work 挑戰頁（curl 回 HTTP 200 + 7356 bytes），同 ejs_home
+      validity:
+        must_contain: "Plagiarism, including self-transcription"
+        min_extracted_chars: 4000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: euclid_scope
+    role: authoritative
+    url: https://projecteuclid.org/journals/electronic-journal-of-statistics/scope-and-details
+    note: >-
+      Project Euclid 期刊頁的 "SCOPE & DETAILS" 分頁（網址取自該期刊頁的分頁連結）。ISSN、頻率、存取、指標只在此頁出現。
+      頁面另有一行 "Access provided by ..." 是讀者所屬機構的存取提示，不是期刊內容，記錄不引用。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: >-
+        Incapsula bot 挑戰：curl 回 HTTP 200 + 約 1052–1165 bytes 的空殼（頁面文字只有
+        "Request unsuccessful. Incapsula incident ID: ..."；iframe 指向 /_Incapsula_Resource）。同站 author-guidelines
+        一次測試回 HTTP 403 + 856 bytes。內容須用 Safari 讀。
+      validity:
+        must_contain: "Print ISSN: 1935-7524"
+        min_extracted_chars: 1000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: euclid_author_guidelines
+    role: supporting
+    url: https://projecteuclid.org/journals/electronic-journal-of-statistics/author-guidelines
+    note: Euclid 的 "AUTHOR GUIDELINES" 分頁，全頁只有一句話，指向期刊自己的網站（即 IMS 的 EJS 頁），沒有實質規定。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 euclid_scope（Incapsula 空殼 / 403）
+      validity:
+        must_contain: "Author guidelines and submission instructions for Electronic Journal of Statistics"
+        min_extracted_chars: 600
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: euclid_editorial_office
+    role: supporting
+    url: https://projecteuclid.org/journals/electronic-journal-of-statistics/editorial-office
+    note: Euclid 的 "EDITORIAL OFFICE" 分頁，全頁只有一句話，指向期刊網站，沒有編輯部名單或信箱。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 euclid_scope（Incapsula 空殼）
+      validity:
+        must_contain: "full editorial office on the journal"
+        min_extracted_chars: 600
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: acceptance_of_papers
+    role: supporting
+    url: https://imstat.org/journals-and-publications/acceptance-of-papers/
+    note: >-
+      IMS 各刊通用頁（版權轉讓、出版費、offprint）。頁面通篇說 "IMS journals"，沒有點名 EJS，也沒有逐刊標示出版費級距。
+      EJS 自己的首頁與 Copyright 頁說法不同（見 fees 與 warnings），兩者在頁面上沒有被調和。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Anubis proof-of-work 挑戰頁（curl 回 HTTP 200 + 7354 bytes），同 ejs_home
+      validity:
+        must_contain: "Payment of some or all of the estimated publication charges"
+        min_extracted_chars: 1500
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: ims_arxiv
+    role: supporting
+    url: https://imstat.org/journals-and-publications/electronic-access/ims-journals-on-arxiv/
+    note: IMS 層級的 arXiv 政策頁（imstat.org 首頁 Publications 選單的 Electronic Access 底下）。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Anubis proof-of-work 挑戰頁（curl 回 HTTP 200 + 7356 bytes），同 ejs_home
+      validity:
+        must_contain: "The IMS encourages all members to post their articles on arXiv"
+        min_extracted_chars: 1200
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: ejms_portal
+    role: supporting
+    url: https://www.e-publications.org/ims/submission/
+    note: >-
+      IMS Electronic Journal Management System（VTeX 營運），ejs_submission 頁的 EJMS 連結。未登入時轉址到
+      /ims/submission/index/login，頁面只有登入與註冊表單，沒有任何投稿規定；登入後的流程與勾選項目未查。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "EJMS - Electronic Journal Management System"
+        min_extracted_chars: 300
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: latex_support
+    role: supporting
+    url: https://www.e-publications.org/ims/support/imsco-instructions.html
+    note: >-
+      VTeX 的共同贊助期刊 LaTeX 套件頁。ejs_submission 頁的 "LaTeX support page" 連結指向
+      http://www.e-publications.org/ims/support/（套件總表），其中 EJS 的項目連到這一頁；本頁的 EJS 項目再連回
+      EJS 首頁、projecteuclid.org/ejs 與 GitHub repository（vtex-soft/texsupport.ims_cosponsored-ejs）。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "LaTeX Author Package for the publications in IMS co-sponsored journals"
+        min_extracted_chars: 400
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: ejs_readme
+    role: supporting
+    url: https://raw.githubusercontent.com/vtex-soft/texsupport.ims_cosponsored-ejs/master/README.md
+    note: >-
+      作者套件 repo（https://github.com/vtex-soft/texsupport.ims_cosponsored-ejs ，由 ejs_preparation 頁的 GitHub 連結進入）
+      的 README。載有 2025-03-20 的 v2 說明（documentclass 選項由 ejs 改為 ejsv2）與檔案清單。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "New documents should use `ejsv2`"
+        min_extracted_chars: 1200
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: ejs_sample_tex
+    role: supporting
+    url: https://raw.githubusercontent.com/vtex-soft/texsupport.ims_cosponsored-ejs/master/ejs-sample.tex
+    note: >-
+      同一 repo 的範例原始檔。摘要 200 字、MSC 關鍵字、每位作者一個地址、補充材料不得只放外部連結都只在這份範本的
+      內文與註解裡，IMS 與 Euclid 的頁面都沒有寫，所以它是「範本說明」，不是期刊頁面規定。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "than 200 words"
+        min_extracted_chars: 10000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: mjl
+    role: supporting
+    url: https://mjl.clarivate.com/home
+    note: >-
+      Clarivate Master Journal List。JS 單頁應用，結果頁網址不帶查詢字串，無法用網址重現；只能在頁內於 #search-box
+      填 ISSN、按 #search-button 後讀結果列。curl 取 /home 只拿到 11 KB 的空殼，沒有任何期刊資料。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "200 但只有 SPA 空殼（11428 bytes），查詢結果需在頁內操作"
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+
+  - id: scimago
+    role: supporting
+    url: https://www.scimagojr.com/journalsearch.php?q=19900192726&tip=sid&clean=0
+    note: >-
+      SCImago（SJR）期刊頁。sid 19900192726 由 journalsearch.php?q=1935-7524&tip=iss&clean=0 的搜尋結果取得（只列 "Electronic Journal of
+      Statistics" 一筆）。curl 回 403 Cloudflare 挑戰頁，以 Safari 讀到約 17.1 K 字元。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "403, Cloudflare challenge page (~5.7 KB)"
+      validity:
+        must_contain: "The set of journals have been ranked according to their SJR and divided into four equal groups"
+        min_extracted_chars: 12000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+# ─────────────────────────────────────────────────────────────
+
+  - id: publication_charge_form
+    role: authoritative
+    url: https://imstat.org/shop/publication-charge-funding-form/
+    note: >-
+      IMS 出版費表單頁，逐刊列出自願出版費；"Open Electronic Access Journals*" 清單列 "Electronic Journal of Statistics +$825.00"。
+      這是 IMS 全站頁面（Annals of Statistics 與 Bernoulli 的記錄也用同一頁）。2026-11-13 以 Safari 讀 innerText，約 2.8 K 字元。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Anubis proof-of-work 挑戰頁（curl 回 HTTP 200 + 約 7.4 KB，imstat.org 各頁同一個挑戰頁）
+      validity:
+        must_contain: "The IMS collects publication charges for the journals listed below"
+        min_extracted_chars: 2000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+identity:
+  name: Electronic Journal of Statistics
+  abbreviation: EJS
+  publisher: Institute of Mathematical Statistics and Bernoulli Society
+  publisher_src: 'euclid_scope（頁面印 "Publisher: Institute of Mathematical Statistics and Bernoulli Society"）'
+  sponsors:
+    statement: "This journal is a free access co-sponsored journal of the Institute of Mathematical Statistics (IMS) and the Bernoulli Society."
+    src: ejs_home
+  issn:
+    print: "1935-7524"
+    electronic: "1935-7524"
+    src: euclid_scope
+    note: >-
+      Euclid 頁面逐字印 "Print ISSN: 1935-7524" 與 "Online ISSN: 1935-7524"，兩欄是同一個號碼；MJL 只列單一
+      "ISSN / eISSN: 1935-7524"。照頁面記錄，不推測哪一個是紙本。
+  homepage: https://imstat.org/journals-and-publications/electronic-journal-of-statistics/
+  hosting_platform: {name: Project Euclid, url: "https://projecteuclid.org/journals/electronic-journal-of-statistics"}
+  editors:
+    - {name: Alexandra Carpentier, term: "2025-2027", src: ejs_home}
+    - {name: Arnak Dalalyan, term: "2025-2027", src: ejs_home}
+  editor_listing_note: ejs_home 以 "Editors" 與 "Associate Editors" 兩組列名；本記錄只取 Editors。
+  editorial_office:
+    status: not_found
+    checked: 2026-11-13
+    src: [euclid_editorial_office, ejs_home]
+    note: >-
+      Euclid 的 Editorial Office 分頁只寫 "View Electronic Journal of Statistics's full editorial office on the journal's website."；
+      EJS 首頁只列編輯與副編輯姓名，沒有編輯部信箱。唯一的信箱是錄取後寄原始檔的 ejournals-ejs@vtex.lt（ejs_preparation）。
+  frequency: Biannual
+  frequency_src: euclid_scope
+  frequency_note: '頁面原文 "Frequency: Biannual"，未定義；同頁另印 "Current: Jan 2026 : Volume 20 Issue 1"。'
+  coverage: "2007 - current"
+  external_ids:
+    crossref: "1935-7524"
+    openalex: issn:1935-7524
+  access:
+    model: 開放取用；文章錄取後隨即公開
+    statement: "Access: All content is open."
+    src: euclid_scope
+    also: "Articles become publicly available shortly after they are accepted."
+    also_src: ejs_home
+  license:
+    value: CC BY 4.0
+    quote: "Copyright for all articles in EJS is CC BY 4.0."
+    src: euclid_scope
+  indexing:
+    clarivate_mjl:
+      scie: true
+      ssci: false
+      ahci: false
+      esci: false
+      web_of_science_core_collection: Science Citation Index Expanded
+      additional_indexes: [Current Contents Physical, Chemical & Earth Sciences, Essential Science Indicators]
+      checked: 2026-11-13
+      search_issn: "1935-7524"
+      mjl_title_string: "ELECTRONIC JOURNAL OF STATISTICS"
+      mjl_publisher_string: "INST MATHEMATICAL STATISTICS-IMS , 3163 SOMERSET DR, CLEVELAND, Usa, OH, 44122"
+      src: mjl
+      note: >-
+        搜尋 1935-7524 得 1 筆 "Exact Match Found"，ISSN / eISSN 欄 1935-7524；Web of Science Core Collection 欄只列
+        Science Citation Index Expanded，沒有 SSCI、AHCI、ESCI。
+  metrics:
+    impact_factor:
+      value: 0.986
+      as_of: 2026-11-13
+      src: euclid_scope
+      note: >-
+        頁面原文 "Impact Factor: 0.986"。該行沒有標示年度，也沒有標示提供者；緊接的排名行標 "Journal Citation Reports®"，
+        所以可能是 JCR 的值，但頁面沒有明說，這裡不補年度。as_of 是擷取日。
+    impact_factor_5yr:
+      value: 1.281
+      as_of: 2026-11-13
+      src: euclid_scope
+      note: '頁面原文 "Five-Year Impact Factor: 1.281"，同樣沒有年度與提供者。'
+    category_rank:
+      value: "68/123"
+      category: Statistics & Probability
+      as_of: 2026-11-13
+      src: euclid_scope
+      note: '頁面原文 "Journal Citation Reports® Ranking: #68 of 123 in Statistics & Probability"，未標示年度；排名不換算成分區。'
+    mcq: {value: 0.51, label: Mathematical Citation Quotient (MCQ), as_of: 2026-11-13, src: euclid_scope}
+    quartiles:
+      - {system: SJR, category: "Statistics and Probability", subject_area: Mathematics, quartile: Q1, year: 2025, as_of: 2026-11-13, src: scimago}
+      - system: SJR
+        category: "Statistics, Probability and Uncertainty"
+        subject_area: Decision Sciences
+        quartile: Q1
+        year: 2025
+        as_of: 2026-11-13
+        src: scimago
+        note: >-
+          SCImago 的 Subject Area and Category 欄列這兩個類別；表格 "Category / Year / Quartile" 中 2025 年兩者皆為 Q1（2024 年也都是 Q1）。
+          頁面同列 "SJR 2025" 為 1.204、H-Index 68。這是 SJR 分區，不是 JCR。
+    jcr_quartile:
+      status: not_found
+      checked: 2026-11-13
+      src: euclid_scope
+      note: >-
+        EJS 與 Euclid 頁面只印排名（#68 of 123），沒有印分區（Q1–Q4）；JCR 需登入，本次未查。不由排名推算。
+        （此段原為 quartiles 欄的內容，2026-11-13 改放這裡，quartiles 改記 SCImago 的 SJR 分區。）
+    acceptance_rate:
+      status: not_published
+      checked: 2026-11-13
+      src: [ejs_home, ejs_submission, euclid_scope]
+      note: 已檢查 EJS 首頁、Manuscript Submission、Preparation of Manuscripts、Euclid Scope & Details，皆無錄取率或拒絕率。
+    time_to_first_decision:
+      status: not_published
+      checked: 2026-11-13
+      src: [ejs_home, ejs_submission, euclid_scope]
+      note: 同上，沒有任何審稿時程的數字或目標。
+    time_submission_to_acceptance:
+      status: not_published
+      checked: 2026-11-13
+      src: [ejs_home, ejs_submission, euclid_scope]
+      note: 同上；也沒有自行抽樣估計（本次未做）。
+
+# ─────────────────────────────────────────────────────────────
+# SLOW — 數年不變。驗證用 hash diff 即可。
+# ─────────────────────────────────────────────────────────────
+requirements:
+  refresh: {check_every: P6M, method: extracted_hash_diff}
+
+  scope:
+    aims: >-
+      發表理論、計算與應用統計的研究論文與 short notes；開放取用；文章經審稿，標準與其他 IMS 期刊相同。
+      投稿須知另寫「所有統計領域：理論、方法論與應用」。
+    quote: "The Electronic Journal of Statistics (EJS) publishes research articles and short notes on theoretical, computational and applied statistics."
+    src: ejs_home
+    quote_euclid:
+      quote: "The Electronic Journal of Statistics (EJS) publishes research articles and short notes in theoretical, computational and applied statistics."
+      src: euclid_scope
+      note: 與 ejs_home 只差介系詞（on / in）。
+    breadth:
+      quote: "We publish papers in all areas of statistics: theory, methodology, and applications."
+      src: ejs_submission
+    standard:
+      quote: "Articles are refereed and are held to the same standard as articles in other IMS journals."
+      src: ejs_home
+    writing_expectation:
+      quote: >-
+        Papers should be written in the same style as in typical statistical journals such as The Annals of Statistics or
+        The Journal of the American Statistical Association. Since the range of topics is wide, make sure that the abstract
+        and Introduction are clear and can be read by a diverse audience.
+      src: ejs_submission
+    evaluation_criteria:
+      status: not_published
+      checked: 2026-11-13
+      src: [ejs_home, ejs_submission, ejs_preparation, euclid_scope, ims_ethics]
+      note: >-
+        EJS 沒有編輯政策頁，也沒有 referee 準則頁（EJS 首頁側欄沒有；同選單的 EJP、ECP 才有）。可引用的只有
+        "held to the same standard as articles in other IMS journals"，沒有說明那個標準是什麼。
+    out_of_scope_hints:
+      status: not_published
+      checked: 2026-11-13
+      src: [ejs_home, ejs_submission, ejs_preparation, ejs_copyright, euclid_scope, ims_ethics]
+      note: >-
+        逐頁檢查 "not"、"unless"、"discourage"、"unsuitable"、"prefer" 等字：沒有任何一句說 EJS 不收哪類論文或給哪類較低優先。
+        唯一的「不想要」是論文必須是作者自己的原創（ims_ethics A1）與 AI 政策的限制（見 policies.generative_ai），
+        兩者都不是主題範圍的限制。
+
+  article_types:
+    - id: research_article
+      label: research articles
+      quote: "publishes research articles and short notes on theoretical, computational and applied statistics"
+      length: {status: not_published, checked: 2026-11-13, src: [ejs_submission, ejs_home]}
+      src: ejs_home
+    - id: short_note
+      label: short notes
+      definition: {status: not_published, checked: 2026-11-13, src: [ejs_submission, ejs_home, euclid_scope]}
+      length: {status: not_published, checked: 2026-11-13, src: [ejs_submission, ejs_home]}
+      note: 只在首頁與 Euclid 的一句範圍聲明中提到 "short notes"；沒有任何頁說明如何投稿、篇幅或與 research article 的區別。
+      src: ejs_home
+
+  length_note:   # schema 的 length 需要 value 與 unit；官方沒有篇幅規定，故不放 requirements.length
+    status: not_published
+    checked: 2026-11-13
+    src: [ejs_submission, ejs_preparation, ejs_home, euclid_scope, euclid_author_guidelines, ejs_readme]
+    note: >-
+      EJS 的投稿頁、錄取後頁面、首頁、Euclid 頁面與範本 README 都沒有頁數或字數上限，也沒有說參考文獻、附錄、補充材料
+      計不計入。範本 ejs-sample.tex 內有一條註解 "Please use \tableofcontents for articles with 50 pages and more"，
+      那是格式指示（超過 50 頁的文章要放目錄），不是篇幅上限。
+
+  abstracts:
+    - id: main
+      max_words: 200
+      source_type: LaTeX 範本內文（ejs-sample.tex 的 abstract 環境），不是 IMS 或 Euclid 頁面的規定
+      rules:
+        - 摘要應概述論文內容，清楚、具描述性、自明，適合摘要服務刊登
+        - 公式盡量少用
+        - 不得指涉正文中的結果、參考文獻或公式
+      quote: >-
+        It should be clear, descriptive, self-explanatory and not longer than 200 words. It should also be suitable for
+        publication in abstracting services. Formulas should be used as sparingly as possible within the abstract.
+        The abstract should not make reference to results, bibliography or formulas in the body of the paper---it should be self-contained.
+      src: ejs_sample_tex
+      page_level_rule: {status: not_published, checked: 2026-11-13, src: ejs_submission, note: 投稿頁只說 abstract 與 Introduction 要讓不同領域的讀者讀得懂，沒有字數}
+  keywords:
+    msc_classification:
+      required_by_template: true
+      structure: "primary + secondary MSC codes（\\begin{keyword}[class=MSC]，\\kwdgroup[type=primary] 與 [type=secondary]）"
+      src: ejs_sample_tex
+    free_keywords: {status: not_published, checked: 2026-11-13, src: [ejs_submission, ejs_sample_tex], note: 範本只有 "First keyword"、"second keyword" 兩個範例，沒有數量上限}
+
+  formatting:
+    typesetting: LaTeX（必須）
+    quote: "Manuscripts must be written in Latex using the EJS template."
+    src: ejs_submission
+    template:
+      class: imsart
+      documentclass: "\\documentclass[ejsv2]{imsart}"
+      option_note: >-
+        README："As of 2025-03-20, the class file has been updated: Margins have been reduced. The document class option changed
+        from `ejs` to `ejsv2`." 與 "New documents should use `ejsv2`."（`ejs` 仍可用但視為 legacy）。
+      engines: pdflatex 或 lualatex（ejs_preparation 與 ejs_readme）
+      files: [imsart.cls, imsart.sty, ejs-sample.tex, ejs-sample.pdf]
+      bibtex_styles: [acmtrans-ims.bst, imsart-nameyear.bst, imsart-number.bst]
+      repository: https://github.com/vtex-soft/texsupport.ims_cosponsored-ejs
+      src: ejs_readme
+    submission_file:
+      value: PDF
+      quote: "Manuscripts must be submitted in pdf form."
+      src: ejs_submission
+    layout_rules_from_template:      # 只出現在 ejs-sample.tex（範本層級）
+      one_address_per_author: "Only one address is permitted per author. Only division, organization and e-mail is included in the address. Additional information can be included in the Acknowledgments section if necessary."
+      no_layout_commands:
+        quote: 'Please do not use any \LaTeXe\ or \TeX\ commands that affect the layout or formatting of your document'
+        note: 範本原文含 LaTeX 巨集（\LaTeXe、\TeX），引文保持原樣；原句接著舉例 \textheight、\textwidth。
+      orcid: {supported: true, how: "\\orcid{0000-0000-0000-0000}", required: {status: not_published, checked: 2026-11-13, src: ejs_sample_tex}}
+      table_of_contents: 50 頁以上的文章請用 \tableofcontents（範本註解）
+      sections_in_template: [Acknowledgements（acks 環境）, funding（funding 環境）, Supplementary Material（supplement 環境）]
+      src: ejs_sample_tex
+    after_acceptance:
+      statement: >-
+        錄取後：把範本複製成自己的檔、更新 metadata、貼入正文、用 pdflatex 或 lualatex 編譯檢查，再把 PDF、tex 與編譯所需的
+        其他檔案寄到 ejournals-ejs@vtex.lt，信中註明稿號（例 EJS#1112）。
+      preferred_files: >-
+        "We prefer that no separate macro or .sty files are used except for imsart.cls and imsart.sty (and possibly figures in pdf, eps, jpg, or png format and bibtex files)."
+      source_not_public: "We need the LaTeX source file to prepare the paper for publication, but this file will not be made available to the general public."
+      src: ejs_preparation
+
+  supplementary_material:
+    instructions_page: {status: not_published, checked: 2026-11-13, src: [ejs_submission, ejs_preparation, ejs_home], note: EJS 沒有補充材料的說明頁；以下規則只在範本註解}
+    source_type: LaTeX 範本註解（ejs-sample.tex），不是期刊頁面規定
+    typeset: not_published
+    template_comment: >-
+      "Supplementary Material, including data sets and code, should be provided in {supplement} environment with title and
+      short description. It cannot be available exclusively as external link. All Supplementary Material must be available
+      to the reader on Project Euclid with the published article."
+    external_link_only: {allowed: false, src: ejs_sample_tex}
+    format: 每個補充項目用 {supplement} 環境，附 \stitle（標題）與 \sdescription（簡短說明）
+    src: ejs_sample_tex
+
+  openness:
+    data_and_code:
+      level: encouraged
+      quote: "Authors are encouraged to make available algorithms or code to carry out the analyses presented in a paper. Such material will also be posted on Statlib."
+      src: ejs_submission
+    data_availability_statement: {status: not_published, checked: 2026-11-13, src: [ejs_submission, ejs_sample_tex]}
+    reporting_standards: {status: not_published, checked: 2026-11-13, src: [ejs_submission, ejs_home], note: 無 TOP、JARS 或其他報告標準要求}
+    preregistration: {status: not_applicable, checked: 2026-11-13, src: ejs_submission}
+
+  review:
+    type: referee_anonymous
+    type_basis: >-
+      標籤是由 ims_ethics 的 B4 推得：審稿人與副編輯不得讓作者知道自己參與審查。沒有任何頁面印出
+      「single-anonymised」或「double-anonymised」，作者是否匿名見 author_anonymization。
+    quote: >-
+      Associate Editors and referees must not knowingly identify, to authors of a submission, their involvement in the review of that work,
+      even after the review process has been completed.
+    src: ims_ethics
+    author_anonymization:
+      status: not_published
+      checked: 2026-11-13
+      src: [ejs_submission, ejs_preparation, ims_ethics, ejs_sample_tex]
+      note: >-
+        頁面沒有說稿件是否須去識別化，也沒有提供雙盲選項。範本 ejs-sample.tex 的前頁有作者與地址欄位，
+        但沒有寫是否適用於投稿版本。EJMS 登入後的流程未查。
+    handling:
+      quote: "Your paper will be assigned to the Editor, who will then assign the paper to an Associate Editor."
+      src: ejs_submission
+    author_may_suggest_reviewers:
+      allowed: true
+      quote: "You can suggest potential referees for your paper."
+      src: ejs_submission
+    stages: {status: not_published, checked: 2026-11-13, src: [ejs_submission, ejs_home], note: 沒有初篩、審稿人數、決定類別或時程目標的說明}
+    decision_categories: {status: not_published, checked: 2026-11-13, src: [ejs_submission, ejs_home]}
+    referee_conflicts: >-
+      ims_ethics B5：副編輯須避免審稿人與作者有個人或專業關係或直接競爭的利益衝突；B6：編輯與副編輯不處理同系同事、
+      目前密切合作者或密切私人關係者的稿件（寫給編輯端，不是作者的義務）。
+    ai_in_review:
+      quote: "As a condition of submission, authors agree that AI tools may be used in the review process, subject to the safeguards outlined below."
+      src: ims_ai_policy
+      safeguards: "The uploading of proprietary data or manuscripts that are not publicly accessible to AI tools where conversations may be used for training is strictly prohibited."
+      reviewer_disclosure: "any use of AI by a reviewer must be disclosed to the authors in their report."
+
+  submission:
+    portal: https://www.e-publications.org/ims/submission/
+    system: EJMS（Electronic Journal Management System，VTeX）
+    portal_verified: true
+    portal_note: >-
+      2026-11-13 curl 回 HTTP 200，轉址到 /ims/submission/index/login，頁面是登入與註冊表單（標題 "EJMS - Electronic Journal Management System"）；
+      未登入，登入後的頁面、聲明與勾選項目未查。
+    file: PDF
+    registration: >-
+      "Papers must be submitted electronically at https://www.e-publications.org/ims/submission/. If you are a first-time user, complete the registration
+      (you are only required to register once.) After registration, you can submit your manuscript. If you are already registered at EJMS in another
+      role/journal, you should add EJS author to your existing profile."
+    ai_confirmation_in_ejms: >-
+      ims_ai_policy 說作者在 EJMS 會被要求確認稿件符合 AI 政策（"in EJMS, where authors will be asked to confirm that their article complies with this policy"）。
+    conditions_at_submission: {status: not_published, checked: 2026-11-13, src: [ejs_submission, ejms_portal], note: 投稿頁沒有列出投稿即同意的條件；EJMS 登入後可能有，未查}
+    cover_letter: {status: not_published, checked: 2026-11-13, src: ejs_submission}
+    src: ejs_submission
+
+  fees:
+    submission: {status: not_published, checked: 2026-11-13, src: [ejs_home, ejs_submission], note: 沒有單獨提到投稿費；頁面只說 "Author or publication fees are not required."}
+    apc:
+      amount: 825
+      currency: USD
+      mandatory: false
+      quote: "Author or publication fees are not required."
+      voluntary: "Voluntary fees or donations to the Open Access Fund are accepted."
+      funding_of_remainder: "Expenses not covered by voluntary payments are paid for by the co-sponsoring societies as a service to the community."
+      voluntary_charge_quote: "Electronic Journal of Statistics +$825.00"
+      voluntary_charge_statement: "The IMS collects publication charges for the journals listed below. Payment of these charges is optional."
+      src: [ejs_home, publication_charge_form]
+      as_of: 2026-11-13
+      note: >-
+        EJS 首頁說不要求作者費或出版費（quote）。amount 825 是 IMS 出版費表單在 "Open Electronic Access Journals" 清單列給 EJS 的
+        自願出版費（voluntary_charge_quote），同頁寫明付不付由作者決定；與 Annals of Statistics、Bernoulli 的 1,295 美元是同一種自願費用。
+        不付不影響刊登。
+    page_charges: {status: not_applicable, checked: 2026-11-13, src: ejs_home, note: 頁面說不要求出版費}
+    color_charges: {status: not_published, checked: 2026-11-13, src: [ejs_home, ejs_submission]}
+    open_access_model: 全部文章開放取用（CC BY 4.0）；不要求作者付費
+    open_access_src: [ejs_home, euclid_scope]
+    ims_wide_publication_charges:
+      applies_to_ejs: {value: true, tier: Open Electronic Access, amount: 825, currency: USD, checked: 2026-11-13, src: publication_charge_form, note: "acceptance_of_papers 頁通篇寫 IMS journals、沒有點名 EJS；IMS 出版費表單（publication_charge_form）則逐刊列出，EJS 在 Open Electronic Access Journals 清單，825 美元"}
+      quote: >-
+        Publication charges are: 1295USD for articles in any Print/Gated Electronic Access journal; 825USD for articles appearing in an
+        Open Electronic Access journal; 200USD for any discussion in any journal.
+      voluntary: "Payment of some or all of the estimated publication charges associated with an article is voluntary."
+      src: acceptance_of_papers
+      note: 這是 IMS 全社頁面的自願出版費；EJS 自己的說法（不要求費用）見上方 apc。
+
+  policies:
+    dual_submission:
+      status: not_published
+      checked: 2026-11-13
+      src: [ejs_submission, ims_ethics]
+      note: >-
+        EJS 頁面沒有「未曾發表、未在他處審查中」的明文條款；EJMS 登入後可能有，未查。ims_ethics A1 只談抄襲與自我抄錄，
+        字面涵蓋「已投或將投」的未發表稿件，見 originality。
+    originality:
+      quote: >-
+        All submitted material must be the authors’ own work, original to the submission, unless specifically stated as having another origin,
+        which must be clearly identified. Here ‘original to the submission’ relates not just to published work, but to unpublished work that the authors
+        have submitted, or are submitting, or plan to submit for publication.
+      src: ims_ethics
+    literature_citation:
+      quote: >-
+        Authors must cite all closely relevant literature, and in particular they must cite unpublished or recently published work (including conference
+        proceedings) of their own related to the paper that is submitted for publication. This applies even when that work is available only in preprint form.
+        Failure to do so may lead quickly to rejection. Items that are not readily available on the web should be uploaded as supplementary files.
+      src: ims_ethics
+    preprints:
+      allowed: true
+      quote: "The IMS encourages all members to post their articles on arXiv."
+      src: ims_arxiv
+      at_submission:
+        quote: "Authors are strongly encouraged to make their paper publicly accessible, e.g. on arXiv, at the time of submission."
+        src: ims_ai_policy
+      caveat: "Please be sure to check your copyright transfer agreements before posting, if your proposed publisher is not the IMS."
+      caveat_src: ims_arxiv
+    generative_ai:
+      applies_from: "2026-11-08"
+      effective_quote: "This policy takes effect from 8 November 2026."
+      basis_for_ejs: >-
+        EJS 首頁側欄列有這一頁；頁面措辭是 "The guiding principles for all IMS journals in the use of AI are transparency and responsibility"。
+        頁面沒有逐刊說明共同贊助期刊是否適用；生效日前投稿的稿件如何處理也沒有寫。
+      writing_limit:
+        quote: "AI may be used to aid in preparing the text, but should not be used for writing papers or entire sections of papers."
+      declaration_required:
+        quote: >-
+          The use of AI tools as part of the research process is permitted, but must be declared both in a ‘Statement on AI use’ section to appear
+          immediately before the bibliography of the article, and in EJMS, where authors will be asked to confirm that their article complies with this policy.
+        even_if_unused: "The declaration should be made even if no AI was used, and otherwise should give a full and detailed description of the purposes for which it was used."
+      responsibility: "Authors retain full responsibility for all aspects of their submission."
+      plagiarism: "Any plagiarism that occurs due to the failure of AI to attribute sources or ideas appropriately is considered as plagiarism committed by the authors."
+      authorship: "Only humans may be listed as authors."
+      concealed_text: "Authors must not include concealed text, instructions, prompts, or other material intended to manipulate reviewers, AI systems or the editorial process."
+      consequence: "Failure to adhere to the above policies is considered grounds for rejection of the article, and may at the discretion of the editors lead to a temporary ban on future submissions to IMS journals."
+      review_use: "As a condition of submission, authors agree that AI tools may be used in the review process, subject to the safeguards outlined below."
+      template_has_section: >-
+        否：ejs-sample.tex 沒有 "Statement on AI use" 之類的環境或註解（2026-11-13 全文檢查 AI、artificial、generative、declar）；
+        作者須自行在參考文獻前加這一節。
+      src: ims_ai_policy
+    copyright:
+      license: CC BY 4.0；作者保留版權
+      quote: >-
+        Under the CCAL, authors retain ownership of the copyright for their article, but authors allow anyone to download, reuse, reprint, modify, distribute,
+        and/or copy articles in EJS, so long as the original authors and source are credited.
+      src: ejs_copyright
+      conflict_with_ims_wide_page: >-
+        acceptance_of_papers（IMS 全社頁）寫 "All authors are required to submit a signed copyright form. The IMS must receive the signed form before the manuscript can be
+        scheduled for publication."；EJS 自己的 Copyright 頁說作者保留版權、採 CC BY。頁面沒有說明 EJS 是否仍要簽那份表單。
+    ethics:
+      corresponding_author: 須熟悉取得其他作者同意與投稿程序；由經驗較少者擔任時，資深共同作者須確保其了解責任（A2）
+      coauthor_informed: 所有作者須被告知投稿並收到相關往來信件；通訊作者須能向編輯證明全體同意（A3）
+      editorial_decisions: 決定部分基於主觀判準，如時效與一般興趣；作者應保持專業與客氣（A5）
+      src: ims_ethics
+    conflict_of_interest:
+      author_disclosure: {status: not_published, checked: 2026-11-13, src: [ejs_submission, ims_ethics], note: 倫理頁的利益衝突條文（B5、B6）只針對審稿人、副編輯與編輯}
+    language_editing: {status: not_published, checked: 2026-11-13, src: [ejs_submission, ejs_preparation]}
+
+  standards: []
+
+# ─────────────────────────────────────────────────────────────
+# FAST — 期刊無年度週期。
+# ─────────────────────────────────────────────────────────────
+cycle:
+  applies_to: null
+  rolling_calls: []
+  special_issues:
+    status: not_found
+    checked: 2026-11-13
+    note: EJS 首頁、Euclid 期刊頁的選單與子頁都沒有徵稿或特刊公告
+
+# ─────────────────────────────────────────────────────────────
+warnings:
+  - >-
+    IMS 的 AI 政策自 2026-11-08 生效（擷取日已生效），EJS 首頁側欄列有這一頁，措辭是 "all IMS journals"。作者須在參考文獻前加
+    "Statement on AI use" 一節，並在 EJMS 確認遵守；即使沒用 AI 也要聲明；AI 不得用於寫整篇或整節；違反可能被拒稿，
+    編輯可酌情暫停作者向 IMS 期刊投稿。投稿即同意審稿過程可使用 AI 工具。範本 ejs-sample.tex 沒有這一節。
+  - >-
+    EJS 的頁面沒有任何篇幅上限（頁數或字數）、審稿制度（作者是否匿名）、評審判準、錄取率或審稿時程。
+    只有範本內文有 200 字摘要上限（範本層級，不是頁面規定）。不要把其他 IMS 期刊的規定當成 EJS 的。
+  - >-
+    費用：EJS 首頁寫 "Author or publication fees are not required."。IMS 的出版費表單（publication_charge_form）把 EJS 列在
+    "Open Electronic Access Journals"，自願出版費 825 美元，同頁寫明 "Payment of these charges is optional."；不付不影響刊登。
+    IMS 全社的 Acceptance of Papers 頁另說所有作者須簽版權表，與 EJS Copyright 頁的「作者保留版權、CC BY」並存且頁面沒有調和；
+    要確定請向編輯詢問。
+  - >-
+    投稿時用 EJS 範本（LaTeX、documentclass 選項 ejsv2，自 2025-03-20 起；舊的 ejs 選項視為 legacy）寫稿，以 PDF 經 EJMS 提交。
+    Preparation of Manuscripts 那一頁是寫給已錄取文章的（寄 tex 原始檔給 VTeX），不是投稿規定。
+  - >-
+    補充材料、資料與程式碼：EJS 頁面只說鼓勵提供程式碼並會張貼在 Statlib；範本註解寫補充材料（含資料與程式碼）不得只放外部連結，
+    必須隨文章放在 Project Euclid。這些只在範本註解，沒有頁面規定。
+  - >-
+    作者須引用所有密切相關的文獻，包括自己尚未發表或近期發表的工作與研討會論文集（即使只有 preprint）；未引用可能迅速退稿，
+    取不到的項目要以補充檔案上傳（ims_ethics A4）。倫理頁最後一句關於 EJP/ECP 編輯群不得投稿，是寫給那兩本期刊的，不適用 EJS。

@@ -174,6 +174,53 @@ sources:
       last_verified_at: 2026-10-08
       extracted_sha256: null
 
+  - id: tf_apc_finder
+    role: supporting
+    url: https://authorservices.taylorandfrancis.com/publishing-open-access/open-access-cost-finder/
+    note: >-
+      tf_instructions 的 "Use our APC finder to view the APC for this journal." 連到這裡。T&F 全社的 APC 查詢工具，金額由頁內
+      JavaScript 查詢後才顯示。2026-11-13 以 Safari 在頁內填期刊名、勾選 OA 狀態（Open Select）與出版社（Taylor & Francis）
+      後按 Search，結果列為 "of 0 entries"，沒有取得金額；期刊名欄是自動完成元件，可能要從下拉選單點選才算選定，本次沒有成功。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 回 200（約 92 KB）但只有空的查詢表單，金額要在頁內查詢"
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+
+  - id: mjl
+    role: supporting
+    url: https://mjl.clarivate.com/home
+    note: >-
+      Clarivate Master Journal List。JS 單頁應用，結果頁網址不帶查詢字串；只能在頁內於 #search-box 填 ISSN、按 #search-button
+      後讀結果列（2026-11-13 以 Safari 操作：填 0162-1459，得 "Found 1 results"、"Exact Match Found"）。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "200 但只有 SPA 空殼，查詢結果需在頁內操作"
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+
+  - id: scimago
+    role: supporting
+    url: https://www.scimagojr.com/journalsearch.php?q=12094&tip=sid&clean=0
+    note: >-
+      SCImago（SJR）期刊頁。sid 12094 由 journalsearch.php?q=0162-1459&tip=iss&clean=0 的搜尋結果取得（只列 "Journal of the American
+      Statistical Association" 一筆）。curl 回 403 Cloudflare 挑戰頁，以 Safari 讀到約 22.7 K 字元。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "403, Cloudflare challenge page (~5.7 KB)"
+      validity:
+        must_contain: "The set of journals have been ranked according to their SJR and divided into four equal groups"
+        min_extracted_chars: 12000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
 # ─────────────────────────────────────────────────────────────
 identity:
   name: Journal of the American Statistical Association
@@ -197,19 +244,81 @@ identity:
   external_ids:
     crossref: "0162-1459"
     openalex: issn:0162-1459
+  indexing:
+    clarivate_mjl:
+      scie: true
+      ssci: false
+      ahci: false
+      esci: false
+      web_of_science_core_collection: Science Citation Index Expanded
+      additional_indexes: ["Current Contents Physical, Chemical & Earth Sciences", "Essential Science Indicators"]
+      checked: 2026-11-13
+      search_issn: "0162-1459"
+      mjl_title_string: JOURNAL OF THE AMERICAN STATISTICAL ASSOCIATION
+      mjl_publisher_string: TAYLOR & FRANCIS INC , 530 WALNUT STREET, STE 850, PHILADELPHIA, USA, PA, 19106
+      src: mjl
+      note: >-
+        搜尋 0162-1459 得 1 筆 "Exact Match Found"（ISSN / eISSN 0162-1459 / 1537-274X），Web of Science Core Collection 欄只列
+        Science Citation Index Expanded；沒有 SSCI、AHCI、ESCI（Active Filters 為預設的四項）。
   metrics:
-    impact_factor: {value: 4.0, year: 2025, as_of: 2026-10-08, src: tf_about}
+    impact_factor: {value: 4.0, year: 2025, as_of: 2026-10-08, src: tf_about, note: '2026-11-13 以 Safari 重讀 tf_about，原文 "4.0 (2025) Impact Factor"，未變'}
     impact_factor_5yr: {value: 5.5, year: 2025, as_of: 2026-10-08, src: tf_about}
     citescore: {value: 7.5, year: 2025, as_of: 2026-10-08, src: tf_about}
     snip: {value: 3.094, year: 2025, as_of: 2026-10-08, src: tf_about}
     sjr: {value: 3.790, year: 2025, as_of: 2026-10-08, src: tf_about}
     quartile: {value: Q1, basis: [Impact Factor, CiteScore], as_of: 2026-10-08, src: tf_about}
+    quartiles:
+      - system: JCR
+        category: category not stated
+        quartile: Q1
+        as_printed: "Q1 Impact Factor Best Quartile"
+        as_of: 2026-11-13
+        src: tf_about
+        note: >-
+          期刊頁自述，原文 "Q1 Impact Factor Best Quartile"：是以 Impact Factor 計、各類別中最好的分區。頁面沒有寫是哪一個學科類別，
+          分區那一行也沒有標年度（上一行是 "4.0 (2025) Impact Factor"），所以不填 category 與 year。頁面沒有點名 JCR 或 Clarivate，
+          這裡依 Impact Factor 的分區歸為 JCR 系統。同頁 "Q1 CiteScore Best Quartile" 是 Scopus CiteScore 的分區，不屬 JCR 或 SJR，
+          留在上方 quartile 欄，不列在這裡。
+      - {system: SJR, category: "Statistics and Probability", subject_area: Mathematics, quartile: Q1, year: 2025, as_of: 2026-11-13, src: scimago}
+      - system: SJR
+        category: "Statistics, Probability and Uncertainty"
+        subject_area: Decision Sciences
+        quartile: Q1
+        year: 2025
+        as_of: 2026-11-13
+        src: scimago
+        note: >-
+          SCImago 的 Subject Area and Category 欄列這兩個類別；表格 "Category / Year / Quartile" 中 2025 年兩者皆為 Q1（2024 年也都是 Q1）。
+          頁面同列 "SJR 2025" 為 3.790、H-Index 238。這是 SJR 分區。
     acceptance_rate:
-      value: 0.14
+      value: 14
+      unit: percent
+      as_printed: "14% acceptance rate"
+      basis: 頁面 "Speed/acceptance" 段只寫 "14% acceptance rate"，沒有說明統計期間與母體
       as_of: 2026-10-08
+      last_checked: 2026-11-13
       src: tf_about
-      note: 全刊數字，頁面未分 section、未註明統計期間。
-    time_to_first_decision: {value_days: 63, as_of: 2026-10-08, src: tf_about, note: 投稿到第一次決定的平均天數（含 desk decision）}
+      note: >-
+        全刊數字，頁面未分 section、未註明統計期間。2026-10-08 的記錄寫成 value 0.14（比例），比較表因此印成 "0.14%"；
+        2026-11-13 以 Safari 重讀，原文是 "14% acceptance rate"，改成百分比數字 14。
+    time_to_first_decision:
+      value: 63
+      unit: days
+      statistic: mean
+      as_printed: "63 days avg. from submission to first decision"
+      as_of: 2026-10-08
+      last_checked: 2026-11-13
+      src: tf_about
+      note: >-
+        原文寫 "avg."，是平均數，不是中位數；比較表的欄名寫「中位」，這個值不能和其他刊的中位數直接比。2026-10-08 記錄的
+        note 寫「含 desk decision」，2026-11-13 重讀的頁面文字沒有這句說明（可能出自頁面連出的 metrics 說明頁，本次未查）。
+    time_submission_to_acceptance:
+      status: not_published
+      checked: 2026-11-13
+      pages_checked: [tf_about]
+      note: >-
+        tf_about 的 "Speed/acceptance" 段只有四項：submission to first decision、submission to first post-review decision、
+        acceptance to online publication、acceptance rate，沒有投稿到接受。也沒有自行抽樣估計。
     time_to_first_post_review_decision: {value_days: 102, as_of: 2026-10-08, src: tf_about}
     acceptance_to_online: {value_days: 96, as_of: 2026-10-08, src: tf_about}
 
@@ -467,8 +576,15 @@ requirements:
     statement: "There are no submission fees, publication fees or page charges for this journal."
     apc:
       applies_when: 選擇 Open Select 開放取用時
-      amount: {status: not_published, checked: 2026-10-08, src: tf_instructions,
-               note: JASA 頁面未列金額，只指向 T&F 的 APC finder；機構若與 T&F 有 OA 協議可減免}
+      amount:
+        status: not_found
+        checked: 2026-11-13
+        src: [tf_instructions, tf_apc_finder]
+        note: >-
+          JASA 頁面未列金額，只指向 T&F 的 APC finder（tf_instructions 原文 "You will be asked to pay an article publishing charge
+          (APC) to make your article open access ... Use our APC finder to view the APC for this journal."）；機構若與 T&F 有 OA 協議可減免。
+          出版社有公布金額（在 APC finder 裡），所以不是 not_published；2026-11-13 在 Safari 操作 APC finder 沒有查到結果（見
+          tf_apc_finder 的 note），記為 not_found。2026-10-08 的記錄曾寫 not_published。
       not_open_access: 不選 OA 則無 APC
     color_print:
       online: 免費

@@ -278,6 +278,56 @@ sources:
         min_extracted_chars: 4000
     snapshot: {fetched_at: 2026-10-08, last_verified_at: 2026-10-08, extracted_sha256: null}
 
+  - id: publication_charge_form
+    role: authoritative
+    url: https://imstat.org/shop/publication-charge-funding-form/
+    note: >-
+      IMS 出版費表單頁，逐刊列出出版費；"Print/Gated Electronic Access Journal*" 清單列 "Annals of Statistics +$1,295.00"。
+      這是 IMS 全站頁面（Bernoulli 記錄也用同一頁）。2026-11-13 以 Safari 讀 innerText，約 2.8 K 字元。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Anubis proof-of-work 挑戰頁（curl 回 HTTP 200 + 約 7.4 KB，imstat.org 各頁同一個挑戰頁）
+      validity:
+        must_contain: "The IMS collects publication charges for the journals listed below"
+        min_extracted_chars: 2000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: mjl
+    role: supporting
+    url: https://mjl.clarivate.com/home
+    note: >-
+      Clarivate Master Journal List。JS 單頁應用，結果頁網址不帶查詢字串；只能在頁內於 #search-box 填 ISSN、按 #search-button
+      後讀結果列（2026-11-13 以 Safari 操作：填 0090-5364，得 "Found 1 results"、"Exact Match Found"）。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "200 但只有 SPA 空殼，查詢結果需在頁內操作"
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+
+  - id: scimago
+    role: supporting
+    url: https://www.scimagojr.com/journalsearch.php?q=13649&tip=sid&clean=0
+    note: >-
+      SCImago（SJR）期刊頁。sid 13649 由 journalsearch.php?q=0090-5364&tip=iss&clean=0 的搜尋結果取得（只列 "Annals of Statistics"
+      一筆）。curl 回 403 Cloudflare 挑戰頁（2026-11-13 實測 5755 bytes，"Just a moment..."），以 Safari 讀到約 21.9 K 字元。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "403, Cloudflare challenge page (~5.7 KB)"
+      validity:
+        must_contain: "The set of journals have been ranked according to their SJR and divided into four equal groups"
+        min_extracted_chars: 12000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
 # ─────────────────────────────────────────────────────────────
 identity:
   name: The Annals of Statistics
@@ -300,6 +350,23 @@ identity:
     model: 訂閱制（IMS 會員與機構訂戶經 Project Euclid 存取）；超過 3 年的文章開放
     statement: "Access: Articles older than 3 years are open."
     src: euclid_details
+  indexing:
+    clarivate_mjl:
+      scie: true
+      ssci: false
+      ahci: false
+      esci: false
+      web_of_science_core_collection: Science Citation Index Expanded
+      additional_indexes: ["Current Contents Physical, Chemical & Earth Sciences", "Essential Science Indicators"]
+      checked: 2026-11-13
+      search_issn: "0090-5364"
+      mjl_title_string: ANNALS OF STATISTICS
+      mjl_publisher_string: INST MATHEMATICAL STATISTICS-IMS , 3163 SOMERSET DR, CLEVELAND, Usa, OH, 44122
+      src: mjl
+      note: >-
+        搜尋 0090-5364 得 1 筆 "Exact Match Found"（ISSN / eISSN 0090-5364 / 2168-8966），Web of Science Core Collection 欄只列
+        Science Citation Index Expanded；沒有 SSCI、AHCI、ESCI（Active Filters 為預設的四項，沒有被篩掉）。Additional Web of Science
+        Indexes 欄原文 "Current Contents Physical, Chemical & Earth Sciences | Essential Science Indicators"。
   metrics:
     impact_factor:
       value: 2.901
@@ -326,6 +393,37 @@ identity:
       checked: 2026-10-08
       note: 無實際統計值；只有 ae_guidelines 內的時程目標（見 review.timeline_targets）
       src: ae_guidelines
+    time_submission_to_acceptance:
+      status: not_published
+      checked: 2026-11-13
+      pages_checked: [euclid_details, journal_home]
+      note: >-
+        2026-11-13 以 Safari 讀 Project Euclid 的 Scope & Details 頁與 IMS 的 AoS 首頁，都沒有投稿到接受的時間（Euclid 頁的
+        METRICS 段只有 Impact Factor、Five-Year Impact Factor、JCR 名次與 MCQ）。也沒有自行抽樣估計。
+    quartiles:
+      - system: SJR
+        category: Statistics and Probability
+        subject_area: Mathematics
+        quartile: Q1
+        year: 2025
+        as_of: 2026-11-13
+        src: scimago
+      - system: SJR
+        category: Statistics, Probability and Uncertainty
+        subject_area: Decision Sciences
+        quartile: Q1
+        year: 2025
+        as_of: 2026-11-13
+        src: scimago
+        note: >-
+          SCImago 的 Subject Area and Category 欄列這兩個類別；表格 "Category / Year / Quartile" 中 2025 年兩者皆為 Q1
+          （2024 年也都是 Q1）。頁面同列 "SJR 2025" 為 3.697、H-Index 213。這是 SJR 分區，不是 JCR。
+    jcr_quartile:
+      status: not_found
+      checked: 2026-11-13
+      note: >-
+        JCR 分區需登入 Clarivate JCR，本次未查。euclid_details 印的是名次 "#8 of 123 in Statistics & Probability"（見 category_rank），
+        沒有印分區，這裡不由名次推算。
 
 # ─────────────────────────────────────────────────────────────
 # SLOW — 數年不變。驗證用 hash diff 即可。
@@ -570,6 +668,21 @@ requirements:
       partial_payment: 接受任何金額的部分付款
       open_access: 付清全額出版費的文章授予開放取用（"Open access is granted on any article for which full publication charges are paid."）
       src: acceptance_of_papers
+    apc:
+      amount: 1295
+      currency: USD
+      mandatory: false
+      quote: "Annals of Statistics +$1,295.00"
+      quote_context: >-
+        publication_charge_form 的 "Print/Gated Electronic Access Journal*" 清單；同頁開頭 "The IMS collects publication charges for
+        the journals listed below. Payment of these charges is optional."
+      note: >-
+        IMS 稱這筆錢為 publication charges，不叫 APC：自願、錄取後才請求、付全額才開放取用（acceptance_of_papers 2026-11-13 重讀，
+        原文 "Open access is granted on any article for which full publication charges are paid."）。所以這裡以 mandatory: false
+        填入，供比較表顯示為選付。publication_charges.applicable_tier_note 寫的「依存取方式推斷適用 1295 USD」，
+        這份表單已逐刊明列，不再只是推斷。
+      as_of: 2026-11-13
+      src: [publication_charge_form, acceptance_of_papers]
     color_print: {status: not_published, checked: 2026-10-08}
 
   policies:

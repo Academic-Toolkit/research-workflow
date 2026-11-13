@@ -153,6 +153,38 @@ sources:
       http_failure_mode: Cloudflare 403（同 oup_instructions）
     snapshot: {fetched_at: 2026-10-08, last_verified_at: 2026-10-08}
 
+  - id: mjl
+    role: supporting
+    url: https://mjl.clarivate.com/home
+    note: >-
+      Clarivate Master Journal List。JS 單頁應用，結果頁網址不帶查詢字串；只能在頁內於 #search-box 填 ISSN、按 #search-button
+      後讀結果列（2026-11-13 以 Safari 操作：填 0035-9254，得 "Found 1 results"、"Exact Match Found"）。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "200 但只有 SPA 空殼，查詢結果需在頁內操作"
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+
+  - id: scimago
+    role: supporting
+    url: https://www.scimagojr.com/journalsearch.php?q=13533&tip=sid&clean=0
+    note: >-
+      SCImago（SJR）期刊頁。sid 13533 由 journalsearch.php?q=0035-9254&tip=iss&clean=0 的搜尋結果取得（只列 "Journal of the Royal
+      Statistical Society. Series C: Applied Statistics" 一筆）。curl 回 403 Cloudflare 挑戰頁，以 Safari 讀到約 24 K 字元。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "403, Cloudflare challenge page (~5.7 KB)"
+      validity:
+        must_contain: "The set of journals have been ranked according to their SJR and divided into four equal groups"
+        min_extracted_chars: 12000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
 # ─────────────────────────────────────────────────────────────
 identity:
   name: "Journal of the Royal Statistical Society Series C: Applied Statistics"
@@ -175,6 +207,22 @@ identity:
   external_ids:
     crossref: "0035-9254"
     openalex: issn:0035-9254
+  indexing:
+    clarivate_mjl:
+      scie: true
+      ssci: false
+      ahci: false
+      esci: false
+      web_of_science_core_collection: Science Citation Index Expanded
+      additional_indexes: ["Current Contents Physical, Chemical & Earth Sciences", "Essential Science Indicators"]
+      checked: 2026-11-13
+      search_issn: "0035-9254"
+      mjl_title_string: JOURNAL OF THE ROYAL STATISTICAL SOCIETY SERIES C-APPLIED STATISTICS
+      mjl_publisher_string: OXFORD UNIV PRESS , GREAT CLARENDON ST, OXFORD, ENGLAND, OX2 6DP
+      src: mjl
+      note: >-
+        搜尋 0035-9254 得 1 筆 "Exact Match Found"（ISSN / eISSN 0035-9254 / 1467-9876），Web of Science Core Collection 欄只列
+        Science Citation Index Expanded；沒有 SSCI、AHCI、ESCI（Active Filters 為預設的四項）。
   metrics:
     impact_factor: {value: 1.4, year: 2025, as_of: 2026-10-08, src: oup_home}
     impact_factor_5yr: {value: 1.8, year: 2025, as_of: 2026-10-08, src: oup_home}
@@ -193,6 +241,33 @@ identity:
       note: 頁面未標 JCR 年份；與同頁 1.3 的影響係數並列，推測為 2024 年版
     acceptance_rate: {status: not_published, checked: 2026-10-08, note: oup_home、oup_about、oup_why_publish、oup_instructions、rss_series_c 皆無}
     time_to_first_decision: {status: not_published, checked: 2026-10-08, note: 同上五頁皆無}
+    time_submission_to_acceptance:
+      status: not_published
+      checked: 2026-11-13
+      pages_checked: [oup_home, oup_why_publish, rss_series_c]
+      note: >-
+        2026-11-13 以 Safari 讀 oup_home 與 oup_why_publish、以 curl 讀 rss_series_c，都沒有投稿到接受的時間（oup_home 只印
+        "1.4 / 2025 Impact Factor" 與 "1.8 / 2025 5 Year Impact Factor"，與記錄相同；oup_why_publish 只寫 "Series C’s latest Impact
+        Factor is 1.3 (Source: Journal Impact Factor™, from Clarivate, 2024)."；rss_series_c 只有 Impact Factor 與 Journal ranking）。
+        也沒有自行抽樣估計。
+    quartiles:
+      - {system: SJR, category: "Statistics and Probability", subject_area: Mathematics, quartile: Q2, year: 2025, as_of: 2026-11-13, src: scimago}
+      - system: SJR
+        category: "Statistics, Probability and Uncertainty"
+        subject_area: Decision Sciences
+        quartile: Q2
+        year: 2025
+        as_of: 2026-11-13
+        src: scimago
+        note: >-
+          SCImago 的 Subject Area and Category 欄列這兩個類別；表格 "Category / Year / Quartile" 中 2025 年兩者皆為 Q2（2024 年也都是 Q2）。
+          頁面同列 "SJR 2025" 為 0.734、H-Index 85。這是 SJR 分區，不是 JCR。
+    jcr_quartile:
+      status: not_found
+      checked: 2026-11-13
+      note: >-
+        JCR 分區需登入 Clarivate JCR，本次未查。rss_series_c 只印名次 "Journal ranking: 71/167 (statistics & probability)"（見 category_rank），
+        沒有印分區，這裡不由名次推算。
 
 # ─────────────────────────────────────────────────────────────
 # SLOW — 數年不變。
@@ -421,7 +496,12 @@ requirements:
       - {id: cc_by_nc, label: CC BY-NC, charge: OA APC}
     apc:
       value: 2945
+      amount: 2945
       currency: GBP
+      mandatory: false
+      mandatory_note: >-
+        本刊是 hybrid（identity.open_access）：licence_options 的 Assignment RSS 不收費（charge 0，僅訂閱者可讀），選 CC BY 或
+        CC BY-NC 才收 APC。amount 與 value 是同一個數字，amount 是比較表讀的標準欄位名。
       as_of: 2026-10-08
       src: oup_oa_charges
       note: >-

@@ -1,0 +1,775 @@
+--- # research-submission venue record
+# 內容擷取自 Statistica Sinica 官方網站（www3.stat.sinica.edu.tw/statistica/）、其 ScholarOne 投稿系統登入頁，
+# 以及 Clarivate Master Journal List，2026-11-13。
+#
+# 抓取方式：官網各頁與下載檔用 curl 取得並自行抽取文字（HTTP 200、無 bot 挑戰）；投稿系統（Cloudflare 403 挑戰）
+# 與 Master Journal List（JS 單頁應用）用 safari-browser（--profile 個人）讀 document.body.innerText。
+# 期刊指標只出現在首頁的一張圖片（JCS_2026.png）裡，沒有文字版；數字是我讀圖取得（原圖與放大圖都看過），
+# 不是抽取出來的文字，verify.py 也無法比對圖片內容。
+#
+# 官網的須知集中在單一頁面 author_instru.html（Editorial Policy + Manuscript Preparation + Submission），
+# 另有 2020 年 8 月的 Editorial Policy PDF；兩者的篇幅敘述不完全相同，見 requirements.length 與 warnings。
+
+schema_version: 1
+id: academia-sinica/statistica-sinica
+kind: journal
+family: statistics-journals
+status: active
+
+# ─────────────────────────────────────────────────────────────
+# 來源與 provenance。所有 URL 都是從期刊首頁（frameset 導覽）或該頁內連結點進去的，非推測。
+# ─────────────────────────────────────────────────────────────
+sources:
+  - id: author_instructions
+    role: authoritative
+    url: https://www3.stat.sinica.edu.tw/statistica/author_instru.html
+    note: >-
+      首頁導覽 "Instructions for Authors"。Editorial Policy、Manuscript Preparation、Supplementary Documents、
+      LaTeX Template、Submission 五段都在這一頁；ScholarOne 的 "Instructions & Forms" 也只是連回這一頁。
+      頁內數學式是圖片，抽取後留下空洞（Section II 的句子不引用）。頁面標題日期為 "August 1, 2020"，
+      但內文已與 2020 年的 PDF 不同（見 editorial_policy_pdf）。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Statistica Sinica seeks high-quality papers in all areas of Statistics and Data Sciences"
+        min_extracted_chars: 9000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: aims
+    role: authoritative
+    url: https://www3.stat.sinica.edu.tw/statistica/aims.html
+    note: 首頁導覽 "About the Journal"（頁面標題 "Aims & Scope"）。創刊年、刊期、ISSN、收錄資料庫與宗旨。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Statistica Sinica aims to meet the needs of statisticians and data scientists"
+        min_extracted_chars: 700
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: editorial_policy_pdf
+    role: authoritative
+    url: https://www3.stat.sinica.edu.tw/statistica/download/Editorial_Policy_2020-2023.pdf
+    note: >-
+      首頁 "Editorial Policy (Aug. 1, 2020)" 連結的 PDF（71,051 bytes，sha256
+      41f27b48c1f937ab85625d939b75ad9477dcbd44c1c86319b32cd706bf070a9c，PDF 內建建立日期 2020-09-28）。
+      文字用 pdftotext 抽取。與 author_instru.html 的 Editorial Policy 段大致相同，但篇幅句不同：
+      PDF 寫 "The main part of the submitted paper ... and there is no page-limit for the supplement"，
+      HTML 寫 "The main document (including references and a possible appendix)"，並給補充 PDF 10 MB 上限。
+      verify.py 的 HTML 抽取器讀不到 PDF 壓縮內文：must_contain 用的是 PDF 內建的未壓縮 XMP 標題，
+      只能斷言「抓到的是這個 PDF、不是錯誤頁」，hash 等於監看整個檔案的位元組，不是規定的文字。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Editorial_policy-_Statistica_Sinica-final"
+        min_extracted_chars: 30000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: online_only_policy
+    role: authoritative
+    url: https://www3.stat.sinica.edu.tw/statistica/newspage/Editorial%20Policy%20for%20Online-Only%20Issues%20of%20Statistica%20Sinica.html
+    note: >-
+      首頁新聞列 "Editorial Policy for Online-Only Issues (Oct. 28, 2026)"。網址含空格，這裡用 %20 編碼的形式。
+      說明 2027 年起的純線上期別。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Online-only issues are planned to begin publication in 2027"
+        min_extracted_chars: 1800
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: current_status_image
+    role: supporting
+    url: https://www3.stat.sinica.edu.tw/statistica/JCS_2026.png
+    note: >-
+      首頁 "Journal Current Status (Aug. 10, 2026)" 內嵌的圖片（588x223 px，12,278 bytes，sha256
+      7621ae1e84bc97c6ee670cc3c0281a75ba8f27ea6266c3f01d0426264758e25f）。期刊官方公布的指標全在這張圖裡，
+      沒有文字版。數字由我讀圖取得（含放大檢視），不是抽取出來的文字。圖上八格，標示如下：
+      No. of manuscripts received - 2025 = 451；Acceptance rate - 2025 = 20.1%；
+      No. of days from submission to first decision - 2025.1-2025.12 = 62；
+      No. of days from acceptance to publication - 2025.7-2026.6 = 543；
+      No. of downloads - 2025.8-2026.6 = 1,491,561；No. of subscription - 2025.10-2026.9 = 576；
+      IF - 2025 = 1.2；5 YR IF - 2025 = 1.6；SJR - 2025 / SCImago Journal Rankings - 2025 = "53 / Q1"。
+      圖上沒有標 IF 的提供者、62 天是平均或中位數、"53" 的意義、SJR 的類別。
+      verify.py 對圖片只會雜湊位元組（無 must_contain），圖片換檔（檔名含年份）時會回報 CHANGED。
+    fetch:
+      method: http
+      http_viable: true
+    snapshot: {fetched_at: 2026-11-13, last_verified_at: 2026-11-13, extracted_sha256: null}
+
+  - id: journal_home
+    role: supporting
+    url: https://www3.stat.sinica.edu.tw/statistica/main.asp
+    note: >-
+      首頁（frameset 內的 main 頁）。新聞列、"Journal Current Status" 圖片的位置、"Full-text articles published a year ago
+      are free to access!"。頁面列出最新文章，每有新文章 hash 就會變，CHANGED 不代表規定改版。
+      其中 "preprint articles" 指已被接受、提早上線的文章，不是作者可貼到 preprint 伺服器的政策。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Journal Current Status"
+        min_extracted_chars: 1000
+    snapshot: {fetched_at: 2026-11-13, last_verified_at: 2026-11-13, extracted_sha256: null}
+
+  - id: journal_frame_home
+    role: supporting
+    url: https://www3.stat.sinica.edu.tw/statistica/
+    note: 期刊網站的 frameset 首頁（導覽列）；"STATISTICA SINICA is co-sponsored by" 一句只在這裡。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "STATISTICA SINICA is co-sponsored by"
+        min_extracted_chars: 200
+    snapshot: {fetched_at: 2026-11-13, last_verified_at: 2026-11-13, extracted_sha256: null}
+
+  - id: editorial_board
+    role: supporting
+    url: https://www3.stat.sinica.edu.tw/statistica/editors2020.html
+    note: >-
+      首頁導覽 "Editorial Board"。網址檔名帶 2020，但內容的 Past Editors 列到 (2023-2026) 屆，應為現行名單
+      （頁面沒有標更新日期）。現任 Co-Editors 沒有印任期。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Associate Editors:"
+        min_extracted_chars: 4000
+    snapshot: {fetched_at: 2026-11-13, last_verified_at: 2026-11-13, extracted_sha256: null}
+
+  - id: contact
+    role: supporting
+    url: https://www3.stat.sinica.edu.tw/statistica/contact.html
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "128 Academia Road, Section 2, Nankang, Taipei 11529, Taiwan"
+        min_extracted_chars: 100
+    snapshot: {fetched_at: 2026-11-13, last_verified_at: 2026-11-13, extracted_sha256: null}
+
+  - id: subscription_rates
+    role: supporting
+    url: https://www3.stat.sinica.edu.tw/statistica/rate.html
+    note: 首頁導覽 "Subscripition"（原文拼法）。訂閱價格表，不是作者費用。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Oversea Subscription Rates"
+        min_extracted_chars: 400
+    snapshot: {fetched_at: 2026-11-13, last_verified_at: 2026-11-13, extracted_sha256: null}
+
+  - id: latex_page
+    role: supporting
+    url: https://www3.stat.sinica.edu.tw/statistica/latex.html
+    note: >-
+      "Latex Template" 連結的目標頁，列出稿件與補充材料兩個範本。補充材料範本在這頁連到 download/supp-temp.tex，
+      author_instru.html 卻連到 download/supp-temp_20240820.tex；兩個檔案不同（只差 hyperref 選項與兩行版面設定）。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "LaTeX Template (For Manuscript)"
+        min_extracted_chars: 50
+    snapshot: {fetched_at: 2026-11-13, last_verified_at: 2026-11-13, extracted_sha256: null}
+
+  - id: template_zip
+    role: supporting
+    url: https://www3.stat.sinica.edu.tw/statistica/download/SS-template.zip
+    note: >-
+      稿件 LaTeX 範本壓縮檔（430,564 bytes，sha256 7db9535a15bdf1f580cee0494395796806eaddf71f76c02622802fdd7e438c26）。
+      成員：SS-template/SS-template.tex、SS-template-bib.tex、SS-template.pdf、carat.pdf，檔案日期 2020-07-24。
+      範本內文是 \documentclass[12pt]{article} 加 natbib、\baselinestretch 2。內容是我解壓後逐字讀的。
+      verify.py 讀不到壓縮內文：must_contain 用壓縮檔目錄裡的成員檔名，hash 等於監看整個壓縮檔。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "SS-template/SS-template.tex"
+        min_extracted_chars: 200000
+    snapshot: {fetched_at: 2026-11-13, last_verified_at: 2026-11-13, extracted_sha256: null}
+
+  - id: supplement_template
+    role: supporting
+    url: https://www3.stat.sinica.edu.tw/statistica/download/supp-temp_20240820.tex
+    note: 補充材料 LaTeX 範本（author_instru.html 連到的版本，3,777 bytes）。檔名的日期是 2024-08-20。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Statistica Sinica: Supplement"
+        min_extracted_chars: 2000
+    snapshot: {fetched_at: 2026-11-13, last_verified_at: 2026-11-13, extracted_sha256: null}
+
+  - id: special_issue_news
+    role: supporting
+    url: https://www3.stat.sinica.edu.tw/statistica/newspage/36-31released.html
+    note: 首頁新聞 "The Aug. 2026 special issue has been released online!"。只是已出刊的特刊公告，不是徵稿。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "High Dimensional Learning and Inference"
+        min_extracted_chars: 250
+    snapshot: {fetched_at: 2026-11-13, last_verified_at: 2026-11-13, extracted_sha256: null}
+
+  - id: submission_portal
+    role: supporting
+    url: http://mc04.manuscriptcentral.com/statisticasinica
+    note: >-
+      author_instru.html 的 Submission 段給的投稿網址（原文是 http://，伺服器轉成 https）。
+      2026-11-13 用 safari-browser 開啟：頁面標題 "ScholarOne Manuscripts"，內文有
+      "Welcome to the submission site for" 換行 "Statistica Sinica"，接著 "To begin, log in with your user ID and password."
+      頁面有 Log In、Reset Password、Create An Account、"Log in using Web of ScienceTM"。
+      "Instructions & Forms" 開出的頁面只有一個連結 "Instructions for Authors"，指向 author_instru.html。
+      "Journal Home" 連到 http://www3.stat.sinica.edu.tw/statistica/。登入後的投稿步驟沒有查（需要帳號）。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: >-
+        Cloudflare managed challenge：curl 回 HTTP 403 加 5,496 bytes 的 "Just a moment..." 頁
+        （2026-11-13，http 與 https 皆同）。
+    snapshot: {fetched_at: 2026-11-13, last_verified_at: 2026-11-13}
+
+  - id: mjl
+    role: supporting
+    url: https://mjl.clarivate.com/home
+    note: >-
+      Clarivate Master Journal List。JS 單頁應用，結果頁網址不帶查詢字串，無法用網址重現；只能在頁內於 #search-box 填 ISSN
+      （本次填 1017-0405）、按 #search-button 後讀結果列。結果列的 "View profile page" 需要免費登入
+      （頁面標 "* Requires free login."），所以 JCR 的類別與分區沒有取得。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "curl 回 HTTP 200 + 11,428 bytes，但只有 SPA 空殼，查詢結果需在頁內操作"
+    snapshot: {fetched_at: 2026-11-13, last_verified_at: 2026-11-13}
+
+# ─────────────────────────────────────────────────────────────
+identity:
+  name: Statistica Sinica
+  publisher: Institute of Statistical Science, Academia Sinica
+  publisher_note: >-
+    官網沒有用 "publisher" 一詞。aims 頁寫期刊 "is co-sponsored by the Institute of Statistical Science, Academia Sinica
+    (ISSAS), Taiwan & the International Chinese Statistical Association. It is fully funded by ISSAS."，
+    首頁導覽頁寫 "STATISTICA SINICA is co-sponsored by Institute of Statistical Science, Academia Sinica & International
+    Chinese Statistical Association"。官網用的字是 co-sponsored，不是 co-published。Master Journal List 的出版者欄是
+    "STATISTICA SINICA , C/O DR H C HO, INST STATISTICAL SCIENCE, ACADEMIA SINICA, TAIPEI, TAIWAN, 115"。
+    這裡的 publisher 欄依 ISSAS 填寫（經費與編輯部所在），是整理者的歸納，不是官網的明文。
+  sponsors:
+    - {name: Institute of Statistical Science, Academia Sinica, abbreviation: ISSAS, role: "co-sponsor（頁面另寫 It is fully funded by ISSAS）", src: aims}
+    - {name: International Chinese Statistical Association, role: co-sponsor, src: aims}
+  issn: {print: "1017-0405", electronic: "1996-8507", src: aims}
+  homepage: https://www3.stat.sinica.edu.tw/statistica/
+  founded: {value: 1991, quote: "Statistica Sinica was established in 1991", src: aims}
+  frequency:
+    value: quarterly (January, April, July and October)
+    quote: "It publishes significant and original articles in statistics and data science quarterly in January, April, July and October."
+    src: aims
+    note: >-
+      首頁另有 2026 年 8 月出刊的特刊（special_issue_news），online_only_policy 說 2027 年起會有不定期的純線上期別，
+      所以季刊並不涵蓋全部期別。
+  editors:
+    - {role: Co-Editor, name: Ian McKeague, affiliation: "Columbia University, New York", term: {status: not_published, checked: 2026-11-13, src: editorial_board}, src: editorial_board}
+    - {role: Co-Editor, name: I-Ping Tu, affiliation: "Academia Sinica, Taipei", term: {status: not_published, checked: 2026-11-13, src: editorial_board}, src: editorial_board}
+    - {role: Co-Editor, name: Hui Zou, affiliation: "Johns Hopkins University, Baltimore", term: {status: not_published, checked: 2026-11-13, src: editorial_board}, src: editorial_board}
+  managing_editor: {name: Hsin-Wen Chang, affiliation: "Academia Sinica, Taipei", src: editorial_board}
+  editorial_assistants:
+    - {name: Vicky Ho, affiliation: "Academia Sinica, Taipei", src: editorial_board}
+    - {name: Yuvia Hsiang, affiliation: "Academia Sinica, Taipei", src: editorial_board}
+  editorial_office:
+    address: "Institute of Statistical Science, Academia Sinica, 128 Academia Road, Section 2, Nankang, Taipei 11529, Taiwan"
+    email: ss.office@stat.sinica.edu.tw
+    email_src: contact
+    subscriptions_email: ss@stat.sinica.edu.tw
+    subscriptions_email_src: subscription_rates
+  external_ids:
+    crossref: "1017-0405"
+    openalex: issn:1017-0405
+    doi_prefix: {value: "10.5705", note: 首頁與 latestart 頁文章列表的 DOI 形式為 doi:10.5705/ss.202023.0366, src: journal_home}
+  access:
+    model: 訂閱制；刊出滿一年的全文免費
+    statement: "Full-text articles published a year ago are free to access!"
+    src: journal_home
+    note: >-
+      首頁另寫 ICSA 會員可從 ICSA 網站的 "membership only area" 讀全文。訂閱價見 subscription_rates
+      （一年份：個人線上版 $78、機構線上版 $270，頁面只寫 $、沒有標幣別）。官網沒有作者付費的開放取用（APC）選項的說明。
+  indexing:
+    clarivate_mjl:
+      scie: true
+      ssci: false
+      ahci: false
+      esci: false
+      web_of_science_core_collection: Science Citation Index Expanded
+      additional_indexes: [Current Contents Physical, Chemical & Earth Sciences, Essential Science Indicators]
+      checked: 2026-11-13
+      search_issn: "1017-0405"
+      mjl_title_string: "STATISTICA SINICA"
+      mjl_publisher_string: "STATISTICA SINICA , C/O DR H C HO, INST STATISTICAL SCIENCE, ACADEMIA SINICA, TAIPEI, TAIWAN, 115"
+      src: mjl
+      note: >-
+        搜尋 1017-0405 得 1 筆 "Exact Match Found"（ISSN / eISSN 1017-0405 / 1996-8507），Web of Science Core Collection
+        欄只列 Science Citation Index Expanded；沒有 SSCI、AHCI、ESCI。
+    publisher_stated:
+      src: aims
+      quote: "Statistica Sinica has been indexed and abstracted in Scopus, Science Citation Index Expanded, and Current Index to Statistics (CIS). The journal is also included in JSTOR and EBSCO databases."
+      note: 期刊自述的收錄清單；SCIE 以上方 Master Journal List 為準，其他資料庫沒有另外核對。
+  metrics:
+    impact_factor:
+      value: 1.2
+      year: 2025
+      provider: 圖上未標提供者
+      as_of: 2026-11-13
+      src: current_status_image
+      note: 圖上標示 "IF - 2025"，沒有寫是否為 JCR、也沒有寫哪個資料庫；不可當成 JCR 年度。
+    impact_factor_5yr:
+      value: 1.6
+      year: 2025
+      provider: 圖上未標提供者
+      as_of: 2026-11-13
+      src: current_status_image
+      note: 圖上標示 "5 YR IF - 2025"。
+    quartiles:
+      - system: SJR
+        category: "category not stated"
+        quartile: Q1
+        year: 2025
+        as_of: 2026-11-13
+        src: current_status_image
+        as_printed: "53 / Q1"
+        note: >-
+          圖上標示 "SJR - 2025 / SCImago Journal Rankings - 2025"，數字寫 "53 / Q1"。分區 Q1 是 SJR 系統的；
+          "53" 的意義（名次、分母、類別）圖上沒有說明，這裡不詮釋。是期刊自己公布的數字，沒有另查 SCImago。
+    jcr_quartile:
+      status: not_found
+      checked: 2026-11-13
+      src: mjl
+      note: Master Journal List 的 "View profile page" 需要免費登入，沒有取得 JCR 類別與分區；官網也沒有公布 JCR 分區。
+    acceptance_rate:
+      value: 20.1
+      unit: percent
+      year: 2025
+      basis: >-
+        圖上標示 "Acceptance rate - 2025"。分母（2025 年投稿數或 2025 年做出決定的稿件）與是否含不送審的直接退稿，
+        圖上沒有說明。同圖 "No. of manuscripts received - 2025" 為 451。
+      src: current_status_image
+    manuscripts_received:
+      value: 451
+      year: 2025
+      src: current_status_image
+      note: 圖上標示 "No. of manuscripts received - 2025"。
+    time_to_first_decision:
+      value: 62
+      unit: days
+      period: "2025.1-2025.12"
+      statistic: 圖上未標是平均或中位數
+      basis: 圖上標示 "No. of days from submission to first decision - 2025.1-2025.12"；比較表的欄位標題寫「中位」，但這個數字沒有說明統計量。
+      src: current_status_image
+    time_submission_to_acceptance:
+      status: not_published
+      checked: 2026-11-13
+      src: current_status_image
+      note: >-
+        官網沒有投稿到接受的統計。下方 time_acceptance_to_publication 是接受到刊出，不是這一欄。
+        editorial policy 另有時程目標："normally completed within 2-3 months for an initial review and within 2 months for a revision"
+        （見 review.timeline_targets），那是目標，不是統計。
+    time_acceptance_to_publication:
+      value: 543
+      unit: days
+      period: "2025.7-2026.6"
+      statistic: 圖上未標是平均或中位數
+      basis: 圖上標示 "No. of days from acceptance to publication - 2025.7-2026.6"。
+      src: current_status_image
+      note: >-
+        與 online_only_policy 相關：該頁說純線上期別的目的是 "reducing the publication backlog and expediting the
+        dissemination of accepted papers"。
+    downloads: {value: 1491561, period: "2025.8-2026.6", src: current_status_image, note: 圖上標示 "No. of downloads"}
+    subscriptions: {value: 576, period: "2025.10-2026.9", src: current_status_image, note: 圖上標示 "No. of subscription"}
+
+# ─────────────────────────────────────────────────────────────
+# SLOW — 數年不變。驗證用 hash diff 即可。
+# ─────────────────────────────────────────────────────────────
+requirements:
+  refresh: {check_every: P6M, method: extracted_hash_diff}
+
+  scope:
+    aims: >-
+      發表統計與資料科學各領域「創新且高品質」的研究，涵蓋理論、方法與應用；鼓勵發展與社會、科學、技術相關、
+      且有原則地使用統計方法學。
+    quote: "Statistica Sinica aims to meet the needs of statisticians and data scientists in a rapidly changing world. It provides a forum for publishing innovative work of high quality in all areas of statistics and data science, including theory, methodology, and applications. The journal encourages the development and principled use of statistical methodologies relevant to society, science, and technology."
+    src: aims
+    significance_and_novelty:
+      quote: "Statistica Sinica seeks high-quality papers in all areas of Statistics and Data Sciences, which are of significant interest and novelty, in terms of applications, methodology or theory, while minor improvements of existing methods or routine applications are discouraged."
+      src: author_instructions
+    review_papers:
+      quote: "Interesting review papers of emerging areas are encouraged."
+      src: author_instructions
+    evaluation_criteria:
+      status: not_published
+      checked: 2026-11-13
+      note: >-
+        官網沒有給審稿人的評分判準頁。投稿須知裡與錄取有關的句子如下（逐字在 criteria_statements）；
+        被點名為判準的只有寫作品質："Quality of writing is an important criterion for acceptance"。
+      src: author_instructions
+      criteria_statements:
+        - quote: "Quality of writing is an important criterion for acceptance and poor quality of writing may be ground for rejection at any stage."
+          src: author_instructions
+        - quote: "In general, it should be made clear how the work advances the current state of knowledge; authors must acknowledge the contributions of their predecessors."
+          src: author_instructions
+        - quote: "All claims in the manuscript should be supported by numerical evidence or theoretical analyses; any reported numerical evidence must be reproducible."
+          src: author_instructions
+        - quote: "While an illustrative data analysis is often very helpful to motivate a methodology, simulations are not always required and do not need to be comprehensive."
+          src: author_instructions
+        - quote: "The overall goal is to publish papers that are concise and interesting to read."
+          src: author_instructions
+    out_of_scope_hints:
+      - case: 既有方法的小幅改進、例行應用
+        verdict: discouraged
+        quote: "while minor improvements of existing methods or routine applications are discouraged."
+        src: author_instructions
+      - case: 不符合期刊準則或目標的稿件
+        verdict: 可能不送審退回
+        quote: "Submissions may be returned unreviewed if they do not meet the criteria or the objective of the journal."
+        src: author_instructions
+      - case: 寫作品質差
+        verdict: 任何階段都可能因此被拒
+        quote: "poor quality of writing may be ground for rejection at any stage."
+        src: author_instructions
+      - case: 與已發表於研討會論文集的內容重疊
+        verdict: 須明顯超出已發表的內容
+        quote: "In such a situation, we expect the submission to go beyond the published work in much greater depth and to highlight the substantive differences."
+        src: author_instructions
+      - case: 曾被本刊拒絕的稿件的修訂版
+        verdict: 不送審直接退回
+        quote: "the submission of a revised version of a previously rejected manuscript by Statistica Sinica will be declined without review."
+        src: author_instructions
+    application_fields_listed:
+      status: not_published
+      checked: 2026-11-13
+      note: 官網沒有逐一列出應用領域。
+      src: aims
+
+  article_types:
+    status: not_published
+    checked: 2026-11-13
+    note: >-
+      官網沒有文章類型清單。須知只提到 "Interesting review papers of emerging areas are encouraged."；
+      首頁有 2026 年 8 月出刊的主題特刊（special_issue_news），但沒有說明如何投稿。
+    src: author_instructions
+
+  length:
+    value: 40
+    unit: pages_double_spaced
+    basis:
+      template: Statistica Sinica template（必須使用）
+      font_size_pt: 12
+      spacing: double
+      margins: "at least 1.0 inch (25mm) on all four sides"
+      note: 範本是 \documentclass[12pt]{article}，\baselinestretch 2（template_zip）
+    includes: [references, appendixes]
+    wording: "The main document (including references and a possible appendix) should not exceed 40 double-spaced pages using the Statistica Sinica template, which is required to use for all submitting authors."
+    wording_layout: "The main document (including references and a possible appendix) should not exceed 40 double-spaced pages using the Statistica Sinica template (in 12pt font)."
+    wording_pdf_2020: "The main part of the submitted paper should not exceed 40 double-spaced pages using the Statistica Sinica template, and there is no page-limit for the supplement."
+    wording_pdf_src: editorial_policy_pdf
+    exceptions: >-
+      官網沒有寫超過 40 頁的例外或事先申請的管道。措辭是 "should not exceed"，但同一頁寫範本合規由編輯部在收件時檢查：
+      "Upon receipt of a submission, the Editorial Office will check for compliance with the template requirement, and papers
+      that do not comply will be immediately returned to the authors, asking them to resubmit a version that complies."
+    two_wordings_note: >-
+      兩份官方文字不同：HTML 把參考文獻與附錄算進 40 頁；2020 年的 PDF 只寫 "main part"，沒有提參考文獻，
+      另說補充材料 "no page-limit"。官網沒有說哪一份為準；規劃時以較嚴的 HTML 為準。
+    tables_figures_counted:
+      status: not_published
+      checked: 2026-11-13
+      note: 官網沒有說圖表是否另計；以「頁」計，未列字數。
+      src: author_instructions
+    supplement_limit:
+      html: "The supplementary materials should be submitted as a single PDF file. The file size should not exceed 10 MB and should be kept as small as possible."
+      html_src: author_instructions
+      page_limit_html:
+        status: not_published
+        checked: 2026-11-13
+        note: HTML 須知對補充材料只有檔案大小上限，沒有頁數上限。
+        src: author_instructions
+      page_limit_pdf_2020: "there is no page-limit for the supplement"
+      page_limit_pdf_src: editorial_policy_pdf
+    src: author_instructions
+
+  abstracts:
+    - id: main
+      max_words:
+        status: not_published
+        checked: 2026-11-13
+        src: author_instructions
+      required_at: submission
+      rules:
+        - "short Abstract（字數沒有上限的說明）"
+        - 不要放公式
+      quote: "The paper should start with a short Abstract followed by Key words and phrases in alphabetical order. Avoid the inclusion of formulas in the abstract."
+      src: author_instructions
+  keywords:
+    order: alphabetical
+    min: {status: not_published, checked: 2026-11-13, src: author_instructions}
+    max: {status: not_published, checked: 2026-11-13, src: author_instructions}
+    quote: "Key words and phrases in alphabetical order"
+    src: author_instructions
+
+  formatting:
+    typesetting: LaTeX 範本（必須使用）；錄取後須提供 LaTeX 檔
+    template_required:
+      required: true
+      quote: "Upon receipt of a submission, the Editorial Office will check for compliance with the template requirement, and papers that do not comply will be immediately returned to the authors, asking them to resubmit a version that complies."
+      src: author_instructions
+    template:
+      class: "article（\\documentclass[12pt]{article}）"
+      files: [SS-template.tex, SS-template-bib.tex, SS-template.pdf, carat.pdf]
+      packages: [natbib（sectionbib 選項）, fancyheadings, hyperref, amsmath, amssymb, amsthm]
+      layout_in_template: 首頁在標題下列 Author(s) 與 Affiliation(s)，摘要以 Abstract 與 Key words and phrases 起頭；文末列第一作者機構與 E-mail
+      download: https://www3.stat.sinica.edu.tw/statistica/download/SS-template.zip
+      src: template_zip
+      note: >-
+        須知寫 "The Latex templates for Windows and for Mac, respectively, are available on the journal site."，
+        但網站只有一個 SS-template.zip，沒有分平台的兩份。
+    latex_after_acceptance:
+      quote: "The Latex file must be provided after the manuscript is accepted."
+      src: author_instructions
+    file_formats_at_submission:
+      status: not_published
+      checked: 2026-11-13
+      note: >-
+        官網沒有說明投稿系統上主稿的檔案格式（登入後的步驟沒有查）。補充材料須為單一 PDF（見 supplementary_material）。
+        範本是 LaTeX，錄取後才要求 LaTeX 檔。
+      src: author_instructions
+    layout_rules:
+      - "The manuscript, including references, should be typed and double-spaced."
+      - "The margins should be at least 1.0 inch (25mm) on all four sides."
+      - "Provide a short running title of less than 45 characters."
+      - "List the institutions and email addresses of each author on the last page of the paper."
+      - "The paper should be divided into numbered sections with short titles. Subsections may be used, but not sub-subsections."
+      - "Footnotes should not be used except for tables."
+      - "Equation numbers should be included only for those equations that are referred to in the text and must be placed on the right."
+      - "Tables and figures that require a landscape orientation should be avoided."
+      - "Essential derivations should appear in a separate appendix, which follows the Acknowledgments but precedes the References."
+    layout_rules_src: author_instructions
+    references:
+      in_text: "List all authors’ names for a citation with less than or equal to three authors, e.g., Brown, Ivanoff and Weber (1986). List only the first author’s name followed by et al. for a citation with four or more authors, e.g., Hainzl et al. (2013)."
+      list: "For references with seven or more authors, list the first six authors’ names followed by \"et al.\""
+      style: 作者-年份；範例見須知（期刊文章、書、書中章節、研討會論文集四種）
+      src: author_instructions
+    figures:
+      artwork: "Original figure artwork must be submitted in a printable Portable Document Format (PDF) or PostScript (PS) file when a paper is accepted for publication."
+      color:
+        quote: "Artwork in STATISTICA SINICA is typically black and white. Color figures are allowed in the print edition only when the use of color provides a scientific benefit (e.g., the scan images). The corresponding author must alert the editors upon submission if color is absolutely necessary."
+        conditions: "(1) the same figure must suitable for both color and black-and-white reproduction, and (2) figure captions and the text must not refer specifically to any color."
+        src: author_instructions
+      src: author_instructions
+    noncompliance_consequence:
+      quote: "A technically acceptable manuscript that fails to follow these requirements may be returned for retyping, leading to delay in publication."
+      src: author_instructions
+    line_numbers:
+      status: not_published
+      checked: 2026-11-13
+      src: author_instructions
+
+  supplementary_material:
+    role: 不必放在正文、但對讀者有益的內容（詳細證明、計算步驟、延伸的資料分析、軟體程式碼），僅在線上發表
+    separate_file: true
+    typeset: false
+    quote_scope: "Supporting material that is not essential for inclusion in the full text of the manuscript but would benefit readers may be made available as online-only content linked to the online manuscript, as requested by the editors."
+    rules:
+      - "Add a section titled “Supplementary Material” as the last section of your paper, before the Acknowledgments. This section should contain a brief description of the online supplementary material."
+      - "The supplementary materials have to be properly referred to in the main manuscript."
+      - "Supplementary materials must be submitted to the editors at the same time as the manuscript and will be subject to review."
+      - "The supplementary materials should be submitted as a single PDF file. The file size should not exceed 10 MB and should be kept as small as possible."
+      - "The supplementary PDF should have the same title and list of authors as the main manuscript."
+      - "The supplementary materials may not be edited by the editors or managing editor, but may be rejected or returned to the authors for revision."
+    division_of_content: "Statistica Sinica encourages the inclusion of full descriptions of methods, theoretical results, and data analysis in the main paper, while technical lemmas and proofs as well as details of simulations and tables will mostly be placed in the online Supplement."
+    template: https://www3.stat.sinica.edu.tw/statistica/download/supp-temp_20240820.tex
+    page_limit_conflict: >-
+      HTML 須知只有 10 MB 的檔案大小上限；2020 年的 Editorial Policy PDF 寫 "there is no page-limit for the supplement"。
+      見 length.supplement_limit。
+    src: author_instructions
+
+  openness:
+    reproducibility:
+      level: numerical_evidence_must_be_reproducible; software_and_data_in_some_situations
+      quote: "All claims in the manuscript should be supported by numerical evidence or theoretical analyses; any reported numerical evidence must be reproducible. In some situations, software producing the evidence should be available for examination as well as pertinent datasets."
+      note: >-
+        "must be reproducible" 是對所有數值證據的要求；軟體與資料只在 "some situations" 要提供檢查，官網沒有說明是哪些情況。
+      src: author_instructions
+    data_availability_statement: {status: not_published, checked: 2026-11-13, src: author_instructions}
+    code_sharing_mandate:
+      status: not_published
+      checked: 2026-11-13
+      note: 除上述 "In some situations" 一句外，沒有要求公開程式碼或資料的條文。
+      src: author_instructions
+    reporting_standards: {status: not_published, checked: 2026-11-13, src: author_instructions}
+    preregistration: {status: not_published, checked: 2026-11-13, src: author_instructions}
+
+  review:
+    type: not_published
+    checked: 2026-11-13
+    pages_checked: [author_instructions, editorial_policy_pdf, aims, journal_home, submission_portal（登入頁與 Instructions & Forms）, template_zip]
+    note: >-
+      查過的頁面都沒有說審稿是單盲、雙盲或作者匿名，也沒有要求匿名稿件。須知要求在稿件最後一頁列出作者機構與 email
+      （"List the institutions and email addresses of each author on the last page of the paper."），
+      範本在標題下列 Author(s) 與 Affiliation(s)。這兩點是版面規定，不是審稿制度的敘述；
+      登入後的投稿步驟沒有查（需要帳號），那裡可能有關於匿名稿件的要求。
+    author_anonymization: {status: not_published, checked: 2026-11-13, src: author_instructions}
+    stages:
+      - id: initial_screening
+        detail: >-
+          Co-Editors 與 Screening Associate Editors 先初篩。原文："All papers undergo an initial screening by the Co-editors (CE)
+          and Screening Associate Editors (SAE) and only papers that are not screened out (about 40% of submissions) will be forwarded
+          to Associate Editors (AE) for further consideration."
+        quote: "All papers undergo an initial screening by the Co-editors (CE) and Screening Associate Editors (SAE) and only papers that are not screened out (about 40% of submissions) will be forwarded to Associate Editors (AE) for further consideration."
+        src: author_instructions
+        note: 2020 年起的政策敘述，不是統計；括號內的比例不與其他比例相乘。
+      - id: ae_prescreening
+        detail: >-
+          原文："Associate Editors are requested to undergo an additional pre-screening within two weeks of receiving a paper and send
+          out only promising papers to referees (about 60% of the submissions they receive)."
+        quote: "Associate Editors are requested to undergo an additional pre-screening within two weeks of receiving a paper and send out only promising papers to referees (about 60% of the submissions they receive)."
+        src: author_instructions
+    timeline_targets:
+      note: 皆為官網寫的目標，不是統計
+      quote: "The journal aims to a speedy yet high-quality review process that is normally completed within 2-3 months for an initial review and within 2 months for a revision."
+      goal: "The goal is to move papers faster to rejection or acceptance than has been customary."
+      src: author_instructions
+    resubmission_after_rejection:
+      rule: "the submission of a revised version of a previously rejected manuscript by Statistica Sinica will be declined without review."
+      appeal: "However, if the authors feel that they have a strong scientific case for reconsideration, they may appeal the decision in writing. Manuscripts under appeal cannot be submitted elsewhere."
+      src: author_instructions
+    author_may_suggest_reviewers: {status: not_published, checked: 2026-11-13, src: author_instructions}
+    decision_categories: {status: not_published, checked: 2026-11-13, src: author_instructions}
+
+  submission:
+    portal: http://mc04.manuscriptcentral.com/statisticasinica
+    system: ScholarOne Manuscripts
+    portal_verified: true
+    portal_note: >-
+      2026-11-13 以 safari-browser 開啟，登入頁寫 "Welcome to the submission site for Statistica Sinica"；
+      curl 回 403 Cloudflare 挑戰頁。登入後的步驟沒有查。
+    registration: 需要 ScholarOne 帳號（登入頁有 Create An Account 與 "Log in using Web of Science"）
+    statement: "Manuscripts should be submitted through the journal’s website, http://mc04.manuscriptcentral.com/statisticasinica."
+    exclusivity: "Papers submitted to STATISTICA SINICA must have neither been published previously nor are currently under review by another journal or a conference proceeding."
+    conference_proceedings: "However, we consider submissions that have been previously published in conference proceedings."
+    mail_alternative:
+      quote: "Authors without access to the journal’s website may submit manuscripts by regular mail to Editors, Statistica Sinica, Institute of Statistical Science, Academia Sinica, 128 Academia Road, Sec. 2, Nankang, Taipei 11529, Taiwan."
+      requirements: "Please include a cover letter to the editors, hard copies of the paper and other references in triplicate. Submitted materials are not returnable."
+      src: author_instructions
+    cover_letter:
+      status: not_published
+      checked: 2026-11-13
+      note: 須知只在郵寄投稿時要求 cover letter；投稿系統上是否要求沒有查。
+      src: author_instructions
+    src: author_instructions
+
+  fees:
+    submission: {status: not_published, checked: 2026-11-13, src: author_instructions}
+    page_charges: {status: not_published, checked: 2026-11-13, src: author_instructions}
+    color_charges:
+      status: not_published
+      checked: 2026-11-13
+      note: 須知只說彩色圖只在科學上有助益時才可用於印刷版，沒有提到費用。
+      src: author_instructions
+    apc:
+      status: not_published
+      checked: 2026-11-13
+      note: >-
+        官網沒有 APC 或作者付費的開放取用選項。刊出滿一年的全文免費（journal_home），訂閱價見 subscription_rates，
+        那是讀者的費用。
+      src: journal_home
+    open_access_model: {status: not_published, checked: 2026-11-13, src: journal_home}
+
+  policies:
+    dual_submission: forbidden
+    prior_publication: >-
+      須知寫 "must have neither been published previously nor are currently under review by another journal or a conference
+      proceeding"；曾發表於研討會論文集者可以考慮，但須明顯超出（見 scope.out_of_scope_hints）。
+    preprints:
+      status: not_published
+      checked: 2026-11-13
+      note: >-
+        官網沒有作者貼 preprint（arXiv 等）的政策。首頁的 "preprint articles" 指已被接受、提早上線的文章
+        （"All newly accepted Statistica Sinica preprint articles are now available on-line"），不是這個意思。
+      src: journal_home
+    generative_ai:
+      status: not_published
+      checked: 2026-11-13
+      note: 查過 author_instructions、editorial_policy_pdf、aims、首頁、online_only_policy 與投稿系統登入頁，皆無生成式 AI 政策。
+      src: author_instructions
+    copyright:
+      status: not_published
+      checked: 2026-11-13
+      src: author_instructions
+    ethics:
+      status: not_published
+      checked: 2026-11-13
+      note: 須知無研究倫理、剽竊、作者資格的條文；只有 "authors must acknowledge the contributions of their predecessors"。
+      src: author_instructions
+    conflict_of_interest: {status: not_published, checked: 2026-11-13, src: author_instructions}
+    orcid: {status: not_published, checked: 2026-11-13, src: author_instructions}
+    language_editing:
+      note: 須知要求 "carefully proofread and polished"；沒有語言編修服務的說明。
+      quote: "Submitted manuscripts must be concise and complete, which should be carefully proofread and polished."
+      src: author_instructions
+    online_only_issues:
+      statement: >-
+        2027 年起，錄取後的稿件可能被邀請改在純線上期別刊出；選擇刊出形式不影響審稿與編輯決定。
+        同樣有 DOI 與書目資訊，例如 "Statistica Sinica 37(e1), 1–30 (2027)"。
+      quote: "Publication in an online-only issue is considered only after a manuscript has been formally accepted for publication."
+      src: online_only_policy
+
+  standards: []
+
+# ─────────────────────────────────────────────────────────────
+# FAST — 期刊無年度週期。
+# ─────────────────────────────────────────────────────────────
+cycle:
+  applies_to: null
+  rolling_calls: []
+  special_issues:
+    status: not_found
+    checked: 2026-11-13
+    note: >-
+      官網沒有徵稿頁。首頁新聞有 2026 年 8 月出刊的特刊（8 篇，主題 "High Dimensional Learning and Inference"），
+      但只是出刊公告，沒有投稿方式或截止日。
+    src: special_issue_news
+
+# ─────────────────────────────────────────────────────────────
+warnings:
+  - >-
+    期刊自己公布的圖表寫「接受到刊出」的天數是 543 天（2025.7-2026.6，圖上未標平均或中位數）；2027 年起另有純線上期別，
+    目的是 "reducing the publication backlog"。錄取之後到刊出可能要一年半。投稿到接受的時間官網沒有公布。
+  - >-
+    篇幅 40 頁（雙行距、12pt、Statistica Sinica 範本）含參考文獻與附錄；編輯部在收件時檢查範本合規，不合規的稿件
+    "will be immediately returned"。2020 年 PDF 只寫 "main part"，沒提參考文獻；規劃時以 HTML 的較嚴說法為準。
+  - >-
+    補充材料要與稿件同時投、會被審查，格式是單一 PDF、不超過 10 MB、標題與作者名單同正文；正文最後一節（致謝之前）
+    要有 "Supplementary Material" 段。2020 年 PDF 寫補充材料 "no page-limit"，HTML 只有大小上限，兩者不同。
+  - >-
+    官網沒有說審稿制度（單盲、雙盲或作者匿名）。須知要求在最後一頁列作者機構與 email，範本首頁也列作者；
+    登入投稿系統後的步驟沒有查，投稿前要在系統內確認是否要求匿名稿件。
+  - >-
+    曾被本刊拒絕的稿件的修訂版會被不送審直接退回（只能書面申訴，申訴期間不得改投他刊）；已在研討會論文集發表的內容
+    須 "go beyond the published work in much greater depth"。初篩約 40% 進入副編輯（2020 年政策敘述，不是統計）。
+  - >-
+    官網沒有公布 preprint、生成式 AI、資料可得性聲明、著作權、利益衝突、ORCID 與費用（投稿費、版面費、APC）的規定；
+    所有指標（IF、接受率、首次決定天數）只在一張圖片裡，沒有文字版，圖上也沒有標 IF 的提供者。

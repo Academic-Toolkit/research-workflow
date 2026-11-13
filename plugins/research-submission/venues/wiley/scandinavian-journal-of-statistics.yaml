@@ -1,0 +1,973 @@
+--- # research-submission venue record
+# 內容擷取自 Wiley Online Library 上 Scandinavian Journal of Statistics（SJS）自己的頁面，以及
+# 作者指引頁連出的 Wiley 全社政策頁（AI、preprint、資料分享、審稿），2026-11-13。
+# onlinelibrary.wiley.com 全站由 Cloudflare managed challenge 擋 curl（HTTP 403），期刊頁面是用
+# safari-browser 讀 document.body.innerText 取得；authors.wiley.com 與 wiley.com 的政策頁 curl 讀得到。
+# 所有子頁網址皆由期刊首頁的導覽選單與作者指引頁內的連結取得，非推測。
+# SJS 的須知只有一頁（Author Guidelines），規定本體都在那一頁；期刊本身沒有獨立的 scope 頁以外的
+# 篇幅、審稿、資料政策頁。這些欄位多數是「查過，官方沒寫」，已逐項標 not_published。
+
+schema_version: 1
+id: wiley/scandinavian-journal-of-statistics
+kind: journal
+family: statistics-journals
+status: active
+
+# ─────────────────────────────────────────────────────────────
+sources:
+  - id: author_guidelines
+    role: authoritative
+    url: https://onlinelibrary.wiley.com/page/journal/14679469/homepage/forauthors.html
+    note: >-
+      期刊首頁選單 AUTHORS 底下的 "Author Guidelines"，也是首頁 "Submit an article" 與 "Submit a Manuscript"
+      連到的頁面。SJS 的投稿規定本體全在這一頁（約 23,700 字元）：投稿條件、語言、稿件準備（Word 或 LaTeX、
+      摘要與關鍵詞、參考文獻、定理排版）、Supporting Information、數學論文的抄襲規則、preprint、版權與 OA 授權。
+      頁內沒有篇幅上限、審稿制度、資料與程式碼政策（innerText 與 DOM textContent 都查過）。頁內 "Guidelines for the
+      preparation of Supporting Information are available here" 連到 http://olabout.wiley.com/WileyCDA/Section/id-828014.html，
+      2026-11-13 重查時 curl 得 301 轉 https，之後 20 秒逾時、0 bytes，讀不到（同日較早一次未經複核的紀錄寫 HTTP 522；見 warnings）。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: >-
+        Cloudflare managed challenge：curl 回 HTTP 403 + 約 5.5 KB 的 "Just a moment..." 頁
+        （2026-11-13 測試 onlinelibrary.wiley.com 的 10 個不同 URL，皆 403、5472–5659 bytes）。
+        須以 safari-browser 開啟後讀 innerText。
+      validity:
+        must_contain: "Submission of a manuscript is held to imply that the paper has neither been published elsewhere"
+        min_extracted_chars: 14000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: overview
+    role: authoritative
+    url: https://onlinelibrary.wiley.com/page/journal/14679469/homepage/productinformation.html
+    note: >-
+      首頁選單 ABOUT 底下的 "Overview"。載有 Aims and Scope 與出版社自述的收錄清單。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 author_guidelines（Cloudflare 403 挑戰頁）。
+      validity:
+        must_contain: "more than eighty per cent of the manuscripts are submitted from outside Scandinavia"
+        min_extracted_chars: 2000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: journal_home
+    role: authoritative
+    url: https://onlinelibrary.wiley.com/journal/14679469
+    note: >-
+      期刊首頁：ISSN、版權歸屬、現任編輯、一句話宗旨與應用領域、Journal Metrics 摘要。
+      導覽選單的 ABOUT 與 AUTHORS 底下的各子頁連結從這裡取得。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 author_guidelines（Cloudflare 403 挑戰頁，5472 bytes）。
+      validity:
+        must_contain: "well justified by theory and numerical experiments"
+        min_extracted_chars: 3500
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: journal_metrics
+    role: authoritative
+    url: https://onlinelibrary.wiley.com/journal/14679469/journal-metrics
+    note: >-
+      首頁 "Journal Metrics" 與 "VIEW ALL METRICS" 連到的頁面。Wiley 為各刊統一格式的指標頁，標 2025 年：
+      CiteScore、Journal Citation Indicator、Journal Impact Factor、錄取率、首次決定與接受的中位天數。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 author_guidelines（Cloudflare 403 挑戰頁）。
+      validity:
+        must_contain: "Submission to first decision (median)"
+        min_extracted_chars: 1500
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: open_access
+    role: authoritative
+    url: https://onlinelibrary.wiley.com/page/journal/14679469/homepage/fundedaccess.html
+    note: 首頁選單 AUTHORS 底下的 "Open Access"：APC 金額、授權、稅。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 author_guidelines（Cloudflare 403 挑戰頁）。
+      validity:
+        must_contain: "submissions will be subject to an APC if accepted and published in the journal"
+        min_extracted_chars: 2600
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: editorial_board
+    role: supporting
+    url: https://onlinelibrary.wiley.com/page/journal/14679469/homepage/editorialboard.html
+    note: 首頁選單 ABOUT 底下的 "Editorial Board"：三位 Editors、副編輯名單、歷任 Editors（每屆三年）。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 author_guidelines（Cloudflare 403 挑戰頁）。
+      validity:
+        must_contain: "Associate Editors"
+        min_extracted_chars: 2000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: society_info
+    role: supporting
+    url: https://onlinelibrary.wiley.com/page/journal/14679469/homepage/society.html
+    note: 首頁選單 ABOUT 底下的 "Society Information"：四個北歐統計學會。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 author_guidelines（Cloudflare 403 挑戰頁）。
+      validity:
+        must_contain: "published under the auspices of the Nordic statistical associations"
+        min_extracted_chars: 900
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: special_issues
+    role: supporting
+    url: https://onlinelibrary.wiley.com/page/journal/14679469/homepage/special-issues
+    note: 首頁選單的 "Special Issues"：只列已出刊的 special section，沒有徵稿公告。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 author_guidelines（Cloudflare 403 挑戰頁）。
+      validity:
+        must_contain: "Special Section in Honour of Nils Lid Hjort"
+        min_extracted_chars: 900
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: contact
+    role: supporting
+    url: https://onlinelibrary.wiley.com/page/journal/14679469/homepage/contact.html
+    note: >-
+      首頁選單的 "Contact"。編輯聯絡處寫 "See Author Guidelines."，只列出版端的聯絡信箱。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 author_guidelines（Cloudflare 403 挑戰頁）。
+      validity:
+        must_contain: "Editorial Contact Information"
+        min_extracted_chars: 900
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: supporting_information
+    role: supporting
+    url: https://onlinelibrary.wiley.com/page/journal/14679469/homepage/supporting_information.htm
+    note: >-
+      首頁 "More from this journal" 的 "Supporting Information"。2026-11-13 這一頁只列帶有 Supporting Information
+      的文章標題，沒有任何準備補充材料的規則（規則在 author_guidelines 的第 xi 點）。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 author_guidelines（Cloudflare 403 挑戰頁）。
+      validity:
+        must_contain: "Don't Miss Supporting Information from Scandinavian Journal of Statistics"
+        min_extracted_chars: 4000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: wiley_ai_guidelines
+    role: supporting
+    url: https://www.wiley.com/en-us/publish/article/ai-guidelines/
+    note: >-
+      作者指引頁 "Authors may wish to refer to Wiley's guidelines on using AI tools in your research." 的連結目標
+      （curl 轉址到 https://www.wiley.com/publishing/article/ai-guidelines）。這是 Wiley 全社的 AI 指引，
+      不是 SJS 自己的規定；SJS 頁面只指向它。下方引用的揭露位置等句子，2026-11-13 重查時在 curl 取得的原始 HTML 中找到；
+      這些句子在瀏覽器畫面上是否預設折疊，本次沒有用 Safari 核對。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Disclose your use of AI transparently in your manuscript so readers can understand your process"
+        min_extracted_chars: 50000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: wiley_preprints
+    role: supporting
+    url: https://authors.wiley.com/author-resources/Journal-Authors/open-access/preprints-policy.html
+    note: >-
+      作者指引頁 "Please find the Wiley preprint policy here." 的連結目標（原連結為 authorservices.wiley.com
+      並帶 ?1，轉址到 authors.wiley.com）。Wiley 全社政策，頁尾說各刊可自訂，以期刊自己的頁面為準；
+      SJS 自己的 preprint 規定在 author_guidelines 第 7 點。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Wiley believes journals should allow authors to submit manuscripts which they have already made available as a preprint"
+        min_extracted_chars: 2000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: wiley_data_sharing
+    role: supporting
+    url: https://authors.wiley.com/author-resources/Journal-Authors/open-access/data-sharing-citation/data-sharing-policy.html
+    note: >-
+      從 Wiley 作者資源的 "Data Sharing & Citation" 頁點入的 "Data Sharing Policy"。2026-11-13 以 Safari 確認：
+      preprint 政策頁的側欄有 "Data Sharing & Citation" 連結（curl 取得的 HTML 裡沒有這個側欄連結），
+      該頁再連到本頁。Wiley 全社的四級資料分享政策。SJS 的頁面沒有寫自己屬於哪一級。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "All research- and synthesis-based articles must include a Data Availability Statement"
+        min_extracted_chars: 5000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: wiley_peer_review
+    role: supporting
+    url: https://authors.wiley.com/author-resources/Journal-Authors/submission-peer-review/peer-review.html
+    note: >-
+      Wiley 作者資源的 "Peer Review" 頁。只描述 Wiley 全社的審稿類型與流程，沒有列出 SJS 用哪一種；
+      頁內 "check the review model for each journal we publish" 連到 review confidentiality policy 頁。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "The length of the peer review process varies by journal"
+        min_extracted_chars: 8000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: wiley_review_confidentiality
+    role: supporting
+    url: https://authors.wiley.com/Reviewers/journal-reviewers/tools-and-resources/review-confidentiality-policy.html
+    note: >-
+      peer_review 頁 "check the review model for each journal we publish" 的連結目標。Wiley 全社的審稿保密政策，
+      沒有逐刊列出審稿制度。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Journals with open review policies will have this noted within their Author Guidelines"
+        min_extracted_chars: 1600
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: invited_papers
+    role: supporting
+    url: https://onlinelibrary.wiley.com/journal/14679469/invited-papers
+    note: >-
+      首頁 "More from this journal" 的 "Invited Papers"：NORDSTAT 與 Nordic-Baltic Biometric Conference 的 SJS 講者
+      受邀投稿與已刊出的三篇。2026-11-13 重查時新增為來源（article_types 的說明引用它）。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 author_guidelines（Cloudflare 403 挑戰頁）。
+      validity:
+        must_contain: "The speakers are invited to submit a paper to the journal in relation to their talk."
+        min_extracted_chars: 1500
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: news
+    role: supporting
+    url: https://onlinelibrary.wiley.com/page/journal/14679469/homepage/news.html
+    note: >-
+      首頁 "More from this journal" 的 "News"：SJS Lecture 歷年紀錄、SJS Prize、Early View、NIH 公開取用說明。
+      沒有投稿規定或題材限制。2026-11-13 重查時新增為來源，作為 out_of_scope_hints 查過的頁面之一。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 author_guidelines（Cloudflare 403 挑戰頁）。
+      validity:
+        must_contain: "Scandinavian Journal of Statistics Lectures"
+        min_extracted_chars: 2500
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: oa_advantages
+    role: supporting
+    url: https://onlinelibrary.wiley.com/page/journal/14679469/homepage/oa-advantages
+    note: >-
+      首頁選單 ABOUT 底下的 "OA Advantages"。只有 Wiley 混合型期刊開放取用文章的整體平均（views、citations、Altmetric），
+      頁面註明是 "program averages"，不是 SJS 自己的數字。2026-11-13 重查時新增為來源（identity.access 引用它）。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 author_guidelines（Cloudflare 403 挑戰頁）。
+      validity:
+        must_contain: "Publish Open Access with Scandinavian Journal of Statistics"
+        min_extracted_chars: 1800
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+  - id: mjl
+    role: supporting
+    url: https://mjl.clarivate.com/home
+    note: >-
+      Clarivate Master Journal List。在 /home 的 #search-box 填 ISSN 0303-6898、按 #search-button 查詢，
+      結果頁網址不帶查詢字串（https://mjl.clarivate.com/search-results），無法用網址重現，只能在頁內操作。
+      curl 回 HTTP 200 + 11428 bytes 的 JavaScript 空殼，去標籤後只剩頁面標題（約 60 字元），沒有期刊資料。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: >-
+        JavaScript 應用程式空殼（HTTP 200、11428 bytes、去標籤後只剩頁面標題）；查詢結果只在頁內產生，
+        verify.py 無法重抓。重新驗證時用 safari-browser 在 /home 搜尋 ISSN。
+    snapshot: {fetched_at: 2026-11-13, last_verified_at: 2026-11-13}
+
+  - id: scimago
+    role: supporting
+    url: https://www.scimagojr.com/journalsearch.php?q=14072&tip=sid&clean=0
+    note: >-
+      SCImago（SJR）期刊頁。sid 14072 由 journalsearch.php?q=0303-6898&tip=iss&clean=0 的搜尋結果取得（只列 "Scandinavian Journal of
+      Statistics" 一筆，出版者標 "Wiley-Blackwell Publishing Ltd"）。curl 回 403 Cloudflare 挑戰頁，2026-11-13 以 Safari 讀到約 21.6 K 字元。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: "403, Cloudflare challenge page (~5.7 KB)"
+      validity:
+        must_contain: "The set of journals have been ranked according to their SJR and divided into four equal groups"
+        min_extracted_chars: 12000
+    snapshot:
+      fetched_at: 2026-11-13
+      last_verified_at: 2026-11-13
+      extracted_sha256: null
+
+# ─────────────────────────────────────────────────────────────
+identity:
+  name: Scandinavian Journal of Statistics
+  publisher:
+    name: Wiley
+    note: >-
+      期刊首頁頁尾版權為 John Wiley & Sons；Clarivate MJL 的 Publisher 欄寫 "WILEY , 111 RIVER ST, HOBOKEN, USA, NJ, 07030-5774"。
+    src: mjl
+  owner:
+    name: Board of the Foundation of the Scandinavian Journal of Statistics
+    quote: "© Board of the Foundation of the Scandinavian Journal of Statistics"
+    note: 期刊首頁標題區的版權行；頁面沒有進一步說明這個基金會的角色。
+    src: journal_home
+  societies:
+    quote: "Scandinavian Journal of Statistics is published under the auspices of the Nordic statistical associations:"
+    members:
+      - Danish Society for Theoretical Statistics
+      - Finnish Statistical Society
+      - Norwegian Statistical Association
+      - Swedish Statistical Society
+    founded: {value: 1974, quote: "Founded in 1974 by four Scandinavian statistical societies", src: journal_home}
+    src: society_info
+  issn: {print: "0303-6898", electronic: "1467-9469", src: journal_home}
+  homepage: https://onlinelibrary.wiley.com/journal/14679469
+  hosting_platform: {name: Wiley Online Library, url: "https://onlinelibrary.wiley.com/journal/14679469"}
+  editors:
+    - {name: Rolf Larsson, affiliation: "Department of Mathematics, Uppsala University, Sweden", role: Editor, src: editorial_board}
+    - {name: Xavier de Luna, affiliation: "Department of Statistics, Umeå University, Sweden", role: Editor, src: editorial_board}
+    - {name: Aila Särkkä, affiliation: "Chalmers University of Technology and University of Gothenburg, Sweden", role: Editor, src: editorial_board}
+  editor_term:
+    status: not_published
+    checked: 2026-11-13
+    src: journal_home
+    note: >-
+      首頁寫三位 "have joined the journal as Editors for the next three years"，但沒有標任期年份。
+      editorial_board 的 Previous Editors 以三年一屆列出（最近一屆標 2022–2024：Sangita Kulathinal、Jaakko Peltonen、
+      Mikko Sillanpää），現任三位的任期起迄頁面沒寫。
+  production_contact: {email: SJOS@wiley.com, role: Production Editor (contact page), src: contact}
+  editorial_contact:
+    status: not_published
+    checked: 2026-11-13
+    src: contact
+    note: Contact 頁的 "Editorial Contact Information" 只寫 "See Author Guidelines."，沒有編輯部信箱。三位 Editors 的信箱在 editorial_board 頁，此處未抄錄。
+  frequency:
+    status: not_published
+    checked: 2026-11-13
+    src: journal_home
+    note: >-
+      期刊首頁、Overview 都沒有刊期的文字說明。首頁 Recent issues 列出 Volume 53 的四期（Issue 1 March 2026、
+      Issue 2 June 2026、Issue 3 September 2026、Issue 4 December 2026），從這個列表可見一卷四期，但那是對列表的解讀，不是頁面的陳述。
+  external_ids:
+    crossref: "0303-6898"
+    openalex: issn:0303-6898
+  access:
+    model: hybrid
+    statement: "Scandinavian Journal of Statistics offers authors the option to publish their articles Open Access: immediately free to read, download, and share."
+    note: >-
+      期刊的頁面沒有直接寫 SJS 是 hybrid 期刊。這個分類是依 open_access 頁的 "offers authors the option to publish their
+      articles Open Access"，以及首頁最近文章中只有部分標 "Open Access" 而判讀。oa_advantages 頁拿來比較的是
+      "open access articles in hybrid journals"，並註明 "Note that the above metrics are program averages for our hybrid open
+      access articles and individual journal metrics will vary"，那是 Wiley 整體的說法，不是對 SJS 的分類陳述。
+    src: open_access
+  indexing:
+    clarivate_mjl:
+      scie: true
+      ssci: false
+      ahci: false
+      esci: false
+      web_of_science_core_collection: Science Citation Index Expanded
+      additional_indexes: [Current Contents Physical, Chemical & Earth Sciences, Essential Science Indicators]
+      checked: 2026-11-13
+      search_issn: "0303-6898"
+      mjl_title_string: "SCANDINAVIAN JOURNAL OF STATISTICS"
+      mjl_publisher_string: "WILEY , 111 RIVER ST, HOBOKEN, USA, NJ, 07030-5774"
+      src: mjl
+      note: >-
+        搜尋 0303-6898 得 1 筆 "Exact Match Found"（ISSN / eISSN 0303-6898 / 1467-9469），Web of Science Core Collection
+        欄只列 Science Citation Index Expanded；沒有 SSCI、AHCI、ESCI。Additional Web of Science Indexes 欄列
+        Current Contents Physical, Chemical & Earth Sciences 與 Essential Science Indicators。
+    publisher_stated:
+      src: overview
+      note: >-
+        Overview 頁自述的收錄清單，另含 "Science Citation Index (Clarivate Analytics)"、SCOPUS、MathSciNet、zbMATH、
+        Current Index to Statistics、PsycINFO 等；SCIE 以上方 MJL 為準，MJL 只列 SCIE。
+      list: [ABI/INFORM Collection (ProQuest), Academic Search (EBSCO Publishing), Academic Search Alumni Edition (EBSCO Publishing), Academic Search Premier (EBSCO Publishing), Advanced Technologies & Aerospace Database (ProQuest), Business Premium Collection (ProQuest), CompuMath Citation Index (Clarivate Analytics), "Current Contents: Physical, Chemical & Earth Sciences (Clarivate Analytics)", Current Index to Statistics (ASA/IMS), Journal Citation Reports/Science Edition (Clarivate Analytics), Materials Science & Engineering Database (ProQuest), Mathematical Reviews/MathSciNet/Current Mathematical Publications (AMS), ProQuest, Proquest Business Collection (ProQuest), ProQuest Central (ProQuest), PsycINFO/Psychological Abstracts (APA), Quality Control & Applied Statistics (Executive Sciences Institute), Science Citation Index (Clarivate Analytics), Science Citation Index Expanded (Clarivate Analytics), SciTech Premium Collection (ProQuest), SCOPUS (Elsevier), Statistical Theory & Method Abstracts (Zentralblatt MATH), Technology Collection (ProQuest), ZBMATH (Zentralblatt MATH)]
+  metrics:
+    impact_factor:
+      value: 1.2
+      year: 2025
+      provider: Clarivate
+      as_of: 2026-11-13
+      src: journal_metrics
+      note: 頁面標 "2025 Journal Impact Factor (Clarivate):"；首頁同列 1.2。沒有說明 2025 是 JCR 發布年或資料年。
+    journal_citation_indicator:
+      value: 0.57
+      year: 2025
+      provider: Clarivate
+      as_of: 2026-11-13
+      src: journal_metrics
+    citescore: {value: 2.2, year: 2025, provider: Scopus, as_of: 2026-11-13, src: journal_metrics}
+    quartiles:
+      - {system: SJR, category: "Statistics and Probability", subject_area: Mathematics, quartile: Q2, year: 2025, as_of: 2026-11-13, src: scimago}
+      - system: SJR
+        category: "Statistics, Probability and Uncertainty"
+        subject_area: Decision Sciences
+        quartile: Q2
+        year: 2025
+        as_of: 2026-11-13
+        src: scimago
+        note: >-
+          SCImago 的 Subject Area and Category 欄列這兩個類別；表格 "Category / Year / Quartile" 中 2025 年兩者皆為 Q2。
+          2024 年 Statistics and Probability 為 Q1、Statistics, Probability and Uncertainty 為 Q2。頁面同列 "SJR 2025" 為 0.786、
+          H-Index 75。這是 SJR 分區，不是 JCR；SCImago 不是本刊官方頁面。
+    jcr_quartile:
+      status: not_published
+      checked: 2026-11-13
+      src: journal_metrics
+      note: >-
+        Wiley 的指標頁與首頁都沒有列分區或類別名次。JCR 需登入 Clarivate，本次未查，不填 JCR 分區。
+        （此段原為 quartiles 欄的內容，2026-11-13 改放這裡，quartiles 改記 SCImago 的 SJR 分區。）
+    acceptance_rate:
+      value: "25%"
+      year: 2025
+      quote: "2025 Acceptance rate:"
+      note: 數值 25% 在該行下一行；首頁摘要寫 "25% Acceptance Rate"。頁面沒有說明母體（投稿數、是否含 desk reject）與計算方式。
+      as_of: 2026-11-13
+      src: journal_metrics
+    time_to_first_decision:
+      value: 11
+      unit: days
+      statistic: median
+      year: 2025
+      quote: "2025 Submission to first decision (median) :"
+      note: 頁面沒有說明起迄點，也沒有說明是否含不送外審的直接退稿。
+      as_of: 2026-11-13
+      src: journal_metrics
+    time_submission_to_acceptance:
+      value: 321
+      unit: days
+      statistic: median
+      year: 2025
+      quote: "2025 Submission to acceptance (median) :"
+      note: 頁面沒有說明母體與計算方式。
+      as_of: 2026-11-13
+      src: journal_metrics
+    time_acceptance_to_publication:
+      value: 20
+      unit: days
+      statistic: median
+      year: 2025
+      quote: "2025 Acceptance to publication (median) :"
+      as_of: 2026-11-13
+      src: journal_metrics
+    articles_published: {value: 73, year: 2025, quote: "2025 Total articles published:", as_of: 2026-11-13, src: journal_metrics}
+    top_author_countries:
+      year: 2025
+      values: {China: "21%", United States: "16%", France: "10%", United Kingdom: "10%", Canada: "5%"}
+      as_of: 2026-11-13
+      src: journal_metrics
+
+# ─────────────────────────────────────────────────────────────
+# SLOW — 數年不變。
+# ─────────────────────────────────────────────────────────────
+requirements:
+  refresh: {check_every: P6M, method: extracted_hash_diff}
+
+  scope:
+    aims:
+      quote: >-
+        The Scandinavian Journal of Statistics publishes significant, innovative, original contributions to
+        statistical methodology, well justified by theory and numerical experiments, and illustrated by real data.
+      src: journal_home
+    aims_overview:
+      quote: >-
+        It is an international journal devoted to reporting significant and innovative original contributions to
+        statistical methodology, well justified by theory and numerical experiments, and illustrated by real data
+        applications. The journal specialises in statistical modelling showing particular appreciation of the
+        underlying substantive research problems.
+      src: overview
+    application_fields_listed:
+      quote: >-
+        We specialise in statistical works that appreciate the underlying substantive research problems, e.g., in
+        mathematical statistics, robust statistics, survival analysis, causal inference, high dimensional statistics,
+        machine learning, Bayesian computation, extreme-value theory, longitudinal, and spatial data.
+      note: 原文用 "e.g."，是舉例而非封閉清單。
+      src: journal_home
+    theory_application_balance:
+      status: not_published
+      checked: 2026-11-13
+      src: overview
+      note: >-
+        頁面沒有說理論與應用的比重。上面兩句 aims 的措辭把三樣東西並列為對統計方法論貢獻的描述：
+        首頁寫 "well justified by theory and numerical experiments, and illustrated by real data"，
+        Overview 寫 "well justified by theory and numerical experiments, and illustrated by real data applications"，
+        即理論、數值實驗、真實資料例子。頁面沒有寫缺少其中一項的稿件會被怎麼處理，也沒有寫三者的先後。
+        首頁與 Overview 的主詞都是 "statistical methodology"，頁面沒有出現純理論或純應用論文的專門說明。
+    evaluation_criteria:
+      status: not_published
+      checked: 2026-11-13
+      src: author_guidelines
+      note: >-
+        查過 journal_home、overview、author_guidelines、contact、editorial_board、news、invited_papers：沒有給審稿人的評分判準頁，
+        也沒有 referee guidelines。首頁的 "Reviewer Resources" 連到 Wiley 全社的審稿人頁，不是 SJS 專屬，
+        wiley_peer_review 的 "What is the reviewer looking for?" 同樣是全社通用清單，都未收錄為 SJS 的判準。
+    out_of_scope_hints:
+      status: not_published
+      checked: 2026-11-13
+      src: overview
+      note: >-
+        查過 journal_home、overview、author_guidelines、contact、editorial_board、society_info、special_issues、news、
+        invited_papers、oa_advantages、journal_metrics、open_access（2026-11-13 重查，author_guidelines 另查 DOM textContent）：
+        沒有一句話說明期刊不想要哪一類稿件，
+        或給哪一類較低優先。與「什麼稿件不要」最接近的是 author_guidelines 的兩條內容限制，見
+        policies.plagiarism_and_dual_publication 與 policies.dual_submission，它們談的是重複與抄襲，不是題材。
+    internationality:
+      quote: "Today more than eighty per cent of the manuscripts are submitted from outside Scandinavia."
+      src: overview
+
+  article_types:
+    status: not_published
+    checked: 2026-11-13
+    src: author_guidelines
+    note: >-
+      author_guidelines 沒有文章類型清單，也沒有各類型的限制。首頁最近五篇都標 "ORIGINAL ARTICLE"；
+      首頁 "More from this journal" 另有 Invited Papers（invited_papers 頁：NORDSTAT 與 Nordic-Baltic Biometric Conference 的
+      SJS 講者 "are invited to submit a paper to the journal in relation to their talk"）與 Special Issues（只列已出刊的 special section）。Practitioner Points 是
+      author_guidelines 裡的選填項目，不是文章類型。
+
+  # schema 的 length 需要 value + unit。SJS 的頁面沒有任何頁數或字數上限，不能編一個值，
+  # 所以放在 length_policy（venue_table.py 會把它當作「查過，沒有」）。
+  length_policy:
+    status: not_published
+    checked: 2026-11-13
+    src: author_guidelines
+    note: >-
+      author_guidelines 全頁沒有出現篇幅上限（無頁數、字數或圖表數限制）。與篇幅有關的只有行距要求：
+      "at least 1 1/2 spacing (18 points) and wide margins"，那是排版要求不是上限。
+      另有 "The main text should be readable as a standalone document. Long proofs can be placed in an Appendix."，
+      以及把程式碼與大量模擬結果移到 Supporting Information 的許可，見 supplementary_material。
+
+  abstracts:
+    - id: main
+      max_words: 150
+      required_at: submission
+      structure: 結構式（intro/methods/results/conclusion）或非結構式皆可
+      rules:
+        - 不含公式
+        - 不含對其他文獻的引用
+      quote: >-
+        The main text should be preceded by a short abstract of not more than 150 words containing no formulas or
+        references to other literature.
+      structure_quote: "Abstract structured (intro/methods/results/conclusion) or unstructured;"
+      note: 摘要字數上限出自 author_guidelines 的 "iii) Abstract and key words"，主文件內容清單另寫結構式或非結構式。
+      src: author_guidelines
+  keywords:
+    conflict:
+      detail: >-
+        author_guidelines 對關鍵詞數量說了兩個不同的上限：主文件內容清單寫 "Up to seven keywords;"，
+        "iii) Abstract and key words" 寫 "A list of not more than 10 key words, in alphabetical order, and indicating the
+        content of the paper, should be included after the abstract. No classification codes are needed."
+      max_by_main_document_list: 7
+      max_by_abstract_section: 10
+      ordering: alphabetical（見 iii）
+      classification_codes: 不需要（"No classification codes are needed."）
+      src: author_guidelines
+  practitioner_points:
+    required: false
+    quote: >-
+      Practitioner Points (optional) Authors will need to provide no more than 3 ‘key points’, written with the
+      practitioner in mind, that summarize the key messages of their paper to be published with their article;
+    src: author_guidelines
+  running_headline: {max_characters: 40, quote: "running headline (containing not more than 40 characters, spacings included)", src: author_guidelines}
+
+  formatting:
+    typesetting: Word 或 LaTeX 皆可
+    main_file_quote: "The main manuscript file can be submitted in Microsoft Word (.doc or .docx) or LaTeX (.tex) format."
+    single_or_split_files: >-
+      初次投稿可以是單一檔案（含主文、表、圖）或圖表另檔；進入修訂階段時圖表必須另檔。
+    main_document_contents:
+      quote: "Main body: formatted as introduction, materials & methods, results, discussion, conclusion;"
+      note: >-
+        出自 author_guidelines "Your main document file should include:" 清單（同一清單還有標題、作者全名與機構、
+        Acknowledgments、摘要、"Up to seven keywords;"、選填的 Practitioner Points、References、Tables、Figure legends）。
+        這是 Wiley 通用清單的措辭，頁面沒有說數學或理論論文是否須照這五段排列。
+      src: author_guidelines
+    spacing_and_margins:
+      quote: "The manuscripts should have at least 1 1/2 spacing (18 points) and wide margins."
+    latex:
+      template_recommended:
+        quote: "For author requiring a LaTeX template, we strongly recommend reviewing Wiley’s New Journal Design (NJD) LaTeX Authoring Template."
+        link: https://authorservices.wiley.com/author-resources/Journal-Authors/Prepare/new-journal-design.html
+        note: 連結目標頁本次未讀；上述網址取自 author_guidelines 頁內連結。
+      authorea_template:
+        quote: "Note that using this template is optional."
+        link: https://authorea.com/templates/scandinavian_journal_of_statistics
+        note: 連結目標頁本次未讀。
+      upload_designations:
+        - 'Main Document – LaTeX .tex File（主文件的檔案類別）'
+        - 'Main Document - LaTeX PDF（同行評審用的 PDF）'
+        - 'LaTeX Supplementary File（主文引用的其他支援檔）'
+      pdf_for_review:
+        quote: "When submitting a LaTeX Main Document, you must also provide a PDF version of the manuscript for Peer Review."
+      post_acceptance_files: >-
+        錄取後須提供：無錯誤編譯的 PDF；LaTeX 原始檔（文字、圖說、表，最好在單一檔案）；BibTeX 檔（如有使用）與所有編譯所需檔案
+        （特別是 NJD 範本類別以外的樣式、類別或參考文獻檔 .bbl/.bst/.blg）；圖檔用 EPS、PDF 或 TIFF，
+        並要求 "not to create figures using LaTeX codes"。
+      src: author_guidelines
+    title_page: 第一頁含標題、running headline（≤40 字元含空白）、作者姓名與所屬機構；標題不得含縮寫
+    headings: 最好編號；不要用不必要的大寫
+    formulas: >-
+      盡量減少頁面空白，用 a/b 取代分式、用轉置的列向量取代行向量；獨立公式與正文分開，編號放右側括號，
+      連續編號 (1), (2)…
+    theorems:
+      quote: >-
+        The words “Theorem”, “Lemma”, “Corollary”, “Proposition” and “Definition” (and their appropriate numerals)
+        are to appear in bold face. The complete body of a theorem, lemma, corollary and proposition is to appear in
+        italics.
+      src: author_guidelines
+    references:
+      order: 依字母序；同作者依年代；同年用 a, b, c 區分
+      in_text_et_al: 'et al. 用於六位以上作者的文內引用（"et al. is used for references in the text when there are six or more authors"）'
+      list_style: >-
+        頁面只給例子、沒有指名任何格式手冊；例子的寫法是作者、年、標題、刊名、卷、頁、DOI。"More than 7 authors" 的例子
+        列前六位作者後以 "…" 接最後一位（這是對例子的描述，頁面沒有用文字寫成規則）。
+      personal_communication: 'Not allowed in reference list. Cite in text only.'
+      src: author_guidelines
+    tables_and_figures:
+      tables: 'Tables and should be given on separate pages at the end of the manuscript.'
+      tables_note: 此句與上方 single_or_split_files 的「初次投稿可為單一檔案」並存，頁面沒有調和兩者。
+      figures: 圖用 PDF、TIFF 或 EPS，檔名標明圖號；向量圖優先，必要時用 300 dpi 以上的點陣圖
+      final_resolution: 錄取後圖檔 EPS、TIFF 或 PDF，解析度不低於 300 dpi
+      colour: {quote: "Colour figures may be published in print free of charge.", src: author_guidelines}
+    footnotes: "Should be avoided as far as possible."
+    address_and_appendices: 稿末附作者現址與 e-mail；附錄放在地址之後；合著論文只列一位作者的地址
+    language: >-
+      英文。"Authors are solely responsible for their written English."；
+      編輯若認為語言不可接受，作者須在錄取前自行修訂。
+    src: author_guidelines
+
+  supplementary_material:
+    allowed: true
+    statement: "Scandinavian Journal of Statistics encourages supporting web materials."
+    main_text_standalone:
+      quote: >-
+        The main text should be readable as a standalone document. Long proofs can be placed in an Appendix. Other
+        contents, such as computer code and extensive simulation results, not essential to the main results can be
+        made available as Supporting Information. Detailed references to results in Supporting Information should be
+        avoided.
+    may_include: 詳細證明、額外表與圖、電腦程式碼、資料集、影片檔（"detailed proofs, additional tables and figures, computer code, datasets and movie files"）
+    listing_rule: >-
+      列在參考文獻之前，以 "Supporting information. Additional information for this article is available online"
+      開頭並附簡短說明；編號 Appendix S1、Fig. S1、Table S1 等。
+    self_contained_references: "Supporting Information should include a list of references for any literature referred to therein, to make it a self-contained piece of work."
+    submission: >-
+      以 "online supporting information" 為名，與主文件一起經投稿系統上傳。
+    preparation_guidelines_link:
+      status: not_found
+      checked: 2026-11-13
+      note: >-
+        頁內 "Guidelines for the preparation of Supporting Information are available here" 連到
+        http://olabout.wiley.com/WileyCDA/Section/id-828014.html。2026-11-13 重查時 curl 得 301 轉 https，之後 20 秒逾時、
+        0 bytes，讀不到（同日較早一次未經複核的紀錄寫 HTTP 522）。
+        supporting_information 頁也只列文章標題，沒有準備規則。
+      src: author_guidelines
+    src: author_guidelines
+
+  openness:
+    data_and_code:
+      status: not_published
+      checked: 2026-11-13
+      src: author_guidelines
+      note: >-
+        SJS 的 author_guidelines、overview、journal_home 都沒有資料或程式碼的公開政策，也沒有說期刊屬於
+        Wiley 四級資料政策中的哪一級。唯一相關的是上面 supplementary_material 的許可：程式碼與大量模擬結果
+        "can be made available as Supporting Information"（"can"，非要求）。
+    wiley_wide_policy:
+      quote: >-
+        All research- and synthesis-based articles must include a Data Availability Statement, whether or not the data
+        used in the article is shared.
+      levels: [Encourages Data Sharing, Expects Data Sharing, Mandates Data Sharing, Mandates Data Sharing and Peer Reviews Data]
+      note: >-
+        這是 Wiley 全社資料分享政策頁的句子，頁面接著說各刊依表中四級之一設定。SJS 屬於哪一級、
+        純理論論文是否算 "research- and synthesis-based articles" 都沒有在 SJS 頁面或 Wiley 政策頁中明說。
+      src: wiley_data_sharing
+    preregistration: {status: not_published, checked: 2026-11-13, src: author_guidelines}
+    reporting_standards: {status: not_published, checked: 2026-11-13, src: author_guidelines}
+
+  review:
+    type: not_published
+    checked: 2026-11-13
+    src: author_guidelines
+    statement: >-
+      查過 journal_home、overview、author_guidelines、editorial_board、society_info、contact：沒有一處說明 SJS
+      是 single-anonymised、double-anonymised 還是其他審稿制度，也沒有作者匿名稿件的要求。
+      wiley_peer_review 說 Wiley 有多種審稿類型，並說 "The length of the peer review process varies by journal"；
+      wiley_review_confidentiality 說 "Journals with open review policies will have this noted within their Author
+      Guidelines"。SJS 的 author_guidelines 沒有這樣的註記，但這只能排除「公開審稿」，不能判定是單盲或雙盲。
+      作者那一側：author_guidelines 要求主文件與首頁列出作者姓名與機構（見 author_anonymization），
+      所以投稿稿件不匿名；審稿人是否匿名，頁面沒有寫。2026-11-13 重查時 author_guidelines 另查了 DOM textContent，
+      沒有 anonym、blind 等字。
+    open_review_note_quote: "Journals with open review policies will have this noted within their Author Guidelines."
+    open_review_note_src: wiley_review_confidentiality
+    author_anonymization:
+      required: false
+      quote: >-
+        The full names of the authors with institutional affiliations where the work was conducted, with a footnote for
+        the author’s present address if different from where the work was conducted;
+      first_page_quote: >-
+        The first page should contain: title of the paper, running headline (containing not more than 40 characters,
+        spacings included), authors’ names, and the institutions to which the authors are affiliated.
+      note: >-
+        兩句都要求稿件本身列出作者姓名，頁面沒有匿名稿或去識別化版本的選項。這是對作者端的要求，
+        不等於期刊說明了審稿制度（review.type 仍為 not_published）。
+      src: author_guidelines
+    author_may_suggest_reviewers: {status: not_published, checked: 2026-11-13, src: author_guidelines}
+    outcomes_and_stages: {status: not_published, checked: 2026-11-13, src: author_guidelines, note: SJS 頁面沒有說明審稿階段、決定類別或時程目標；只有 journal_metrics 的 2025 年實際中位數。}
+    published_timings:
+      first_decision_median_days: {value: 11, year: 2025, src: journal_metrics}
+      submission_to_acceptance_median_days: {value: 321, year: 2025, src: journal_metrics}
+      acceptance_to_publication_median_days: {value: 20, year: 2025, src: journal_metrics}
+      note: 首次決定與接受的中位數差距大（11 天 vs 321 天），頁面沒有說明兩者的母體與起迄點是否相同。
+    proofs: {quote: "Note that proofs should be returned within 48 hours from receipt of first proof.", src: author_guidelines}
+    language: 編輯若判定語言不可接受，作者須自行負責修訂；Wiley Editing Services 是選配服務
+    language_src: author_guidelines
+
+  submission:
+    portal: https://authors.wiley.com/journal/SJOS
+    system: Wiley Authors 投稿入口（登入走 Wiley ScienceConnect）
+    portal_verified: true
+    portal_note: >-
+      2026-11-13 重查時以 safari-browser 兩個連結都開過：author_guidelines 的 "Wiley Authors submission portal" 與
+      "Start your submission" 連結（https://authors.wiley.com/journal/SJOS），以及同頁的 "Research Exchange Submission portal"
+      連結（https://wiley.atyponrex.com/journal/SJOS），都轉到 https://wiley.scienceconnect.io/login，頁面是
+      「登录 CONNECT 以继续访问 Wiley Authors」的登入表單（介面語言為簡體中文）。兩個入口頁都打得開；沒有登入，
+      所以投稿表單、投稿系統內的欄位與勾選項沒有看到。curl 對兩個網址都回 HTTP 200 + 1319 bytes 的 JavaScript 空殼
+      （最後網址分別為 authors.wiley.com/dashboard/journal/SJOS 與 authors.wiley.com/dashboard/journal?groupCode=SJOS）。
+    instruction_inconsistency: >-
+      author_guidelines 第 1 點寫 "New submissions should be made via the Wiley Authors submission portal"，並說
+      在 submission.wiley.com 的 "My Submissions" 查進度；LaTeX 段落與 Supporting Information 段落則寫
+      "Research Exchange"（"via Research Exchange"、"Research Exchange Submission portal"）。頁面沒有說兩者是否為同一系統，
+      本次兩個連結都導向同一個 Wiley 登入頁。
+    status_tracking: "You may check the status of your submission at any time by logging on to submission.wiley.com and clicking the “My Submissions” button."
+    technical_help: submissionhelp@wiley.com（頁面給的投稿系統技術支援）
+    conditions:
+      quote: >-
+        Submission of a manuscript is held to imply that the paper has neither been published elsewhere, including
+        conference proceedings, nor is under consideration by any other journal.
+    cover_letter_must_state:
+      - 稿件是先前研討會論文集論文的延伸版時，須在 cover letter 說明（見 policies.conference_extension）
+    language: 英文
+    src: author_guidelines
+
+  fees:
+    submission: {status: not_published, checked: 2026-11-13, src: author_guidelines, note: author_guidelines 與 open_access 頁都沒有提到投稿費。}
+    page_charges: {status: not_published, checked: 2026-11-13, src: author_guidelines, note: author_guidelines 與 open_access 頁都沒有提到頁費（page charge）；費用只見開放取用的 APC 與印刷彩圖免費。}
+    color_charges:
+      value: 0
+      quote: "Colour figures may be published in print free of charge."
+      note: 這句講的是印刷版彩圖；頁面沒有另外談線上彩圖。
+      src: author_guidelines
+    open_access_model: hybrid
+    open_access_note: 作者可選開放取用；未選擇時簽 Copyright Assignment Form（見 policies.copyright）
+    open_access_src: open_access
+    apc:
+      value: 3850
+      amount: 3850
+      mandatory: false
+      mandatory_note: >-
+        本刊是 hybrid（open_access_model）；只有作者選擇開放取用、且稿件錄取刊出時才收（quote 的 "If the Open Access option is
+        selected"）。amount 與 value 是同一個數字，amount 是比較表讀的標準欄位名。
+      currency: USD
+      alternatives: [{value: 2520, currency: GBP}, {value: 3200, currency: EUR}]
+      quote: "If the Open Access option is selected, submissions will be subject to an APC if accepted and published in the journal: $3,850 USD / £2,520 GBP / €3,200 EUR"
+      excludes: >-
+        "The prices quoted do not include any value-added tax (VAT), goods and services tax (GST), or other sales taxes."
+      coverage: >-
+        "If the Corresponding Author's institution, funder, or society has a Wiley Open Access Account (WOAA), all or part of the APC might be covered."
+        頁面另列丹麥、芬蘭、挪威、瑞典機構的開放取用協議連結，與 "Affiliation Policy and Payments"，這些連結的內容本次未讀。
+      as_of: 2026-11-13
+      src: open_access
+    oa_licences:
+      quote: "Most authors can choose between CC BY, CC BY-NC, and CC BY-NC-ND Creative Commons Licenses, though certain funders mandate a particular type of CC license is used."
+      src: open_access
+    apc_when_charged: 錄取並出版之後才收費（"if accepted and published in the journal"）
+
+  policies:
+    dual_submission: forbidden
+    prior_publication:
+      quote: >-
+        Submission of a manuscript is held to imply that the paper has neither been published elsewhere, including
+        conference proceedings, nor is under consideration by any other journal.
+      src: author_guidelines
+    conference_extension:
+      allowed: conditional
+      quote: >-
+        Extended versions of works published in part in a conference proceedings can be considered for publication,
+        provided that the submission has been extended with substantial new contributions and that it does not have
+        excessive textual overlap with the previous conference publication; authors must indicate such extension in
+        their cover letter, and must cite the original publication in the new manuscript and clearly describe the extension.
+      src: author_guidelines
+    after_acceptance:
+      quote: "Furthermore, once a paper is accepted it must not be published elsewhere in the same or similar form without the Editors’ written consent."
+      src: author_guidelines
+    plagiarism_and_dual_publication:
+      statement: >-
+        SJS follows the general Wiley guidelines, 並對數學論文另加三條具體規則（逐字如下）。
+      rules_quote:
+        - "Avoid word‐by‐word copying of whole sentences, and definitely, whole paragraphs."
+        - "If a definition or theorem is taken from other work, and is not well known, use clear citation of the source, even if adapted to a new setting."
+        - "Proofs that are just minor modifications of previously published proofs should not be included, but instead handled by reference, with an explanation of necessary modifications."
+      wiley_ethics_page: {url: "https://authorservices.wiley.com/ethics-guidelines/dual-publication-plagiarism-and-defamation.html", note: 連結目標頁本次未讀}
+      src: author_guidelines
+    preprints:
+      allowed: true
+      quote: >-
+        Scandinavian Journal of Statistics will consider for review articles previously available as preprints. Authors
+        may also post the submitted version of a manuscript to a preprint server at any time. Authors are requested to
+        update any pre-publication versions with a link to the final published article.
+      wiley_wide: >-
+        Wiley 全社政策頁（wiley_preprints）說 "A number of Wiley journals have set policies independently and authors should
+        refer to the policy on the individual journal pages."，SJS 的頁面有上面這段自己的規定。
+      src: author_guidelines
+    generative_ai:
+      journal_statement:
+        quote: "Authors may wish to refer to Wiley's guidelines on using AI tools in your research."
+        src: author_guidelines
+      journal_specific_policy:
+        status: not_published
+        checked: 2026-11-13
+        src: author_guidelines
+        note: SJS 頁面沒有自己的生成式 AI 政策，只用上面這句指向 Wiley 全社指引。
+      wiley_wide:
+        disclosure_quote: "Disclose your use of AI transparently in your manuscript so readers can understand your process"
+        disclosure_placement_quote: "In your Acknowledgments when AI assists with manuscript drafting, editing, translation, or formatting."
+        requirement_quote: "Wiley requires disclosure of AI when used to generate substantial text or restructure arguments."
+        journal_policies_vary: "Editorial policies vary in what types of AI use they permit."
+        note: >-
+          以上是 Wiley 全社指引的句子（wiley_ai_guidelines），2026-11-13 重查時四句都在 curl 取得的 HTML 去標籤後的文字中
+          （畫面上是否預設折疊本次沒有核對）。該指引是否逐字適用於 SJS，SJS 頁面沒有再說明，
+          只說 "Authors may wish to refer to"。
+        src: wiley_ai_guidelines
+    copyright:
+      transfer_unless_open_access: >-
+        未選開放取用時，通訊作者簽 Copyright Assignment Form；經 Author Services 的 Wiley Author Licensing Service (WALS) 簽署。
+      open_access_licences: [CC BY, CC BY-NC, CC BY-NC-ND]
+      funder_deposit: >-
+        NIH、RCUK 成員與 Wellcome Trust 等資助者要求錄取稿在禁運期後存放於典藏庫；Wellcome 與 RCUK 資助的開放取用稿件可用 CC-BY。
+      src: author_guidelines
+    early_view:
+      statement: "Early View articles are complete and final."
+      note: Early View 文章已完成審稿、修訂與編修，上線後不能再修改；以 DOI 引用。
+      src: author_guidelines
+    offprints: 通訊作者在註冊 Author Services 後，於印刷版出刊時可得免費 PDF offprint
+    conflict_of_interest: {status: not_published, checked: 2026-11-13, src: author_guidelines}
+    orcid: {status: not_published, checked: 2026-11-13, src: author_guidelines}
+    funding_statement: {status: not_published, checked: 2026-11-13, src: author_guidelines}
+    ethics: {status: not_published, checked: 2026-11-13, src: author_guidelines, note: SJS 頁面除了抄襲與重複發表之外沒有其他倫理聲明要求。}
+
+  standards: []
+
+# ─────────────────────────────────────────────────────────────
+# FAST — 期刊無年度週期。
+# ─────────────────────────────────────────────────────────────
+cycle:
+  applies_to: null
+  rolling_calls: []
+  special_issues:
+    status: not_found
+    checked: 2026-11-13
+    src: special_issues
+    note: >-
+      special_issues 頁只列已出刊的三個 special section（Special Section in Honour of Nils Lid Hjort，2024 年 9 月；
+      Special Section in Honour of Elja Arjas，2023 年 3 月；4th Workshop on Goodness-of-Fit, Change-Point and Related
+      Problems, Trento 2019，2021 年 6 月），沒有徵稿公告。
+
+# ─────────────────────────────────────────────────────────────
+warnings:
+  - >-
+    篇幅上限官方沒有寫：author_guidelines 全頁沒有頁數、字數或圖表數限制（已逐段檢查），只要求至少 1.5 倍行距（18 點）與寬邊界。
+    沒有上限不等於沒有編輯判斷；頁面沒有談過長稿件的處理方式。
+  - >-
+    摘要上限 150 字（不含公式與文獻引用），但關鍵詞數量頁面自相矛盾：主文件內容清單寫 "Up to seven keywords"，
+    摘要與關鍵詞段落寫 "not more than 10 key words"（字母序、不需分類碼）。投稿時以 7 個以內並按字母序最保險。
+  - >-
+    aims 的措辭是 "significant, innovative, original contributions to statistical methodology, well justified by theory and
+    numerical experiments, and illustrated by real data"（首頁）；Overview 的措辭是 "significant and innovative original
+    contributions to statistical methodology, well justified by theory and numerical experiments, and illustrated by real data
+    applications"。頁面沒有排除任何題材或給低優先，也沒有說
+    缺少數值實驗或真實資料例子的稿件如何處理；但這三樣被並列為方法論貢獻的描述，投稿稿件的組成宜對照這句話自查。
+  - >-
+    審稿制度（單盲、雙盲或其他）SJS 的任何頁面都沒有寫；Wiley 全社頁只說公開審稿的刊會在 Author Guidelines 註明，
+    SJS 沒有註明。作者指引要求主文件與首頁列出作者姓名與機構，沒有匿名稿的選項；審稿人是否匿名頁面無法判定。
+  - >-
+    數學論文有 SJS 專屬的重複與抄襲規則：不得逐字抄整句或整段；引用他處不廣為人知的定義或定理須明確引用；
+    只是微幅修改已發表證明的證明 "should not be included, but instead handled by reference, with an explanation of necessary
+    modifications"。已在研討會論文集發表的內容，延伸版須有 "substantial new contributions"、不得有過多文字重疊，
+    並須在 cover letter 說明、引用原文、清楚描述延伸部分。
+  - >-
+    指標與費用：Wiley 頁面標 2025 年投稿到接受的中位數為 321 天（首次決定中位數 11 天），錄取率 25%，Journal Impact Factor 1.2。
+    開放取用選項的 APC 為 3,850 USD / 2,520 GBP / 3,200 EUR（不含稅）；頁面沒有提到投稿費或頁費，印刷版彩圖免費。
+    作者指引頁內有一個失效連結（Supporting Information 準備規則，olabout.wiley.com；2026-11-13 重查時
+    curl 逾時、讀不到），且投稿入口
+    同時被稱為 "Wiley Authors submission portal" 與 "Research Exchange"，兩個連結本次都導向同一個 Wiley 登入頁。
