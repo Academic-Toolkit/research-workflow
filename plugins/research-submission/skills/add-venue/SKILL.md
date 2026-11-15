@@ -78,15 +78,19 @@ ls ${CLAUDE_PLUGIN_ROOT}/venues/*/          # apa/psychological-methods.yaml（�
 
 | 欄 | 標準寫法 |
 |---|---|
-| 收錄 | `identity.indexing.web_of_science: {scie, ssci, esci, as_of, src}`，三個旗標各寫 `true` 或 `false` |
-| APC | `requirements.fees.apc: {amount, currency, mandatory}`，`mandatory` 寫 `true` 或 `false`。多幣別定價寫 `currency_rates: [{currency, value}, ...]`（表上取 USD）；分級定價寫 `list_price_usd: {<級別>: <金額>}`（表上取最高的一級）。接受後才選開放取用的，加 `applies_when` 說明條件，表上會標「選付」；全面開放取用、一定要付的，寫 `mandatory: true` |
-| 篇幅 | `requirements.length: {value, unit}`，`unit` 用 `words`、`pages_double_spaced` 或 `pages_typeset`。官方沒寫上限時寫 `requirements.length_limit: {status: not_published, checked}` |
+| 收錄 | `identity.indexing.web_of_science: {scie, ssci, esci, as_of, src}`，三個旗標各寫 `true` 或 `false`（布林，不要寫成字串）。表上只顯示 SCIE 與 SSCI；`esci` 照實記錄，但不顯示。寫了 `web_of_science` 就由它決定這一格，舊的收錄鍵不再讀 |
+| APC | `requirements.fees.apc: {amount, currency, mandatory}`，`mandatory` 寫 `true` 或 `false`。多幣別定價寫 `currency_rates: [{currency, value}, ...]`（表上取 USD）；分級定價寫 `list_price_usd: {<級別>: <金額>}`（表上取最高的一級）。必付或選付請明寫 `mandatory`；沒寫時，腳本只在有 `applies_when`（有條件才收）時標「選付」 |
+| 篇幅 | `requirements.length: {value, unit}`，`unit` 用 `words`、`pages_double_spaced` 或 `pages_typeset`。官方沒寫上限時寫 `requirements.length: {status: not_published, checked}` |
 | 審稿 | `requirements.review.type`，值用 `single_blind`、`single_anonymized`、`double_blind`、`double_anonymized`。官方沒寫時寫 `{status: not_published, checked}` |
 | 出版社 | `identity.publisher` 寫字串；官方沒寫時寫 `{status: not_published, checked}` |
 
-任何一欄查過而沒有值，都寫 `{status: not_published|not_found|not_applicable, checked}`，不要留空，也不要自創別的形狀。`status` 三個值的意思不同：`not_published` 是官方沒公布，`not_found` 是查過但沒取得（例如要登入），`not_applicable` 是這一欄對這個場地不適用。
+期刊記錄的任何一欄查過而沒有值，都寫 `{status: not_published|not_found|not_applicable, checked}`，不要留空，也不要自創別的形狀。`status` 三個值的意思不同：`not_published` 是官方沒公布，`not_found` 是查過但沒取得（例如要登入），`not_applicable` 是這一欄對這個場地不適用。
 
-**研討會（`kind: conference`）**：收錄、IF、分區、首次決定、投稿到接受這五欄不必填，表上會印「不適用」。審稿型態各軌不同時，寫 `requirements.review.model_by_track: {research: ..., ...}`，表上取 `research`；只有一種時寫 `requirements.review.model` 或 `type`。沒有任何費用資訊時不必寫 `requirements.fees`，表上會印「未公布」。
+**研討會（`kind: conference`）**：
+
+- 收錄、IF、分區、首次決定、投稿到接受這五欄**省略不寫**，表上會印「不適用」。不要替這五欄寫 `status`：分區與審稿時間欄目前不會照 `status` 印出對應的字。
+- 審稿型態各軌不同時，寫 `requirements.review.model_by_track: {research: ..., ...}`，表上取 `research`；只有一種時寫 `requirements.review.type`。
+- APC 沒有預設值，要明寫：有金額就照上表寫 `requirements.fees.apc`；官方沒公布就寫 `requirements.fees.apc: {status: not_published, checked}`。只寫報名費而沒寫 `apc`，表上會印「?」。
 
 ### 官方沒有公布審稿速度時：自行抽樣估計（只當估計，不當官方事實）
 

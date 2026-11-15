@@ -111,9 +111,13 @@ def wos(rec):
     if not isinstance(ind, dict):              # 清單等認不得的形狀：印「?」，不當掉
         return UNKNOWN
     ssci = scie = None
-    ws = ind.get("web_of_science")
-    if isinstance(ws, dict) and ("scie" in ws or "ssci" in ws):
-        parts = (["SCIE"] if ws.get("scie") else []) + (["SSCI"] if ws.get("ssci") else [])
+    if "web_of_science" in ind:                # 標準寫法；有寫就由它決定，不再讀舊的鍵
+        ws = ind["web_of_science"]
+        if is_status_only(ws):
+            return status_label(ws)
+        if not (isinstance(ws, dict) and isinstance(ws.get("scie"), bool) and isinstance(ws.get("ssci"), bool)):
+            return UNKNOWN                     # 旗標不是布林、缺一個、或別的形狀：不猜
+        parts = (["SCIE"] if ws["scie"] else []) + (["SSCI"] if ws["ssci"] else [])
         return "＋".join(parts) if parts else "兩者皆無"
     cw = ind.get("clarivate_wos")
     if isinstance(cw, dict) and isinstance(cw.get("in_ssci"), dict):
@@ -151,6 +155,19 @@ def impact_factor(m):
     return f"{n}" if n is not None else UNKNOWN
 
 
+QUARTILE_VALUES = ("Q1", "Q2", "Q3", "Q4")
+
+
+def single_quartile(q):
+    """單一類別寫成一個 mapping（{system, quartile 或 value}）時轉成一筆的清單；
+    只認 Q1–Q4 的字串，其他形狀原樣交回（照改動前的規則處理）。"""
+    if isinstance(q, dict) and isinstance(q.get("system"), str):
+        v = q.get("quartile") if q.get("quartile") is not None else q.get("value")
+        if isinstance(v, str) and v in QUARTILE_VALUES:
+            return [{**q, "quartile": v}]
+    return q
+
+
 def quartile(m):
     q = m.get("quartiles")
     if q is None:
@@ -159,8 +176,7 @@ def quartile(m):
             q = [{"system": "JCR", "quartile": x.get("quartile"), "category": x.get("category")} for x in r]
         else:
             return STATUS_LABEL["not_applicable"] if m.get("_conference") else UNKNOWN
-    if isinstance(q, dict) and q.get("system") and (q.get("quartile") or q.get("value")):
-        q = [{**q, "quartile": q.get("quartile") or q.get("value")}]   # 單一類別寫成一個 mapping
+    q = single_quartile(q)
     if isinstance(q, dict):
         return "未取得"
     if not isinstance(q, list) or any(not isinstance(x, dict) for x in q):   # 字串、字串清單等：認不得
@@ -176,12 +192,12 @@ def quartile(m):
 
 def quartile_detail(m):
     """各學科類別的分區與名次，例：Business Q1（48/323，JCR 2025）。給逐刊段落用。"""
-    q = m.get("quartiles")
+    q = single_quartile(m.get("quartiles"))
     if not isinstance(q, list):
         return []
     best = {}   # 同一系統、同一類別、同一分區只留一筆；有名次的優先（出版社轉載常與直接讀到的重複）
     for x in q:
-        if not x.get("quartile"):
+        if not isinstance(x, dict) or not isinstance(x.get("quartile"), str) or not x.get("quartile"):
             continue
         cat = str(x.get("category", "")).lower().replace("&", "and")
         key = (x.get("system"), " ".join(cat.split()), x["quartile"])
@@ -236,7 +252,7 @@ def estimate_or_unpublished(m, key):
 
 def duration(m, key):
     for k in ALIASES[key]:
-        if k in m:
+        if m.get(k) is not None:           # 寫成 null 視同沒寫
             v = m[k]
             if is_unknown(v):
                 return estimate_or_unpublished(m, key)
@@ -253,6 +269,25 @@ def duration(m, key):
 
 
 # ---------------------------------------------------------------- 費用、審稿、篇幅
+def apc_kind(rec, a):
+    """必付或選付，單一判斷處。先後：mandatory 旗標 → status → identity.open_access（必付）
+    → applies_when（有條件才收，選付）。都沒有回 None。"""
+    if a.get("mandatory") is True:
+        return "必付"
+    if a.get("mandatory") is False:
+        return "選付"
+    st = a.get("status") if isinstance(a.get("status"), str) else ""
+    if st.startswith("mandatory"):
+        return "必付"
+    if st == "optional":
+        return "選付"
+    if get(rec, "identity", "open_access"):
+        return "必付"
+    if a.get("applies_when"):
+        return "選付"
+    return None
+
+
 def apc(rec):
     fees = get(rec, "requirements", "fees") or {}
     if is_status_only(fees):               # 整個費用區塊只有 status（例：研討會查不到費用資訊）
@@ -260,13 +295,10 @@ def apc(rec):
     a = fees.get("apc") if isinstance(fees, dict) else None
     if is_status_only(a):                  # 整欄只有 status：查過，官方沒有 APC 資訊
         return status_label(a)
-    if a is None and not fees and is_conference(rec):   # 研討會沒有任何費用記錄
-        return NOT_PUBLISHED
     if not isinstance(a, dict):
         return UNKNOWN
     cur = a.get("currency") or fees.get("currency")
     amt = a.get("amount")
-    optional_hint = bool(a.get("applies_when")) and a.get("mandatory") is not True   # 有條件才收：選付
     if amt is None and isinstance(a.get("currency_rates"), list):      # 多幣別定價：取 USD
         usd = [x for x in a["currency_rates"] if isinstance(x, dict) and x.get("currency") == "USD"]
         if usd and isinstance(usd[0].get("value"), (int, float)):
@@ -276,7 +308,9 @@ def apc(rec):
         if tiers:
             cur, amt = "USD", max(tiers)
     if is_status_only(amt):                # 有 OA 選項但金額沒公布（例：只指向出版社的 APC 查詢頁）
-        optional = a.get("mandatory") is False or bool(a.get("applies_when"))
+        # 金額沒公布時只標得出「選付」：明寫 mandatory: false，或有條件才收（applies_when）且沒寫 mandatory: true。
+        # 這裡不看 identity.open_access：它常寫成 hybrid（有值但不是必付），改動前的輸出也不看它。
+        optional = a.get("mandatory") is False or (a.get("mandatory") is not True and bool(a.get("applies_when")))
         return f"{status_label(amt)}（選付）" if optional else status_label(amt)
     if amt == 0:                           # 鑽石 OA：沒有任何作者費用，不是「0 元選付」
         return "不收費"
@@ -291,38 +325,32 @@ def apc(rec):
     if amt is None:
         return UNKNOWN
     cur = str(cur or "").split("（")[0].strip()[:3]
-    if a.get("mandatory") is False or a.get("status") == "optional" or optional_hint:
-        kind = "選付"
-    elif a.get("mandatory") is True or str(a.get("status", "")).startswith("mandatory"):
-        kind = "必付"
-    elif get(rec, "identity", "open_access"):
-        kind = "必付"
-    else:
-        kind = UNKNOWN
-    return f"{cur} {fmt_int(amt)}（{kind}）"
+    return f"{cur} {fmt_int(amt)}（{apc_kind(rec, a) or UNKNOWN}）"
 
 
 def review(rec):
-    t = get(rec, "requirements", "review", "type")
-    if t is None:                          # 研討會常寫成 model，或各軌分開記（取研究軌）
-        t = get(rec, "requirements", "review", "model")
-    if t is None:
-        t = get(rec, "requirements", "review", "model_by_track", "research")
-    if is_status_only(t):                  # {status: not_published, ...}
-        return status_label(t)
-    if not isinstance(t, str):             # None 或認不得的形狀
-        return UNKNOWN
-    if t in STATUS_LABEL:                  # 查過、官方沒寫審稿制度
-        return STATUS_LABEL[t]
-    return REVIEW_LABEL.get(t, t)
+    r = get(rec, "requirements", "review")
+    if is_status_only(r):                  # 整個審稿區塊只有 status
+        return status_label(r)
+    cands = [get(r, "type"), get(r, "model"), get(r, "model_by_track", "research")]
+    cands = [c["value"] if isinstance(c, dict) and not is_status_only(c) and isinstance(c.get("value"), str) else c
+             for c in cands]               # {value: <code>} 讀成 code
+    for t in cands:                        # 第一個真的寫了審稿制度的位置
+        if isinstance(t, str) and t:
+            return STATUS_LABEL.get(t) or REVIEW_LABEL.get(t, t)
+    for t in cands:                        # 都沒寫制度，但有寫「查過、沒有」
+        if is_status_only(t):
+            return status_label(t)
+    return UNKNOWN
 
 
 def length(rec):
     req = rec.get("requirements")
     if not isinstance(req, dict):
         return UNKNOWN
-    L = req.get("length") or req.get("length_policy") or req.get("length_note") or req.get("length_limit")
-    if not isinstance(L, dict):
+    L = next((req[k] for k in ("length", "length_policy", "length_note", "length_limit")
+              if isinstance(req.get(k), dict)), None)      # 第一個寫成 mapping 的鍵；別的形狀不擋後面的鍵
+    if L is None:
         return UNKNOWN
     if L.get("limit") == "none_stated_as_unlimited" or get(L, "word_limit", "status") == "not_applicable":
         return "無上限"
@@ -351,45 +379,57 @@ def length(rec):
 PUBLISHER_SHORT = [("elsevier", "Elsevier"), ("wiley", "Wiley"), ("springer", "Springer Nature"), ("mdpi", "MDPI"),
                    ("multidisciplinary digital", "MDPI"), ("frontiers", "Frontiers"), ("public library of science", "PLOS"),
                    ("plos", "PLOS"), ("american psychological", "APA"), ("sage", "SAGE"), ("taylor", "Taylor & Francis"),
-                   ("oxford", "OUP"), ("cambridge", "CUP")]
+                   ("oxford", "OUP"), ("cambridge", "CUP"), ("association for computing machinery", "ACM")]
 
 
 def publisher(rec):
     raw = get(rec, "identity", "publisher")
     if is_status_only(raw):
         return status_label(raw)
-    if raw is not None and not isinstance(raw, str):
-        return UNKNOWN
-    p = raw or ""
+    structured = raw is not None and not isinstance(raw, str)   # mapping 或清單：只用文字比對已知名稱
+    p = str(raw) if structured else (raw or "")
     low = p.lower()
+    if low.startswith("acm"):
+        return "ACM"
     for k, v in PUBLISHER_SHORT:
         if k in low:
             return v
+    if structured:
+        return UNKNOWN
     return p.split("（")[0].strip() or UNKNOWN
 
 
 DISCOUNTS = {}   # venue id -> 文字；由 --discounts 檔提供（機構專屬資料，不屬於期刊記錄）
 
 
+def safe(fn, *args):
+    """讀一欄時出任何錯都印「?」：一筆寫壞的記錄不該讓整張表產不出來。"""
+    try:
+        return fn(*args)
+    except Exception:
+        return UNKNOWN
+
+
 def row(rec):
-    m = get(rec, "identity", "metrics")
-    if not isinstance(m, dict):            # 沒有 metrics，或寫成清單等認不得的形狀
-        m = {}
-    m = {**m, "_id": rec["id"], "_conference": is_conference(rec)}
+    raw = get(rec, "identity", "metrics")
+    bad = raw is not None and not isinstance(raw, dict)      # 有寫但不是 mapping：認不得
+    m = {**(raw if isinstance(raw, dict) else {}), "_id": rec["id"],
+         "_conference": is_conference(rec) and not bad}      # 形狀認不得時不套研討會的「不適用」
+    name = get(rec, "identity", "name")
     return {
         "id": rec["id"],
-        "publisher": publisher(rec),
+        "publisher": safe(publisher, rec),
         "discount": DISCOUNTS.get(rec["id"], "—") if DISCOUNTS else None,
-        "name": get(rec, "identity", "name") or rec["id"],
-        "index": wos(rec),
-        "if": impact_factor(m),
-        "q": quartile(m),
-        "accept": acceptance(m),
-        "first": duration(m, "first_decision"),
-        "sub_accept": duration(m, "sub_to_accept"),
-        "apc": apc(rec),
-        "review": review(rec),
-        "length": length(rec),
+        "name": name if isinstance(name, str) and name else rec["id"],
+        "index": safe(wos, rec),
+        "if": safe(impact_factor, m),
+        "q": safe(quartile, m),
+        "accept": safe(acceptance, m),
+        "first": safe(duration, m, "first_decision"),
+        "sub_accept": safe(duration, m, "sub_to_accept"),
+        "apc": safe(apc, rec),
+        "review": safe(review, rec),
+        "length": safe(length, rec),
     }
 
 
@@ -436,8 +476,8 @@ def main():
     notes = [(f"{i} {k}：{n}" if k == "估計" else f"† {i} {k}：{n[:140]}") for i, k, n in NOTES]
     if a.format == "quartiles":
         for i in ids:
-            m = get(load(i, a.root), "identity", "metrics") or {}
-            print(i + "\t" + "；".join(quartile_detail(m)))
+            m = get(load(i, a.root), "identity", "metrics")
+            print(i + "\t" + "；".join(safe(quartile_detail, m if isinstance(m, dict) else {}) or []))
         return
     if a.format == "json":
         print(json.dumps(rows, ensure_ascii=False, indent=2))

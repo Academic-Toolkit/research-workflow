@@ -103,7 +103,7 @@ The script SHALL read the shapes below in addition to the shapes it read before 
 - Length: `requirements.length_limit`, read the same way as `requirements.length`. Of `length`, `length_policy`, `length_note` and `length_limit`, the first one that holds a mapping is used; a key that holds something else does not hide a later key.
 - Review: of `requirements.review.type`, `requirements.review.model` and `requirements.review.model_by_track.research`, the first one that states a review model is used. A value written as `{value: <code>}` is read as the code. An empty string states nothing.
 - Review codes `double_anonymous` and `double-anonymous` SHALL print `雙匿名`.
-- APC kind: one rule decides `必付` or `選付` however the amount is written, in this order: `mandatory: true` or false; `status` starting with `mandatory`, or equal to `optional`; `identity.open_access` set, which prints `必付`; `applies_when` present, which prints `選付`. When none applies, an amount prints with `?` as its kind, and a status-only amount prints its label alone.
+- APC kind, when the amount is known: `必付` or `選付` is decided in this order: `mandatory: true` or false; `status` starting with `mandatory`, or equal to `optional`; `identity.open_access` set, which prints `必付` as it did before this change; `applies_when` present, which prints `選付`. When none applies the amount prints with `?` as its kind. When the amount is a status mapping, the cell is the status label followed by `（選付）` if `mandatory` is false, or if `applies_when` is present and `mandatory` is not true; otherwise the label alone. `identity.open_access` is not read in that case, as before this change.
 
 #### Scenario: Web of Science flags
 
