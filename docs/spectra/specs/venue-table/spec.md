@@ -8,7 +8,15 @@ The venue table is the comparison table that `plugins/research-submission/script
 
 ### Requirement: Status mappings print their status label
 
-When a field read for the publisher, indexing, impact factor, APC or review column holds a mapping whose `status` is `not_published`, `not_found` or `not_applicable` and that carries no `value` or `amount`, the script SHALL print the label of that status (`未公布`, `未取得`, `不適用`) in that column and SHALL NOT raise. For the APC column this SHALL also hold when `requirements.fees` itself is such a mapping, for the indexing column when `identity.indexing.web_of_science` is such a mapping, and for the review column when `requirements.review` itself is such a mapping. A status mapping in `requirements.review.type` SHALL NOT hide a review model the record states in `requirements.review.model` or `requirements.review.model_by_track.research`. The quartile, acceptance rate, review time and length columns keep the labels they printed before this change; aligning them is outside this change.
+A status mapping is a mapping whose `status` is `not_published`, `not_found` or `not_applicable` and that carries no `value` or `amount`. When one of the positions listed here holds a status mapping, the script SHALL print the label of that status (`未公布`, `未取得`, `不適用`) in the column and SHALL NOT raise:
+
+- publisher: `identity.publisher`
+- indexing: `identity.indexing`, `identity.indexing.web_of_science`, and `identity.metrics.indexing` when it is read in place of an absent `identity.indexing`
+- impact factor: `identity.metrics.impact_factor`
+- APC: `requirements.fees`, `requirements.fees.apc`, `requirements.fees.apc.amount`
+- review: `requirements.review`, `requirements.review.type`, `requirements.review.model`, `requirements.review.model_by_track.research`
+
+A status mapping in `requirements.review.type` SHALL NOT hide a review model the record states in `requirements.review.model` or `requirements.review.model_by_track.research`. A status mapping at any other position read for these columns (for example inside `web_of_science.scie`, `currency_rates`, `list_price_usd`, the older indexing keys `clarivate_wos`, `wos_ssci_scie` and `clarivate_mjl`, or `identity.metrics` itself) is outside this requirement and prints what the rules for unrecognised shapes or the rules in force before this change give. The quartile, acceptance rate, review time and length columns keep the labels they printed before this change; aligning them is outside this change.
 
 #### Scenario: Review type recorded as not published
 
@@ -35,6 +43,12 @@ When a field read for the publisher, indexing, impact factor, APC or review colu
 | requirements.review | {status: not_published} | review | 未公布 |
 | requirements.review | {type: {status: not_published}, model: double_anonymous} | review | 雙匿名 |
 
+##### Example: indexing block status mapping
+
+- **GIVEN** a journal record whose `identity.indexing` is `{status: not_found, checked: 2026-11-15}`
+- **WHEN** the row is built
+- **THEN** the indexing cell is `未取得`
+
 ##### Example: publisher status mapping
 
 - **GIVEN** a conference record whose `identity.publisher` is `{status: not_published, checked: 2026-11-15, note: "electronic proceedings"}`
@@ -44,7 +58,7 @@ When a field read for the publisher, indexing, impact factor, APC or review colu
 ---
 ### Requirement: Unrecognised shapes print a question mark and never raise
 
-When a field read for a table column holds a value whose shape the script does not recognise, the script SHALL print `?` in that column, SHALL write one warning line naming the record and the column to stderr, and SHALL exit 0. This SHALL hold for every column of the table: an error raised while a column is being read SHALL be turned into `?` for that column and SHALL NOT stop the other columns or the other records. With `--format quartiles`, a record whose quartiles cannot be read SHALL print its id with no categories and the script SHALL exit 0.
+When a field read for a table column holds a value whose shape the script does not recognise, the script SHALL print `?` in that column, SHALL write one warning line naming the record and the column to stderr, and SHALL exit 0. This SHALL hold for every column of the table: an error raised while a column is being read SHALL be turned into `?` for that column and SHALL NOT stop the other columns or the other records. With `--format quartiles`, a record whose quartiles cannot be read SHALL print its id with no categories and the script SHALL exit 0. A column that ends as `?` SHALL NOT leave a footnote behind. The name cell SHALL be `?` when `identity.name` is present and is not text; an absent or empty name prints the record id, as before this change.
 
 #### Scenario: Indexing recorded as a list
 
@@ -89,6 +103,26 @@ When a field read for a table column holds a value whose shape the script does n
 | requirements.length | {value: [1], unit: words} | length | ? |
 | requirements.fees.apc | {amount: [2000], currency: USD, mandatory: true} | APC | ? |
 
+##### Example: values that are not numbers or text
+
+| Field | Value | Column | Cell |
+| ----- | ----- | ------ | ---- |
+| requirements.fees.apc | {amount: false, currency: USD} | APC | ? |
+| requirements.fees.apc | {currency_rates: [{currency: USD, value: false}]} | APC | ? |
+| requirements.fees.apc | {mandatory: true, list_price_usd: {non_member: false}} | APC | ? |
+| requirements.fees.apc | {amount: 2000, currency: [USD], mandatory: true} | APC | ? |
+| requirements.fees.apc | {all_other_articles: {amount: [1]}, mandatory: true} | APC | ? |
+| requirements.length | {value: 10, unit: [pages]} | length | ? |
+| requirements.length | {value: 10, unit: 5} | length | ? |
+| requirements.length | {value: 10, unit: true} | length | ? |
+| identity.name | [A, B] | name | ? |
+
+##### Example: failed column leaves no footnote
+
+- **GIVEN** a record whose `identity.metrics.time_submission_to_acceptance` is `{status: not_published}` and whose `identity.metrics.estimates.sub_to_acceptance` is `{value: "fast", n: 10}`
+- **WHEN** the row is built
+- **THEN** the submission-to-acceptance cell is `?` and no footnote is recorded for the record
+
 ##### Example: quartiles format never raises
 
 - **GIVEN** a record file whose `identity.metrics.quartiles` is the list `[Q1]`, a shape that raised before this change
@@ -107,12 +141,13 @@ When a field read for a table column holds a value whose shape the script does n
 The script SHALL read the shapes below in addition to the shapes it read before this change.
 
 - Indexing: `identity.indexing.web_of_science` with boolean `scie` and `ssci`. When `web_of_science` is present it decides the cell and the older indexing keys are not read: two boolean flags print the indexes, a status mapping prints its label, and anything else (a flag that is not a boolean, a missing flag, another shape) prints `?`. The `esci` flag is not shown in the table.
+- Quartile lists: an entry that is not a mapping, or whose `quartile` is not text, is left out, both in the table and with `--format quartiles`. A list that is not empty and has no readable entry prints `?` in the table; an empty list prints `未取得`, as before this change.
 - Quartile: `identity.metrics.quartiles` as one mapping with `system` and either `quartile` or `value`, read only when that value is one of the strings `Q1`, `Q2`, `Q3`, `Q4`. Any other single mapping prints what it printed before this change (`未取得`). With `--format quartiles` the single mapping prints its category like a one-item list.
-- APC: `requirements.fees.apc.currency_rates`, a list of `{currency, value}`, from which the USD entry is taken; and `requirements.fees.apc.list_price_usd`, a mapping of price tiers, from which the highest amount is taken. ASSUMPTION: the highest tier is the undiscounted list price.
+- APC: `requirements.fees.apc.currency_rates`, a list of `{currency, value}`, from which the USD entry is taken; and `requirements.fees.apc.list_price_usd`, a mapping of price tiers, from which the highest amount is taken. ASSUMPTION: the highest tier is the undiscounted list price. A price inside `currency_rates` or `list_price_usd` is read only when it is a number; a boolean is not a number. An `amount` keeps the forms it accepted before this change, text included, and a boolean `amount` prints `?`.
 - Length: `requirements.length_limit`, read the same way as `requirements.length`. Of `length`, `length_policy`, `length_note` and `length_limit`, the first one that holds a mapping is used; a key that holds something else does not hide a later key.
 - Review: of `requirements.review.type`, `requirements.review.model` and `requirements.review.model_by_track.research`, the first one that states a review model is used. A value written as `{value: <code>}` is read as the code. An empty string states nothing.
 - Review codes `double_anonymous` and `double-anonymous` SHALL print `雙匿名`.
-- APC kind, when the amount is known: `必付` or `選付` is decided in this order: `mandatory: true` or false; `status` starting with `mandatory`, or equal to `optional`; `identity.open_access` set, which prints `必付` as it did before this change; `applies_when` present, which prints `選付`. When none applies the amount prints with `?` as its kind. When the amount is a status mapping, the cell is the status label followed by `（選付）` if `mandatory` is false, or if `applies_when` is present and `mandatory` is not true; otherwise the label alone. `identity.open_access` is not read in that case, as before this change.
+- APC kind, when the amount is known: `必付` or `選付` is decided in this order: `mandatory: true` or false; `status` starting with `mandatory`, or equal to `optional`; `identity.open_access` set, which prints `必付` as it did before this change, and is consulted only when the amount was written as `amount` or in one of the shapes read before this change; `applies_when` present, which prints `選付`. When none applies the amount prints with `?` as its kind. An amount taken from `currency_rates` or `list_price_usd` never gets `必付` from `identity.open_access`, because those records printed `?` before this change. When the amount is a status mapping, the cell is the status label followed by `（選付）` if `mandatory` is false or `status` is `optional`, or if `applies_when` is present and `mandatory` is not true; otherwise the label alone. `identity.open_access` is not read in that case, as before this change.
 
 #### Scenario: Web of Science flags
 
@@ -152,6 +187,29 @@ The script SHALL read the shapes below in addition to the shapes it read before 
 | {amount: 2000, currency: USD, mandatory: false} | true | USD 2,000（選付） |
 | {amount: {status: not_published}, mandatory: true, applies_when: "on acceptance"} | absent | 未公布 |
 | {amount: {status: not_published}, applies_when: "on acceptance"} | absent | 未公布（選付） |
+
+##### Example: apc kind for amounts from the new price keys
+
+| identity.open_access | requirements.fees.apc | APC cell |
+| -------------------- | --------------------- | -------- |
+| hybrid | {applies_when: "author chooses open access", currency_rates: [{currency: USD, value: 3390}]} | USD 3,390（選付） |
+| hybrid | {list_price_usd: {member: 1300, non_member: 1800}} | USD 1,800（?） |
+| hybrid | {mandatory: true, list_price_usd: {member: 1300, non_member: 1800}} | USD 1,800（必付） |
+| hybrid | {amount: {status: not_published}, status: optional} | 未公布（選付） |
+
+##### Example: quartile list with one unreadable entry
+
+- **GIVEN** `identity.metrics.quartiles` is `[{system: JCR, category: A, quartile: {status: not_found}}, {system: SJR, category: B, quartile: Q1, year: 2025}]`
+- **WHEN** the row and the per-category detail are built
+- **THEN** the quartile cell is `Q1（SJR）` and the detail holds one entry, `B Q1（SJR 2025）`
+
+##### Example: quartile list edge cases
+
+| identity.metrics.quartiles | Quartile cell |
+| -------------------------- | ------------- |
+| [] | 未取得 |
+| ["Q1", {system: SJR, category: B, quartile: Q1}] | Q1（SJR） |
+| ["Q1"] | ? |
 
 ##### Example: length key that holds a mapping wins
 
@@ -237,7 +295,19 @@ For a record whose `kind` is `conference`, when the field for a column is absent
 | {time_to_first_decision: null} | first decision | 不適用 |
 | {impact_factor: null, quartiles: null} | quartile | 不適用 |
 
-A conference record whose `identity.indexing` is the empty mapping `{}` prints `?` in the indexing cell, as a journal does.
+A conference record whose `identity.indexing` is the empty mapping `{}` prints `?` in the indexing cell, as a journal does. For every record, an absent `identity.indexing`, or one that is the empty mapping, does not hide a filled `identity.metrics.indexing`, which is read instead as before this change. An `identity.metrics.indexing` that is itself empty is not a filled one: it prints `?`, for a conference as for a journal.
+
+##### Example: metrics indexing is still read
+
+- **GIVEN** a journal record whose `identity.indexing` is `{}` and whose `identity.metrics.indexing` is `{web_of_science: {scie: true, ssci: false}}`
+- **WHEN** the row is built
+- **THEN** the indexing cell is `SCIE`
+
+##### Example: empty metrics indexing on a conference
+
+- **GIVEN** a conference record with no `identity.indexing` and with `identity.metrics.indexing` equal to `{}`
+- **WHEN** the row is built
+- **THEN** the indexing cell is `?`
 
 ##### Example: conference apc is read like a journal
 
@@ -284,7 +354,7 @@ For the records present on the default branch when this change was written, a ce
 ---
 ### Requirement: Publisher cell
 
-The publisher cell SHALL print a short name when the publisher text contains a known publisher name, including `ACM` for the Association for Computing Machinery and for text whose first word is `ACM`. A publisher written as a mapping that is not a status mapping SHALL be matched by its `name`, and one written as a list by its first string item, in the same way; when no known name matches such a mapping or list, the cell SHALL be `?`.
+The publisher cell SHALL print a short name when the publisher text contains a known publisher name, including `ACM` for the Association for Computing Machinery and for text that holds `ACM` as a whole word. A publisher written as a mapping that is not a status mapping SHALL be matched by its `name` when that is text, otherwise by its `value` when that is text, and one written as a list by its first string item, in the same way; when no known name matches such a mapping or list, the cell SHALL be `?`.
 
 #### Scenario: Publisher written as a mapping
 
@@ -299,7 +369,47 @@ The publisher cell SHALL print a short name when the publisher text contains a k
 | ACM Digital Library（2026 proceedings） | ACM |
 | {name: "Elsevier B.V."} | Elsevier |
 | {name: "ACM Press"} | ACM |
+| {value: "Elsevier"} | Elsevier |
+| IEEE and ACM | ACM |
 | Acme Books | Acme Books |
 | {name: "Unknown House", note: "formerly Wiley"} | ? |
 | {name: "Unknown House"} | ? |
 | ["Unknown House"] | ? |
+
+---
+### Requirement: Shapes the add-venue skill prescribes pass the record validator
+
+Every record shape that `plugins/research-submission/skills/add-venue/SKILL.md` tells a writer to use for a table column SHALL be accepted by `plugins/research-submission/scripts/validate.py`. For a length limit the official page does not state, the prescribed shape is `requirements.length_limit: {status: not_published, checked: <date>}`, because the schema requires `value` and `unit` under `requirements.length`.
+
+#### Scenario: Length limit not published
+
+- **WHEN** a valid journal record has its `requirements.length` replaced by `requirements.length_limit: {status: not_published, checked: 2026-11-15}`
+- **THEN** `validate.py` reports no error for that record
+
+##### Example: prescribed length shape validates
+
+- **GIVEN** a copy of the record `psychometric-society/psychometrika` in which `requirements.length` is removed and `requirements.length_limit` is `{status: not_published, checked: 2026-11-15}`
+- **WHEN** `validate.py` is run on that file
+- **THEN** it exits 0, and the same copy with `requirements.length: {status: not_published, checked: 2026-11-15}` makes it exit 1
+
+##### Example: prescribed column shapes validate
+
+| Shape written into a copy of a valid record |
+| ------------------------------------------- |
+| identity.indexing.web_of_science: {scie: true, ssci: false, esci: false} |
+| requirements.fees.apc: {amount: 3000, currency: USD, mandatory: false} |
+| requirements.fees.apc: {currency_rates: [{currency: USD, value: 3390}], applies_when: "author chooses open access"} |
+| requirements.fees.apc: {list_price_usd: {member: 1300, non_member: 1800}, mandatory: true} |
+| requirements.fees.apc: {status: not_published, checked: 2026-11-15} |
+| requirements.review.type: double_anonymized |
+| requirements.review.type: {status: not_published, checked: 2026-11-15} |
+| requirements.review.model_by_track: {research: double_anonymized} |
+| identity.publisher: {status: not_published, checked: 2026-11-15} |
+
+Each row, written into a copy of `psychometric-society/psychometrika`, makes `validate.py` exit 0.
+
+##### Example: skill text names the validating shape
+
+- **GIVEN** the text of `plugins/research-submission/skills/add-venue/SKILL.md`
+- **WHEN** it is searched for the length row of the standard-shape table
+- **THEN** the row names `requirements.length_limit: {status: not_published, checked}` and does not name `requirements.length: {status: not_published, checked}`
