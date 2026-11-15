@@ -72,6 +72,22 @@ ls ${CLAUDE_PLUGIN_ROOT}/venues/*/          # apa/psychological-methods.yaml（�
 
 `identity.metrics` 請用 `impact_factor`、`quartiles`、`acceptance_rate`、`time_to_first_decision`、`time_submission_to_acceptance`，形狀見 `venue-report` skill 的「記錄的標準欄位」。**分區（Q）要記系統**：JCR 與 SJR 是不同的統計量，不混用。官方只公布拒絕率時，`acceptance_rate` 寫 not_published，另放 `rejection_rate`。
 
+### 比較表會讀的其他欄位（標準形狀）
+
+比較表由 `scripts/venue_table.py` 從記錄產生。下面是它讀的標準寫法；照這個寫，表上才不會出現「?」（「?」的意思是腳本認不得記錄的形狀，不是官方未公布）。
+
+| 欄 | 標準寫法 |
+|---|---|
+| 收錄 | `identity.indexing.web_of_science: {scie: true|false, ssci: true|false, esci: true|false, as_of, src}` |
+| APC | `requirements.fees.apc: {amount, currency, mandatory: true|false}`。多幣別定價寫 `currency_rates: [{currency, value}, ...]`（表上取 USD）；分級定價寫 `list_price_usd: {<級別>: <金額>}`（表上取最高的一級）。接受後才選開放取用的，加 `applies_when` 說明條件，表上會標「選付」；全面開放取用、一定要付的，寫 `mandatory: true` |
+| 篇幅 | `requirements.length: {value, unit}`，`unit` 用 `words`、`pages_double_spaced` 或 `pages_typeset`。官方沒寫上限時寫 `requirements.length_limit: {status: not_published, checked}` |
+| 審稿 | `requirements.review.type`，值用 `single_blind`、`single_anonymized`、`double_blind`、`double_anonymized`。官方沒寫時寫 `{status: not_published, checked}` |
+| 出版社 | `identity.publisher` 寫字串；官方沒寫時寫 `{status: not_published, checked}` |
+
+任何一欄查過而沒有值，都寫 `{status: not_published|not_found|not_applicable, checked}`，不要留空，也不要自創別的形狀。
+
+**研討會（`kind: conference`）**：收錄、IF、分區、首次決定、投稿到接受這五欄不必填，表上會印「不適用」。審稿型態各軌不同時，寫 `requirements.review.model_by_track: {research: ..., ...}`，表上取 `research`；只有一種時寫 `requirements.review.model` 或 `type`。沒有任何費用資訊時不必寫 `requirements.fees`，表上會印「未公布」。
+
 ### 官方沒有公布審稿速度時：自行抽樣估計（只當估計，不當官方事實）
 
 官方未公布「投稿到接受」時，先寫 `not_published`（官方欄位照舊，不動）。若該刊的**文章頁標有 Received／Accepted／Published 日期**，可以用 `scripts/sample_review_times.py` 抽樣估計，結果放在 `identity.metrics.estimates`，**與官方欄位分開**：

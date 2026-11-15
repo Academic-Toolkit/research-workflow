@@ -48,6 +48,8 @@ ALIASES = {
 
 REVIEW_LABEL = {
     "double_anonymized": "雙匿名",
+    "double_anonymous": "雙匿名",
+    "double-anonymous": "雙匿名",
     "double_blind": "雙盲",
     "single_anonymized": "單匿名",
     "single_blind": "單盲",
@@ -95,10 +97,24 @@ def fmt_int(n):
     return f"{n:,}" if isinstance(n, (int, float)) and float(n).is_integer() else str(n)
 
 
+def is_conference(rec):
+    return rec.get("kind") == "conference"
+
+
 # ---------------------------------------------------------------- 收錄
 def wos(rec):
-    ind = get(rec, "identity", "indexing") or get(rec, "identity", "metrics", "indexing") or {}
+    ind = get(rec, "identity", "indexing") or get(rec, "identity", "metrics", "indexing")
+    if ind is None and is_conference(rec):     # 研討會沒有期刊收錄；有寫就照寫的印
+        return STATUS_LABEL["not_applicable"]
+    if is_status_only(ind):
+        return status_label(ind)
+    if not isinstance(ind, dict):              # 清單等認不得的形狀：印「?」，不當掉
+        return UNKNOWN
     ssci = scie = None
+    ws = ind.get("web_of_science")
+    if isinstance(ws, dict) and ("scie" in ws or "ssci" in ws):
+        parts = (["SCIE"] if ws.get("scie") else []) + (["SSCI"] if ws.get("ssci") else [])
+        return "＋".join(parts) if parts else "兩者皆無"
     cw = ind.get("clarivate_wos")
     if isinstance(cw, dict) and isinstance(cw.get("in_ssci"), dict):
         ssci = bool(cw["in_ssci"].get("value"))
@@ -126,7 +142,7 @@ def wos(rec):
 def impact_factor(m):
     v = m.get("impact_factor")
     if v is None:
-        return UNKNOWN
+        return STATUS_LABEL["not_applicable"] if m.get("_conference") else UNKNOWN
     if is_unknown(v):
         return status_label(v)
     n = num(v)
@@ -140,7 +156,9 @@ def quartile(m):
         if r:
             q = [{"system": "JCR", "quartile": x.get("quartile"), "category": x.get("category")} for x in r]
         else:
-            return UNKNOWN
+            return STATUS_LABEL["not_applicable"] if m.get("_conference") else UNKNOWN
+    if isinstance(q, dict) and q.get("system") and (q.get("quartile") or q.get("value")):
+        q = [{**q, "quartile": q.get("quartile") or q.get("value")}]   # 單一類別寫成一個 mapping
     if isinstance(q, dict):
         return "未取得"
     if not q:
@@ -227,19 +245,31 @@ def duration(m, key):
                 if isinstance(tag, (str, int)) and tag and str(tag) not in ("not_published", "not_found", "not_applicable"):
                     s += f"（{str(tag).split('（')[0]}）"
             return s
-    return UNKNOWN
+    return STATUS_LABEL["not_applicable"] if m.get("_conference") else UNKNOWN
 
 
 # ---------------------------------------------------------------- 費用、審稿、篇幅
 def apc(rec):
     fees = get(rec, "requirements", "fees") or {}
-    a = fees.get("apc")
+    a = fees.get("apc") if isinstance(fees, dict) else None
     if is_status_only(a):                  # 整欄只有 status：查過，官方沒有 APC 資訊
         return status_label(a)
+    if a is None and not fees and is_conference(rec):   # 研討會沒有任何費用記錄
+        return NOT_PUBLISHED
     if not isinstance(a, dict):
         return UNKNOWN
     cur = a.get("currency") or fees.get("currency")
     amt = a.get("amount")
+    optional_hint = False
+    if amt is None and isinstance(a.get("currency_rates"), list):      # 多幣別定價：取 USD
+        usd = [x for x in a["currency_rates"] if isinstance(x, dict) and x.get("currency") == "USD"]
+        if usd and isinstance(usd[0].get("value"), (int, float)):
+            cur, amt = "USD", usd[0]["value"]
+            optional_hint = bool(a.get("applies_when"))
+    if amt is None and isinstance(a.get("list_price_usd"), dict):      # 分級定價：取最高的一級（未折扣的定價）
+        tiers = [x for x in a["list_price_usd"].values() if isinstance(x, (int, float))]
+        if tiers:
+            cur, amt = "USD", max(tiers)
     if is_status_only(amt):                # 有 OA 選項但金額沒公布（例：只指向出版社的 APC 查詢頁）
         optional = a.get("mandatory") is False or bool(a.get("applies_when"))
         return f"{status_label(amt)}（選付）" if optional else status_label(amt)
@@ -256,7 +286,7 @@ def apc(rec):
     if amt is None:
         return UNKNOWN
     cur = str(cur or "").split("（")[0].strip()[:3]
-    if a.get("mandatory") is False or a.get("status") == "optional":
+    if a.get("mandatory") is False or a.get("status") == "optional" or optional_hint:
         kind = "選付"
     elif a.get("mandatory") is True or str(a.get("status", "")).startswith("mandatory"):
         kind = "必付"
@@ -269,14 +299,22 @@ def apc(rec):
 
 def review(rec):
     t = get(rec, "requirements", "review", "type")
+    if t is None:                          # 研討會常寫成 model，或各軌分開記（取研究軌）
+        t = get(rec, "requirements", "review", "model")
+    if t is None:
+        t = get(rec, "requirements", "review", "model_by_track", "research")
+    if is_status_only(t):                  # {status: not_published, ...}
+        return status_label(t)
+    if not isinstance(t, str):             # None 或認不得的形狀
+        return UNKNOWN
     if t in STATUS_LABEL:                  # 查過、官方沒寫審稿制度
         return STATUS_LABEL[t]
-    return REVIEW_LABEL.get(t, UNKNOWN if t is None else str(t))
+    return REVIEW_LABEL.get(t, t)
 
 
 def length(rec):
     req = rec.get("requirements") or {}
-    L = req.get("length") or req.get("length_policy") or req.get("length_note")
+    L = req.get("length") or req.get("length_policy") or req.get("length_note") or req.get("length_limit")
     if not isinstance(L, dict):
         return UNKNOWN
     if L.get("limit") == "none_stated_as_unlimited" or get(L, "word_limit", "status") == "not_applicable":
@@ -310,7 +348,12 @@ PUBLISHER_SHORT = [("elsevier", "Elsevier"), ("wiley", "Wiley"), ("springer", "S
 
 
 def publisher(rec):
-    p = str(get(rec, "identity", "publisher") or "")
+    raw = get(rec, "identity", "publisher")
+    if is_status_only(raw):
+        return status_label(raw)
+    if raw is not None and not isinstance(raw, str):
+        return UNKNOWN
+    p = raw or ""
     low = p.lower()
     for k, v in PUBLISHER_SHORT:
         if k in low:
@@ -323,7 +366,7 @@ DISCOUNTS = {}   # venue id -> 文字；由 --discounts 檔提供（機構專屬
 
 def row(rec):
     m = get(rec, "identity", "metrics") or {}
-    m = {**m, "_id": rec["id"]}
+    m = {**m, "_id": rec["id"], "_conference": is_conference(rec)}
     return {
         "id": rec["id"],
         "publisher": publisher(rec),
