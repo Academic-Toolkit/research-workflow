@@ -20,3 +20,7 @@
 ## 3. Guidance
 
 - [x] 3.1 The add-venue skill names requirements.length_limit for a length limit that is not published, its first writing rule excepts the five journal-only fields of a conference record, and its APC sentence matches the APC kind rule; verified by test 1.9 passing and a content review of plugins/research-submission/skills/add-venue/SKILL.md against the venue-table spec [after: 2.3]
+
+## 4. Findings from the change verification
+
+- [x] 4.1 The status requirement lists the exact positions it covers, a length unit that is not text prints ?, an empty identity.metrics.indexing prints ? on a conference, a quartile list skips entries that are not mappings and prints 未取得 only when empty, an empty name prints the record id, and the shapes the skill prescribes for each column pass the validator; verified by the tests with markers `spec-example: venue-table / quartile list edge cases`, `spec-example: venue-table / empty metrics indexing on a conference` and `spec-example: venue-table / prescribed column shapes validate` and by the added rows of `values that are not numbers or text` passing

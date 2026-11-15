@@ -108,10 +108,9 @@ def is_conference(rec):
 # ---------------------------------------------------------------- 收錄
 def wos(rec):
     ind = get(rec, "identity", "indexing")
-    if ind is None or ind == {}:               # 沒寫或空的：改動前就會改讀 metrics.indexing
-        alt = get(rec, "identity", "metrics", "indexing")
-        if alt:
-            ind = alt
+    alt = get(rec, "identity", "metrics", "indexing")
+    if ind is None or (ind == {} and alt):     # 沒寫，或空的而 metrics.indexing 有內容：改讀後者（改動前就如此）
+        ind = alt
     if ind is None and is_conference(rec):     # 研討會沒有期刊收錄；有寫就照寫的印
         return STATUS_LABEL["not_applicable"]
     if is_status_only(ind):
@@ -187,11 +186,12 @@ def quartile(m):
     q = single_quartile(q)
     if isinstance(q, dict):
         return "未取得"
-    if not isinstance(q, list) or any(not isinstance(x, dict) for x in q):   # 字串、字串清單等：認不得
+    if not isinstance(q, list):            # 字串等：認不得
         return UNKNOWN
     if not q:
         return "未取得"
-    q = [x for x in q if isinstance(x.get("quartile"), str)]   # 分區不是文字的那幾筆略過（兩種輸出一致）
+    # 讀不出來的那幾筆（不是 mapping，或分區不是文字）略過，表格與 --format quartiles 一致；一筆都讀不出來印「?」
+    q = [x for x in q if isinstance(x, dict) and isinstance(x.get("quartile"), str)]
     for system in ("JCR", "SJR"):
         qs = sorted({x.get("quartile") for x in q if x.get("system") == system and x.get("quartile")})
         if qs:
@@ -278,6 +278,11 @@ def duration(m, key):
 
 
 # ---------------------------------------------------------------- 費用、審稿、篇幅
+def is_price(x):
+    """currency_rates／list_price_usd 裡的價格只認數字；bool 是 int 的子類別，要另外排除。"""
+    return isinstance(x, (int, float)) and not isinstance(x, bool)
+
+
 def apc_kind(rec, a, use_open_access=True):
     """必付或選付，單一判斷處。先後：mandatory 旗標 → status → identity.open_access（必付）
     → applies_when（有條件才收，選付）。都沒有回 None。"""
@@ -306,21 +311,18 @@ def apc(rec):
         return status_label(a)
     if not isinstance(a, dict):
         return UNKNOWN
-    def price(x):                          # 價格只認數字；bool 是 int 的子類別，要另外排除
-        return isinstance(x, (int, float)) and not isinstance(x, bool)
-
     cur = a.get("currency") or fees.get("currency")
     amt = a.get("amount")
-    alias = False                          # 金額是否來自這次新增的鍵
+    alias = False                          # 金額是否來自 currency_rates 或 list_price_usd
     if amt is None and isinstance(a.get("currency_rates"), list):      # 多幣別定價：取 USD
         usd = [x for x in a["currency_rates"] if isinstance(x, dict) and x.get("currency") == "USD"]
         if usd:
-            if not price(usd[0].get("value")):
+            if not is_price(usd[0].get("value")):
                 return UNKNOWN
             cur, amt, alias = "USD", usd[0]["value"], True
     if amt is None and isinstance(a.get("list_price_usd"), dict) and a["list_price_usd"]:
         tiers = list(a["list_price_usd"].values())                     # 分級定價：取最高的一級（未折扣的定價）
-        if not all(price(x) for x in tiers):
+        if not all(is_price(x) for x in tiers):
             return UNKNOWN
         cur, amt, alias = "USD", max(tiers), True
     if is_status_only(amt):                # 有 OA 選項但金額沒公布（例：只指向出版社的 APC 查詢頁）
@@ -384,6 +386,8 @@ def length(rec):
         return NOT_PUBLISHED
     rng = L.get("recommended_range")
     unit = L.get("unit")
+    if unit is not None and not isinstance(unit, str):
+        return UNKNOWN                     # 單位不是文字
     if rng and unit == "words":
         return f"建議 {fmt_int(rng[0])}–{fmt_int(rng[1])} 字"
     v = L.get("value")
@@ -453,7 +457,7 @@ def row(rec):
         "id": rec["id"],
         "publisher": safe(publisher, rec),
         "discount": DISCOUNTS.get(rec["id"], "—") if DISCOUNTS else None,
-        "name": rec["id"] if name is None else (name if isinstance(name, str) and name else UNKNOWN),
+        "name": rec["id"] if name is None or name == "" else (name if isinstance(name, str) else UNKNOWN),
         "index": safe(wos, rec),
         "if": safe(impact_factor, m),
         "q": safe(quartile, m),

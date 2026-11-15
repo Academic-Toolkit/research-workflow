@@ -280,6 +280,8 @@ class FixRound2(unittest.TestCase):
                  ({"requirements": {"fees": {"apc": {"amount": 2000, "currency": ["USD"], "mandatory": True}}}}, "apc"),
                  ({"requirements": {"fees": {"apc": {"all_other_articles": {"amount": [1]}, "mandatory": True}}}}, "apc"),
                  ({"requirements": {"length": {"value": 10, "unit": ["pages"]}}}, "length"),
+                 ({"requirements": {"length": {"value": 10, "unit": 5}}}, "length"),
+                 ({"requirements": {"length": {"value": 10, "unit": True}}}, "length"),
                  ({"identity": {"name": ["A", "B"]}}, "name")]
         for kw, col in cases:
             with self.subTest(kw=kw):
@@ -311,6 +313,44 @@ class FixRound2(unittest.TestCase):
              {"system": "SJR", "category": "B", "quartile": "Q1", "year": 2025}]
         self.assertEqual(build(identity={"metrics": {"quartiles": q}})["q"], "Q1（SJR）")
         self.assertEqual(vt.quartile_detail({"quartiles": q}), ["B Q1（SJR 2025）"])
+
+    def test_quartile_list_edge_cases(self):
+        # spec-example: venue-table / quartile list edge cases
+        ok = {"system": "SJR", "category": "B", "quartile": "Q1"}
+        for q, expected in [([], "未取得"), (["Q1", ok], "Q1（SJR）"), (["Q1"], "?")]:
+            with self.subTest(q=q):
+                self.assertEqual(build(identity={"metrics": {"quartiles": q}})["q"], expected)
+
+    def test_empty_metrics_indexing_on_a_conference(self):
+        # spec-example: venue-table / empty metrics indexing on a conference
+        self.assertEqual(build(kind="conference", identity={"metrics": {"indexing": {}}})["index"], "?")
+
+    def test_prescribed_column_shapes_validate(self):
+        # spec-example: venue-table / prescribed column shapes validate
+        import yaml
+        unknown = {"status": "not_published", "checked": "2026-11-15"}
+        shapes = [(("identity", "indexing"), {"web_of_science": {"scie": True, "ssci": False, "esci": False}}),
+                  (("requirements", "fees"), {"apc": {"amount": 3000, "currency": "USD", "mandatory": False}}),
+                  (("requirements", "fees"), {"apc": {"currency_rates": [{"currency": "USD", "value": 3390}],
+                                                      "applies_when": "author chooses open access"}}),
+                  (("requirements", "fees"), {"apc": {"list_price_usd": {"member": 1300, "non_member": 1800},
+                                                      "mandatory": True}}),
+                  (("requirements", "fees"), {"apc": unknown}),
+                  (("requirements", "review"), {"type": "double_anonymized"}),
+                  (("requirements", "review"), {"type": unknown}),
+                  (("requirements", "review"), {"model_by_track": {"research": "double_anonymized"}}),
+                  (("identity", "publisher"), unknown)]
+        src = (PLUGIN / "venues" / "psychometric-society" / "psychometrika.yaml").read_text(encoding="utf-8")
+        for (section, key), value in shapes:
+            with self.subTest(key=key, value=value):
+                rec = yaml.safe_load(src)
+                rec[section][key] = value
+                with tempfile.TemporaryDirectory() as d:
+                    f = Path(d) / "record.yaml"
+                    f.write_text(yaml.safe_dump(rec, allow_unicode=True), encoding="utf-8")
+                    p = subprocess.run([sys.executable, str(PLUGIN / "scripts" / "validate.py"), str(f)],
+                                       capture_output=True, text=True)
+                self.assertEqual(p.returncode, 0, p.stdout[-400:])
 
     def test_metrics_indexing_is_still_read(self):
         # spec-example: venue-table / metrics indexing is still read

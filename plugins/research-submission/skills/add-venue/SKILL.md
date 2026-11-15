@@ -84,7 +84,7 @@ ls ${CLAUDE_PLUGIN_ROOT}/venues/*/          # apa/psychological-methods.yaml（�
 | 審稿 | `requirements.review.type`，值用 `single_blind`、`single_anonymized`、`double_blind`、`double_anonymized`。官方沒寫時寫 `{status: not_published, checked}` |
 | 出版社 | `identity.publisher` 寫字串；官方沒寫時寫 `{status: not_published, checked}` |
 
-期刊記錄的任何一欄查過而沒有值，都寫 `{status: not_published|not_found|not_applicable, checked}`，不要留空，也不要自創別的形狀。`status` 三個值的意思不同：`not_published` 是官方沒公布，`not_found` 是查過但沒取得（例如要登入），`not_applicable` 是這一欄對這個場地不適用。
+期刊記錄的任何一欄查過而沒有值，都寫 `{status: not_published|not_found|not_applicable, checked}`，不要留空，也不要自創別的形狀（篇幅是例外，寫在 `requirements.length_limit`，見上表）。`status` 三個值的意思不同：`not_published` 是官方沒公布，`not_found` 是查過但沒取得（例如要登入），`not_applicable` 是這一欄對這個場地不適用。表上目前只有出版社、收錄、IF、APC、審稿這五欄會照 `status` 印出對應的字；分區、接受率、審稿時間、篇幅四欄還不會區分（例如分區一律印「未取得」），記錄仍照實寫。
 
 **研討會（`kind: conference`）**：
 
