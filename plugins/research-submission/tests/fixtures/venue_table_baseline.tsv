@@ -1,23 +1,23 @@
-ams/bulletin-of-the-ams	American Mathematical Society	SCIE	未公布	Q2（SJR）	未公布	未公布	未公布	未公布	單匿名	未公布
-apa/psychological-methods	APA	?	7.5	?	未公布	未公布	?	?	standard_apa	50 頁雙行距
-asa/jasa	Taylor & Francis	?	4.0	?	0.14%	63 天	?	未公布（選付）	double_anonymous	35 頁雙行距
-asa/jcgs	Taylor & Francis	SCIE	1.6	Q1（SJR）	15%	15 天	未公布	未公布（選付）	單匿名	35 頁雙行距
-asl/bulletin-of-symbolic-logic	CUP	SCIE	1.0	Q1／Q2（SJR）	未公布	未公布	未公布	USD 3,655（選付）	單匿名	未公布
-asl/journal-of-symbolic-logic	CUP	SCIE	0.6	Q1（SJR）	未公布	未公布	未公布	USD 3,655（選付）	單匿名	30 頁（排版後）
-asl/review-of-symbolic-logic	CUP	SCIE	0.7	Q1（SJR）	未公布	未公布	未公布	USD 3,655（選付）	單匿名	25 頁（排版後）
-biometrika-trust/biometrika	OUP	?	2.8	?	around 13%	Nearly 75% of submissions receive a first decision within one month, and almost all receive a decision within five months. 天	?	?	single_anonymised	?
-cup/mathematical-structures-in-computer-science	CUP	SCIE	0.9	Q2（SJR）	未公布	未公布	未公布	USD 3,655（選付）	單匿名	未公布
-elsevier/annals-of-pure-and-applied-logic	Elsevier	SCIE	0.8	Q1（SJR）	未公布	12 天	391 天	USD 3,490（選付）	單匿名	未公布
-elsevier/journal-of-symbolic-computation	Elsevier	SCIE	0.9	Q1／Q2（SJR）	未公布	14 天	260 天	USD 3,280（選付）	單匿名	未公布
-foas/journal-of-statistical-software	Foundation for Open Access Statistics	SCIE	未取得	Q1（SJR）	未公布	未公布	未公布	不收費	未公布	無上限
-ims/annals-of-statistics	Institute of Mathematical Statistics	?	2.901	?	未公布	未公布	?	?	審稿人匿名	25 頁（排版後）
-lmcs/logical-methods-in-computer-science	Logical Methods in Computer Science e.V.	SCIE	未取得	Q3（SJR）	未公布	未公布	未公布（自行估計中位約 428 天‡）	不收費	審稿人匿名	50 頁（排版後）
-psychometric-society/imps	The Psychometric Society	?	?	?	未公布	?	?	?	?	?
-psychometric-society/psychometrika	CUP	?	2.9	?	未公布	未公布	?	?	雙匿名	40 頁雙行距
-rss/jrss-series-b	OUP	?	3.8	?	未公布	未公布	?	?	單匿名	30 頁雙行距
-rss/jrss-series-c	OUP	?	1.4	?	未公布	未公布	?	?	單盲	24 頁（排版後）
-sage/global-spine-journal	SAGE	?	?	?	未公布	?	?	?	雙匿名	?
-springer/archive-for-mathematical-logic	Springer Nature	SCIE	0.5	Q1／Q2（SJR）	未公布	38 天	未公布	USD 3,290（選付）	單匿名	未公布
-springer/statistics-and-computing	Springer Nature	SCIE	1.8	Q1／Q2（SJR）	未公布	3 天	未公布	USD 2,990（必付）	單匿名	未公布
-toa/spring-meeting	中華民國骨科醫學會	?	?	?	未公布	?	?	?	?	?
-tpa/annual-meeting	台灣心理學會 (Taiwanese Psychological Association, TPA)	?	?	?	未公布	?	?	?	?	?
+ams/bulletin-of-the-ams	American Mathematical Society	SCIE	未公布	Q2（SJR）	未公布	未公布	未公布	未公布	單匿名	未公布	b3bc6cda283879f13e369c6f876a18ac72c6a375a72b1d8db937f26338939089
+apa/psychological-methods	APA	?	7.5	?	未公布	未公布	?	?	standard_apa	50 頁雙行距	a0cfc689c1ed7bb390c4a0019b4d4d2983b248e5c3e8aef55317e39ef3d77036
+asa/jasa	Taylor & Francis	?	4.0	?	0.14%	63 天	?	未公布（選付）	double_anonymous	35 頁雙行距	3a8fddb184bc95573cb7cfda19a5852a716f07ce62fa2bd5f25aa350618d5b4d
+asa/jcgs	Taylor & Francis	SCIE	1.6	Q1（SJR）	15%	15 天	未公布	未公布（選付）	單匿名	35 頁雙行距	83a664e31d0f329c366c627ab976befa6df6898d45337c1143b28c6c72f943cf
+asl/bulletin-of-symbolic-logic	CUP	SCIE	1.0	Q1／Q2（SJR）	未公布	未公布	未公布	USD 3,655（選付）	單匿名	未公布	5216f8d95e27c40885ea2d5d05063b1c43bbac8afcad332d15a4fecd71e43fe1
+asl/journal-of-symbolic-logic	CUP	SCIE	0.6	Q1（SJR）	未公布	未公布	未公布	USD 3,655（選付）	單匿名	30 頁（排版後）	8711c265584dded2488a7443afa85791ba1bf5d8c02b8a150245a6acc4ade0a9
+asl/review-of-symbolic-logic	CUP	SCIE	0.7	Q1（SJR）	未公布	未公布	未公布	USD 3,655（選付）	單匿名	25 頁（排版後）	8aa0e5efba9fa7a7ad8cfbbfdef3ca6b8d11ea1f0333e52fcf4855b3286fd9fd
+biometrika-trust/biometrika	OUP	?	2.8	?	around 13%	Nearly 75% of submissions receive a first decision within one month, and almost all receive a decision within five months. 天	?	?	single_anonymised	?	5b1782e13b44db6106f00b56d41f2dde2583a42fe8e1778149e95e88996b3ac8
+cup/mathematical-structures-in-computer-science	CUP	SCIE	0.9	Q2（SJR）	未公布	未公布	未公布	USD 3,655（選付）	單匿名	未公布	b1f89fb8c02f93e9d6812ec259dc49bb1cf038823b6a417d6910b26c821849c5
+elsevier/annals-of-pure-and-applied-logic	Elsevier	SCIE	0.8	Q1（SJR）	未公布	12 天	391 天	USD 3,490（選付）	單匿名	未公布	8ce8893e37474bd7c298368057c87cd0c79d31df9ea280a2f421ac414b1bf975
+elsevier/journal-of-symbolic-computation	Elsevier	SCIE	0.9	Q1／Q2（SJR）	未公布	14 天	260 天	USD 3,280（選付）	單匿名	未公布	cd02d1c05433737b4f61c02638f56ee8cd338a4e9d93a34c23852f216b8ec8d4
+foas/journal-of-statistical-software	Foundation for Open Access Statistics	SCIE	未取得	Q1（SJR）	未公布	未公布	未公布	不收費	未公布	無上限	85cbc04792a947b20cc1932c6173642204486a4955f469db9777286ff610b6b4
+ims/annals-of-statistics	Institute of Mathematical Statistics	?	2.901	?	未公布	未公布	?	?	審稿人匿名	25 頁（排版後）	fb09963920763a8d37cfccdeadf93264fa2345f0cd0f80d364c5cb8fc3f94553
+lmcs/logical-methods-in-computer-science	Logical Methods in Computer Science e.V.	SCIE	未取得	Q3（SJR）	未公布	未公布	未公布（自行估計中位約 428 天‡）	不收費	審稿人匿名	50 頁（排版後）	62862eda6e0c77a023ad661a7f10a4b771c445686bd4508833b1e8c24d85f81c
+psychometric-society/imps	The Psychometric Society	?	?	?	未公布	?	?	?	?	?	12806703afd22c21309e8fa1499dd85ba3469c464b13632cbb8e67090b6c2fe8
+psychometric-society/psychometrika	CUP	?	2.9	?	未公布	未公布	?	?	雙匿名	40 頁雙行距	31bbe8c16adfb37bd9bcd6ea589cc7096bf41a9f7c758a242d70a1e69ee2251e
+rss/jrss-series-b	OUP	?	3.8	?	未公布	未公布	?	?	單匿名	30 頁雙行距	12743d4f2d19c45c0a1f6f9a6431c3f699f7205d5e333821ba138385cbd1ced7
+rss/jrss-series-c	OUP	?	1.4	?	未公布	未公布	?	?	單盲	24 頁（排版後）	d3517d95fcd5f3279aa36e560e439ab6d877c44ea6f1b1d07ba60f51a1ff3218
+sage/global-spine-journal	SAGE	?	?	?	未公布	?	?	?	雙匿名	?	c42a33f0a13405675c3b85f5abbb088bf465b110aecc48114e20d52c7a309c92
+springer/archive-for-mathematical-logic	Springer Nature	SCIE	0.5	Q1／Q2（SJR）	未公布	38 天	未公布	USD 3,290（選付）	單匿名	未公布	68bd2b90692537219b3705d8ea8c94c20c5c629ab34d9abe404d0ea4e5e85433
+springer/statistics-and-computing	Springer Nature	SCIE	1.8	Q1／Q2（SJR）	未公布	3 天	未公布	USD 2,990（必付）	單匿名	未公布	25c5ee3f923adf2865c17bd1e7276d03d4ac1b3ad1e7740413347009cbc5b227
+toa/spring-meeting	中華民國骨科醫學會	?	?	?	未公布	?	?	?	?	?	379ed3a0719153878227cab7c2bf0ea75522ece080236e2f5657fa9d749fbade
+tpa/annual-meeting	台灣心理學會 (Taiwanese Psychological Association, TPA)	?	?	?	未公布	?	?	?	?	?	66f02e423e930e4066fbe5ee6c354c8884bd0277a99417dbb00171c5ba4afc75

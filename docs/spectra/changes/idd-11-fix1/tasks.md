@@ -2,7 +2,7 @@
 
 - [ ] 1.1 Status mappings print their status label: test with marker `spec-example: venue-table / status mapping at the newer positions` asserts the three table rows; verified by the test failing before task 2.1
 - [ ] 1.2 Unrecognised shapes print a question mark and never raise: test with marker `spec-example: venue-table / shapes that raised before the fix round` asserts the five table rows; verified by the test failing before task 2.1
-- [ ] 1.3 Unrecognised shapes print a question mark and never raise: test with marker `spec-example: venue-table / quartiles format never raises` runs the script with --format quartiles on a record file; verified by the test failing before task 2.1
+- [ ] 1.3 Unrecognised shapes print a question mark and never raise: test with marker `spec-example: venue-table / quartiles format never raises` runs the script with --format quartiles on a record file; verified by the test passing
 - [ ] 1.4 Additional record shapes are read: test with marker `spec-example: venue-table / web of science decides the indexing cell` asserts the five table rows; verified by the test failing before task 2.2
 - [ ] 1.5 Additional record shapes are read: test with marker `spec-example: venue-table / single quartile mapping in the quartiles format` asserts the one detail entry; verified by the test failing before task 2.2
 - [ ] 1.6 Additional record shapes are read: test with marker `spec-example: venue-table / apc kind precedence` asserts the five table rows; verified by the test failing before task 2.2
@@ -10,7 +10,7 @@
 - [ ] 1.8 Additional record shapes are read: test with marker `spec-example: venue-table / review model in other positions` asserts the two table rows; verified by the test failing before task 2.2
 - [ ] 1.9 Conference records print not-applicable for journal-only columns: test with marker `spec-example: venue-table / conference metric edge cases` asserts the four table rows; verified by the test failing before task 2.3
 - [ ] 1.10 Conference records print not-applicable for journal-only columns: test with marker `spec-example: venue-table / conference apc is read like a journal` asserts the three table rows, and the test with marker `spec-example: venue-table / conference journal-only columns` asserts APC is ?; verified by both failing before task 2.3
-- [ ] 1.11 Rows that the script produced before this change keep their cells: test with marker `spec-example: venue-table / changed record is not compared` builds a baseline row with a wrong hash and asserts it is skipped; verified by the test failing before task 2.4
+- [ ] 1.11 Rows that the script produced before this change keep their cells: test with marker `spec-example: venue-table / changed record is not compared` builds a baseline row with a wrong hash and asserts it is skipped; verified by the test passing
 - [ ] 1.12 Publisher cell: test with marker `spec-example: venue-table / publisher short names` asserts the five table rows; verified by the test failing before task 2.5
 
 ## 2. Script and fixture changes

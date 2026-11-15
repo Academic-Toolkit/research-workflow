@@ -4,12 +4,14 @@ Each test carries a `spec-example:` marker naming the Example it checks.
 
 The baseline fixture `fixtures/venue_table_baseline.tsv` holds the rows the script printed on the
 default branch before this change (columns: id, publisher, index, if, q, accept, first, sub_accept,
-apc, review, length). It was recorded per record with:
+apc, review, length, sha256 of the record file). A row is compared only while its record file still
+has that SHA-256, so a later update to a record does not fail the suite. It was recorded per record with:
 
     python3 scripts/venue_table.py --format json <venue-id>
 
 and one row was written for each record that did not make the script raise (23 of 24).
 """
+import hashlib
 import importlib.util
 import subprocess
 import sys
@@ -162,6 +164,94 @@ class AdditionalShapes(unittest.TestCase):
                 self.assertEqual(build(requirements={"review": review})["review"], expected)
 
 
+class FixRound1(unittest.TestCase):
+    def test_status_mapping_at_the_newer_positions(self):
+        # spec-example: venue-table / status mapping at the newer positions
+        self.assertEqual(build(identity={"indexing": {"web_of_science": {"status": "not_found"}}})["index"], "未取得")
+        self.assertEqual(build(requirements={"review": {"status": "not_published"}})["review"], "未公布")
+        self.assertEqual(build(requirements={"review": {
+            "type": {"status": "not_published"}, "model": "double_anonymous"}})["review"], "雙匿名")
+
+    def test_shapes_that_raised_before_the_fix_round(self):
+        # spec-example: venue-table / shapes that raised before the fix round
+        nf = {"status": "not_found"}
+        cases = [({"identity": {"metrics": {"quartiles": {"system": "JCR", "quartile": nf}}}}, "q", "未取得"),
+                 ({"identity": {"metrics": {"quartiles": {"system": "SJR", "value": 1}}}}, "q", "未取得"),
+                 ({"identity": {"metrics": {"quartiles": [{"system": "JCR", "quartile": nf}]}}}, "q", "?"),
+                 ({"identity": {"metrics": {"jcr_category_rank": {"ranks": "Q1"}}}}, "q", "?"),
+                 ({"requirements": {"review": {"type": ""}}}, "review", "?")]
+        for kw, col, expected in cases:
+            with self.subTest(kw=kw):
+                self.assertEqual(build(**kw)[col], expected)
+
+    def test_quartiles_format_never_raises(self):
+        # spec-example: venue-table / quartiles format never raises
+        with tempfile.TemporaryDirectory() as root:
+            d = Path(root) / "venues" / "test"
+            d.mkdir(parents=True)
+            (d / "venue.yaml").write_text("id: test/venue\nkind: journal\nidentity:\n  name: T\n  publisher: P\n"
+                                          "  metrics:\n    quartiles: Q1\nrequirements: {}\n", encoding="utf-8")
+            p = subprocess.run([sys.executable, str(SCRIPT), "--root", root, "--format", "quartiles", "test/venue"],
+                               capture_output=True, text=True)
+        self.assertEqual(p.returncode, 0, p.stderr[-300:])
+        lines = p.stdout.splitlines()
+        self.assertEqual(len(lines), 1)
+        self.assertTrue(lines[0].startswith("test/venue"))
+
+    def test_web_of_science_decides_the_indexing_cell(self):
+        # spec-example: venue-table / web of science decides the indexing cell
+        cases = [({"web_of_science": {"scie": "false", "ssci": False}}, "?"),
+                 ({"web_of_science": {"scie": {"status": "not_found"}, "ssci": False}}, "?"),
+                 ({"web_of_science": {"scie": True}}, "?"),
+                 ({"web_of_science": {"scie": False, "ssci": False},
+                   "clarivate_wos": {"in_ssci": {"value": True}}}, "兩者皆無"),
+                 ({"web_of_science": {"scie": True, "ssci": False, "esci": True}}, "SCIE")]
+        for indexing, expected in cases:
+            with self.subTest(indexing=indexing):
+                self.assertEqual(build(identity={"indexing": indexing})["index"], expected)
+
+    def test_single_quartile_mapping_in_the_quartiles_format(self):
+        # spec-example: venue-table / single quartile mapping in the quartiles format
+        detail = vt.quartile_detail({"quartiles": {
+            "system": "SJR", "category": "Software", "value": "Q1", "year": 2025}})
+        self.assertEqual(detail, ["Software Q1（SJR 2025）"])
+
+    def test_apc_kind_precedence(self):
+        # spec-example: venue-table / apc kind precedence
+        np_ = {"status": "not_published"}
+        cases = [({"amount": 2000, "currency": "USD", "status": "mandatory", "applies_when": "on acceptance"},
+                  None, "USD 2,000（必付）"),
+                 ({"amount": 2000, "currency": "USD", "applies_when": "on acceptance"}, True, "USD 2,000（必付）"),
+                 ({"amount": 2000, "currency": "USD", "mandatory": False}, True, "USD 2,000（選付）"),
+                 ({"amount": np_, "mandatory": True, "applies_when": "on acceptance"}, None, "未公布"),
+                 ({"amount": np_, "applies_when": "on acceptance"}, None, "未公布（選付）")]
+        for apc, oa, expected in cases:
+            with self.subTest(apc=apc, oa=oa):
+                ident = {"open_access": oa} if oa is not None else {}
+                self.assertEqual(build(identity=ident, requirements={"fees": {"apc": apc}})["apc"], expected)
+
+    def test_length_key_that_holds_a_mapping_wins(self):
+        # spec-example: venue-table / length key that holds a mapping wins
+        r = build(requirements={"length": "see guidelines", "length_limit": {"status": "not_published"}})
+        self.assertEqual(r["length"], "未公布")
+
+    def test_review_model_in_other_positions(self):
+        # spec-example: venue-table / review model in other positions
+        self.assertEqual(build(requirements={"review": {"type": {"value": "single_blind"}}})["review"], "單盲")
+        self.assertEqual(build(requirements={"review": {"type": "", "model": "double_anonymous"}})["review"], "雙匿名")
+
+    def test_publisher_short_names(self):
+        # spec-example: venue-table / publisher short names
+        cases = [("Association for Computing Machinery", "ACM"),
+                 ("ACM Digital Library（2026 proceedings）", "ACM"),
+                 ({"name": "Elsevier B.V."}, "Elsevier"),
+                 ({"name": "Unknown House"}, "?"),
+                 (["Unknown House"], "?")]
+        for pub, expected in cases:
+            with self.subTest(pub=pub):
+                self.assertEqual(build(identity={"publisher": pub})["publisher"], expected)
+
+
 class ConferenceRecords(unittest.TestCase):
     GAPS = {"metrics": {"acceptance_rate": {"status": "not_published"}}}
 
@@ -171,7 +261,24 @@ class ConferenceRecords(unittest.TestCase):
         for col in ("index", "if", "q", "first", "sub_accept"):
             with self.subTest(col=col):
                 self.assertEqual(r[col], "不適用")
-        self.assertEqual(r["apc"], "未公布")
+        self.assertEqual(r["apc"], "?")
+
+    def test_conference_metric_edge_cases(self):
+        # spec-example: venue-table / conference metric edge cases
+        cases = [(["x"], "if", "?"), (["x"], "first", "?"),
+                 ({"time_to_first_decision": None}, "first", "不適用"),
+                 ({"impact_factor": None, "quartiles": None}, "q", "不適用")]
+        for metrics, col, expected in cases:
+            with self.subTest(metrics=metrics, col=col):
+                self.assertEqual(build(kind="conference", identity={"metrics": metrics})[col], expected)
+
+    def test_conference_apc_is_read_like_a_journal(self):
+        # spec-example: venue-table / conference apc is read like a journal
+        cases = [({}, "?"), ({"fees": {"registration": {"amount": 500, "currency": "USD"}}}, "?"),
+                 ({"fees": {"apc": {"status": "not_published"}}}, "未公布")]
+        for req, expected in cases:
+            with self.subTest(req=req):
+                self.assertEqual(build(kind="conference", requirements=req)["apc"], expected)
 
     def test_journal_with_the_same_gaps(self):
         # spec-example: venue-table / journal with the same gaps
@@ -181,19 +288,46 @@ class ConferenceRecords(unittest.TestCase):
                 self.assertEqual(r[col], "?")
 
 
+def compare_baseline(rows):
+    """Compare baseline rows with the script's output. Returns (compared, skipped, mismatches).
+    A row is skipped when its record file no longer has the SHA-256 stored with the row."""
+    compared, skipped, mismatches = 0, 0, []
+    for old in rows:
+        path = PLUGIN / "venues" / f"{old[0]}.yaml"
+        if not path.exists() or hashlib.sha256(path.read_bytes()).hexdigest() != old[11]:
+            skipped += 1
+            continue
+        compared += 1
+        vt.NOTES.clear()
+        new = vt.row(vt.load(old[0], str(PLUGIN)))
+        for name, before in zip(COLUMNS[1:], old[1:11]):
+            if before in ("?", "double_anonymous"):
+                continue
+            if str(new[name]) != before:
+                mismatches.append((old[0], name, before, str(new[name])))
+    return compared, skipped, mismatches
+
+
+def baseline_rows():
+    return [l.split("\t") for l in BASELINE.read_text(encoding="utf-8").splitlines() if l.strip()]
+
+
 class Baseline(unittest.TestCase):
     def test_baseline_rows_are_unchanged(self):
         # spec-example: venue-table / baseline rows are unchanged
-        rows = [l.split("\t") for l in BASELINE.read_text(encoding="utf-8").splitlines() if l.strip()]
+        rows = baseline_rows()
         self.assertEqual(len(rows), 23)
-        for old in rows:
-            vt.NOTES.clear()
-            new = vt.row(vt.load(old[0], str(PLUGIN)))
-            for name, before in zip(COLUMNS[1:], old[1:]):
-                if before in ("?", "double_anonymous"):
-                    continue
-                with self.subTest(venue=old[0], column=name):
-                    self.assertEqual(str(new[name]), before)
+        compared, skipped, mismatches = compare_baseline(rows)
+        self.assertEqual(mismatches, [])
+        self.assertEqual(compared + skipped, 23)
+
+    def test_changed_record_is_not_compared(self):
+        # spec-example: venue-table / changed record is not compared
+        row = list(baseline_rows()[0])
+        row[1] = "a publisher the record never had"   # would be a mismatch if it were compared
+        row[11] = "0" * 64                             # the record file does not have this hash
+        compared, skipped, mismatches = compare_baseline([row])
+        self.assertEqual((compared, skipped, mismatches), (0, 1, []))
 
     def test_record_that_raised_now_builds(self):
         # spec-example: venue-table / record that raised now builds
