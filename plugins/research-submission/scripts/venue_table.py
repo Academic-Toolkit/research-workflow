@@ -108,8 +108,10 @@ def is_conference(rec):
 # ---------------------------------------------------------------- 收錄
 def wos(rec):
     ind = get(rec, "identity", "indexing")
-    if ind is None:
-        ind = get(rec, "identity", "metrics", "indexing")
+    if ind is None or ind == {}:               # 沒寫或空的：改動前就會改讀 metrics.indexing
+        alt = get(rec, "identity", "metrics", "indexing")
+        if alt:
+            ind = alt
     if ind is None and is_conference(rec):     # 研討會沒有期刊收錄；有寫就照寫的印
         return STATUS_LABEL["not_applicable"]
     if is_status_only(ind):
@@ -189,6 +191,7 @@ def quartile(m):
         return UNKNOWN
     if not q:
         return "未取得"
+    q = [x for x in q if isinstance(x.get("quartile"), str)]   # 分區不是文字的那幾筆略過（兩種輸出一致）
     for system in ("JCR", "SJR"):
         qs = sorted({x.get("quartile") for x in q if x.get("system") == system and x.get("quartile")})
         if qs:
@@ -275,7 +278,7 @@ def duration(m, key):
 
 
 # ---------------------------------------------------------------- 費用、審稿、篇幅
-def apc_kind(rec, a):
+def apc_kind(rec, a, use_open_access=True):
     """必付或選付，單一判斷處。先後：mandatory 旗標 → status → identity.open_access（必付）
     → applies_when（有條件才收，選付）。都沒有回 None。"""
     if a.get("mandatory") is True:
@@ -287,8 +290,8 @@ def apc_kind(rec, a):
         return "必付"
     if st == "optional":
         return "選付"
-    if get(rec, "identity", "open_access"):
-        return "必付"
+    if use_open_access and get(rec, "identity", "open_access"):
+        return "必付"       # 改動前就有的規則；hybrid 也會走到這裡（另案處理），所以新別名的金額不套用
     if a.get("applies_when"):
         return "選付"
     return None
@@ -303,27 +306,36 @@ def apc(rec):
         return status_label(a)
     if not isinstance(a, dict):
         return UNKNOWN
+    def price(x):                          # 價格只認數字；bool 是 int 的子類別，要另外排除
+        return isinstance(x, (int, float)) and not isinstance(x, bool)
+
     cur = a.get("currency") or fees.get("currency")
     amt = a.get("amount")
+    alias = False                          # 金額是否來自這次新增的鍵
     if amt is None and isinstance(a.get("currency_rates"), list):      # 多幣別定價：取 USD
         usd = [x for x in a["currency_rates"] if isinstance(x, dict) and x.get("currency") == "USD"]
-        if usd and isinstance(usd[0].get("value"), (int, float)):
-            cur, amt = "USD", usd[0]["value"]
-    if amt is None and isinstance(a.get("list_price_usd"), dict):      # 分級定價：取最高的一級（未折扣的定價）
-        tiers = [x for x in a["list_price_usd"].values() if isinstance(x, (int, float))]
-        if tiers:
-            cur, amt = "USD", max(tiers)
+        if usd:
+            if not price(usd[0].get("value")):
+                return UNKNOWN
+            cur, amt, alias = "USD", usd[0]["value"], True
+    if amt is None and isinstance(a.get("list_price_usd"), dict) and a["list_price_usd"]:
+        tiers = list(a["list_price_usd"].values())                     # 分級定價：取最高的一級（未折扣的定價）
+        if not all(price(x) for x in tiers):
+            return UNKNOWN
+        cur, amt, alias = "USD", max(tiers), True
     if is_status_only(amt):                # 有 OA 選項但金額沒公布（例：只指向出版社的 APC 查詢頁）
-        # 金額沒公布時只標得出「選付」：明寫 mandatory: false，或有條件才收（applies_when）且沒寫 mandatory: true。
+        # 金額沒公布時只標得出「選付」：明寫 mandatory: false 或 status: optional，
+        # 或有條件才收（applies_when）且沒寫 mandatory: true。
         # 這裡不看 identity.open_access：它常寫成 hybrid（有值但不是必付），改動前的輸出也不看它。
-        optional = a.get("mandatory") is False or (a.get("mandatory") is not True and bool(a.get("applies_when")))
+        optional = (a.get("mandatory") is False or a.get("status") == "optional"
+                    or (a.get("mandatory") is not True and bool(a.get("applies_when"))))
         return f"{status_label(amt)}（選付）" if optional else status_label(amt)
+    if isinstance(amt, bool):              # 型別檢查要在零元判斷之前：False == 0
+        return UNKNOWN
     if amt == 0:                           # 鑽石 OA：沒有任何作者費用，不是「0 元選付」
         return "不收費"
     if isinstance(amt, dict):
         cur, amt = "USD", amt.get("usd")
-    if amt is not None and (isinstance(amt, bool) or not isinstance(amt, (int, float, str))):
-        return UNKNOWN                     # 金額寫成清單等認不得的形狀
     if amt is None:
         for k in ("all_other_articles", "a_type"):
             if isinstance(a.get(k), dict):
@@ -332,8 +344,12 @@ def apc(rec):
                 break
     if amt is None:
         return UNKNOWN
-    cur = str(cur or "").split("（")[0].strip()[:3]
-    return f"{cur} {fmt_int(amt)}（{apc_kind(rec, a) or UNKNOWN}）"
+    if isinstance(amt, bool) or not isinstance(amt, (int, float, str)):
+        return UNKNOWN                     # 金額寫成清單等認不得的形狀
+    if cur is not None and not isinstance(cur, str):
+        return UNKNOWN                     # 幣別不是文字
+    cur = (cur or "").split("（")[0].strip()[:3]
+    return f"{cur} {fmt_int(amt)}（{apc_kind(rec, a, use_open_access=not alias) or UNKNOWN}）"
 
 
 def review(rec):
@@ -398,13 +414,13 @@ def publisher(rec):
         return status_label(raw)
     structured = raw is not None and not isinstance(raw, str)   # mapping 取 name，清單取第一個字串
     if isinstance(raw, dict):
-        p = raw.get("name") if isinstance(raw.get("name"), str) else ""
+        p = next((raw[k] for k in ("name", "value") if isinstance(raw.get(k), str)), "")
     elif isinstance(raw, (list, tuple)):
         p = next((x for x in raw if isinstance(x, str)), "")
     else:
         p = raw if isinstance(raw, str) else ""
     low = p.lower()
-    if re.match(r"acm\b", low):
+    if re.search(r"\bacm\b", low):
         return "ACM"
     for k, v in PUBLISHER_SHORT:
         if k in low:
@@ -419,9 +435,11 @@ DISCOUNTS = {}   # venue id -> 文字；由 --discounts 檔提供（機構專屬
 
 def safe(fn, *args):
     """讀一欄時出任何錯都印「?」：一筆寫壞的記錄不該讓整張表產不出來。"""
+    kept = len(NOTES)
     try:
         return fn(*args)
     except Exception:
+        del NOTES[kept:]                   # 這一欄印「?」，就不留它加到一半的附註
         return UNKNOWN
 
 
@@ -435,7 +453,7 @@ def row(rec):
         "id": rec["id"],
         "publisher": safe(publisher, rec),
         "discount": DISCOUNTS.get(rec["id"], "—") if DISCOUNTS else None,
-        "name": name if isinstance(name, str) and name else rec["id"],
+        "name": rec["id"] if name is None else (name if isinstance(name, str) and name else UNKNOWN),
         "index": safe(wos, rec),
         "if": safe(impact_factor, m),
         "q": safe(quartile, m),

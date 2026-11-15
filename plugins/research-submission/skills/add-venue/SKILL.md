@@ -79,8 +79,8 @@ ls ${CLAUDE_PLUGIN_ROOT}/venues/*/          # apa/psychological-methods.yaml（�
 | 欄 | 標準寫法 |
 |---|---|
 | 收錄 | `identity.indexing.web_of_science: {scie, ssci, esci, as_of, src}`，三個旗標各寫 `true` 或 `false`（布林，不要寫成字串）。表上只顯示 SCIE 與 SSCI；`esci` 照實記錄，但不顯示。寫了 `web_of_science` 就由它決定這一格，舊的收錄鍵不再讀 |
-| APC | `requirements.fees.apc: {amount, currency, mandatory}`，`mandatory` 寫 `true` 或 `false`。多幣別定價寫 `currency_rates: [{currency, value}, ...]`（表上取 USD）；分級定價寫 `list_price_usd: {<級別>: <金額>}`（表上取最高的一級）。必付或選付請明寫 `mandatory`。沒寫時腳本依序看：`status`（`mandatory…` 是必付、`optional` 是選付）、`identity.open_access` 有值（必付）、`applies_when`（選付）；都沒有就印「?」。`identity.open_access` 寫 `hybrid` 的期刊因此一定要明寫 `mandatory: false` |
-| 篇幅 | `requirements.length: {value, unit}`，`unit` 用 `words`、`pages_double_spaced` 或 `pages_typeset`。官方沒寫上限時寫 `requirements.length: {status: not_published, checked}` |
+| APC | `requirements.fees.apc: {amount, currency, mandatory}`，`mandatory` 寫 `true` 或 `false`。多幣別定價寫 `currency_rates: [{currency, value}, ...]`（表上取 USD）；分級定價寫 `list_price_usd: {<級別>: <金額>}`（表上取最高的一級）。必付或選付請明寫 `mandatory`。沒寫時腳本依序看：`status`（`mandatory…` 是必付、`optional` 是選付）、`identity.open_access` 有值（必付；只對直接寫 `amount` 的記錄，用 `currency_rates` 或 `list_price_usd` 寫的不看這一項）、`applies_when`（選付）；都沒有就印「?」。`identity.open_access` 寫 `hybrid` 的期刊因此一定要明寫 `mandatory: false` |
+| 篇幅 | `requirements.length: {value, unit}`，`unit` 用 `words`、`pages_double_spaced` 或 `pages_typeset`。官方沒寫上限時寫 `requirements.length_limit: {status: not_published, checked}`（schema 規定 `requirements.length` 一定要有 `value` 與 `unit`，所以「沒有上限的資訊」另放這個鍵） |
 | 審稿 | `requirements.review.type`，值用 `single_blind`、`single_anonymized`、`double_blind`、`double_anonymized`。官方沒寫時寫 `{status: not_published, checked}` |
 | 出版社 | `identity.publisher` 寫字串；官方沒寫時寫 `{status: not_published, checked}` |
 
@@ -121,7 +121,7 @@ estimates:
 
 ### 三條填寫紀律
 
-1. **查過但官網沒有 → 寫 `{status: not_published, checked: <date>}`**，不要留空。留空會讓後人以為是漏抓，於是重複去查一次不存在的東西。
+1. **查過但官網沒有 → 寫 `{status: not_published, checked: <date>}`**，不要留空。留空會讓後人以為是漏抓，於是重複去查一次不存在的東西。例外有兩個：研討會記錄的收錄、IF、分區、首次決定、投稿到接受這五欄省略不寫；篇幅沒有上限的資訊時寫在 `requirements.length_limit`（兩者見上方「比較表會讀的其他欄位」）。
    - `not_published` 官方未公布 ／ `not_found` 找不到 ／ `not_applicable` 不適用
 2. **`requirements`（慢）與 `cycle`（快）分開放。** 期刊多為 `cycle.applies_to: null`；研討會反過來——requirements 薄、cycle 厚。放錯格會導致「須知是對的但截稿日是去年」。
 3. **`extracted_sha256` 留 `null`**，交給 `verify.py` 建基準。不要手算——hash 必須由同一個 extractor 產生才可比。
