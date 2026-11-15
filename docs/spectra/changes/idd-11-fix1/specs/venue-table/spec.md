@@ -78,12 +78,17 @@ When a field read for a table column holds a value whose shape the script does n
 | identity.metrics.quartiles | [{system: JCR, quartile: {status: not_found}}] | quartile | ? |
 | identity.metrics.jcr_category_rank.ranks | "Q1" | quartile | ? |
 | requirements.review.type | "" | review | ? |
+| identity.metrics.time_to_first_decision | [30] | first decision | ? |
+| identity.metrics.impact_factor | {value: {x: 1}} | impact factor | ? |
+| identity.metrics.acceptance_rate | {value: [1]} | acceptance rate | ? |
+| requirements.length | {value: [1], unit: words} | length | ? |
+| requirements.fees.apc | {amount: [2000], currency: USD, mandatory: true} | APC | ? |
 
 ##### Example: quartiles format never raises
 
-- **GIVEN** a record file whose `identity.metrics.quartiles` is the string `Q1`
+- **GIVEN** a record file whose `identity.metrics.quartiles` is the list `[Q1]`, a shape that raised before this change
 - **WHEN** the script is run on that record with `--format quartiles`
-- **THEN** the script exits 0 and prints one line that starts with the record id
+- **THEN** the script exits 0 and prints one line holding the record id and no categories
 
 ##### Example: review type of an unknown mapping
 
@@ -156,6 +161,8 @@ The script SHALL read the shapes below in addition to the shapes it read before 
 | ------------------- | ----------- |
 | {type: {value: single_blind}} | 單盲 |
 | {type: "", model: double_anonymous} | 雙匿名 |
+| {type: not_published, model: double_anonymous} | 雙匿名 |
+| {type: not_published} | 未公布 |
 
 ##### Example: single quartile mapping
 
@@ -199,7 +206,7 @@ The script SHALL read the shapes below in addition to the shapes it read before 
 
 ### Requirement: Conference records print not-applicable for journal-only columns
 
-For a record whose `kind` is `conference`, when the field for a column is absent or null, the script SHALL print `不適用` in the indexing, impact factor, quartile, time to first decision and submission to acceptance columns, and SHALL write no warning for them. A value the conference record does state SHALL be printed by the same rules as for a journal. When `identity.metrics` is present and is not a mapping, the four metric columns SHALL print `?` with a warning, as for a journal. The APC column has no conference default: it is read by the same rules as for a journal, so a conference record that states no APC prints `?`, and the record is expected to state `requirements.fees.apc` as an amount or a status mapping.
+For a record whose `kind` is `conference`, when the field for a column is absent or null (an empty mapping is not absent), the script SHALL print `不適用` in the indexing, impact factor, quartile, time to first decision and submission to acceptance columns, and SHALL write no warning for them. A value the conference record does state SHALL be printed by the same rules as for a journal. When `identity.metrics` is present and is not a mapping, the four metric columns SHALL print `?` with a warning, as for a journal. The APC column has no conference default: it is read by the same rules as for a journal, so a conference record that states no APC prints `?`, and the record is expected to state `requirements.fees.apc` as an amount or a status mapping.
 
 #### Scenario: Conference without journal metrics
 
@@ -227,6 +234,8 @@ For a record whose `kind` is `conference`, when the field for a column is absent
 | {time_to_first_decision: null} | first decision | 不適用 |
 | {impact_factor: null, quartiles: null} | quartile | 不適用 |
 
+A conference record whose `identity.indexing` is the empty mapping `{}` prints `?` in the indexing cell, as a journal does.
+
 ##### Example: conference apc is read like a journal
 
 | requirements.fees | APC cell |
@@ -245,7 +254,7 @@ For a record whose `kind` is `conference`, when the field for a column is absent
 
 ### Requirement: Rows that the script produced before this change keep their cells
 
-For the records present on the default branch when this change was written, a cell SHALL stay the same after this change unless the cell was `?` before, or the cell was the raw review code `double_anonymous`. The baseline file stores, with each row, the SHA-256 of the record file the row was built from; a row whose record file has since changed is not compared, so that later updates to a record do not fail the check. A record that made the script raise before this change SHALL produce a row.
+For the records present on the default branch when this change was written, a cell SHALL stay the same after this change unless the cell was `?` before, or the cell was the raw review code `double_anonymous`. The baseline file stores, with each row, the SHA-256 of the record file the row was built from; a row whose record file has since changed is not compared, so that later updates to a record do not fail the check. The check SHALL fail when it compares no row at all. A record that made the script raise before this change SHALL produce a row.
 
 #### Scenario: Baseline comparison
 
@@ -274,7 +283,7 @@ For the records present on the default branch when this change was written, a ce
 
 ### Requirement: Publisher cell
 
-The publisher cell SHALL print a short name when the publisher text contains a known publisher name, including `ACM` for the Association for Computing Machinery and for text that starts with `ACM`. A publisher written as a mapping or a list that is not a status mapping SHALL be matched by its text in the same way; when no known name matches, the cell SHALL be `?`.
+The publisher cell SHALL print a short name when the publisher text contains a known publisher name, including `ACM` for the Association for Computing Machinery and for text whose first word is `ACM`. A publisher written as a mapping that is not a status mapping SHALL be matched by its `name`, and one written as a list by its first string item, in the same way; when no known name matches such a mapping or list, the cell SHALL be `?`.
 
 #### Scenario: Publisher written as a mapping
 
@@ -288,5 +297,8 @@ The publisher cell SHALL print a short name when the publisher text contains a k
 | Association for Computing Machinery | ACM |
 | ACM Digital Library（2026 proceedings） | ACM |
 | {name: "Elsevier B.V."} | Elsevier |
+| {name: "ACM Press"} | ACM |
+| Acme Books | Acme Books |
+| {name: "Unknown House", note: "formerly Wiley"} | ? |
 | {name: "Unknown House"} | ? |
 | ["Unknown House"] | ? |

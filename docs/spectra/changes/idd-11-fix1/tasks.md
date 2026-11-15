@@ -26,3 +26,7 @@
 
 - [x] 3.1 The add-venue skill text tells a conference record to leave the five journal-only fields out and to state its APC, names one key for length, and says the esci flag is not shown; verified by a content review of plugins/research-submission/skills/add-venue/SKILL.md against the venue-table spec [after: 2.6]
 - [x] 3.2 The plugin version reads 0.8.3 in plugins/research-submission/.claude-plugin/plugin.json and in .claude-plugin/marketplace.json; verified by `grep -c '"version": "0.8.3"'` printing 1 for each file [after: 3.1]
+
+## 4. Findings from the change verification
+
+- [x] 4.1 A list or mapping where a number or text is expected prints ?, a publisher mapping is matched by its name with ACM matched as a whole word, the quartiles format prints no categories for an unreadable record, a status string in the review type does not hide a stated model, and an empty indexing mapping on a conference prints ?; verified by the added rows of the Examples `shapes that raised before the fix round`, `quartiles format never raises`, `review model in other positions`, `publisher short names` and `conference metric edge cases` passing in `python3 -m unittest discover -s plugins/research-submission/tests`

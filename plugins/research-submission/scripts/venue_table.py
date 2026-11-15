@@ -17,6 +17,7 @@
 """
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -90,7 +91,10 @@ def is_status_only(v):
 
 
 def num(v):
-    return v.get("value", v.get("value_days")) if isinstance(v, dict) else v
+    """欄位的值：純量照用；mapping 取 value／value_days。取出來不是數字或字串（清單、mapping…）
+    就當成認不得，回 None，由呼叫端印「?」，不把 Python 的原始寫法印進表格。"""
+    n = v.get("value", v.get("value_days")) if isinstance(v, dict) else v
+    return n if isinstance(n, (int, float, str)) and not isinstance(n, bool) else None
 
 
 def fmt_int(n):
@@ -103,7 +107,9 @@ def is_conference(rec):
 
 # ---------------------------------------------------------------- 收錄
 def wos(rec):
-    ind = get(rec, "identity", "indexing") or get(rec, "identity", "metrics", "indexing")
+    ind = get(rec, "identity", "indexing")
+    if ind is None:
+        ind = get(rec, "identity", "metrics", "indexing")
     if ind is None and is_conference(rec):     # 研討會沒有期刊收錄；有寫就照寫的印
         return STATUS_LABEL["not_applicable"]
     if is_status_only(ind):
@@ -316,6 +322,8 @@ def apc(rec):
         return "不收費"
     if isinstance(amt, dict):
         cur, amt = "USD", amt.get("usd")
+    if amt is not None and (isinstance(amt, bool) or not isinstance(amt, (int, float, str))):
+        return UNKNOWN                     # 金額寫成清單等認不得的形狀
     if amt is None:
         for k in ("all_other_articles", "a_type"):
             if isinstance(a.get(k), dict):
@@ -336,11 +344,13 @@ def review(rec):
     cands = [c["value"] if isinstance(c, dict) and not is_status_only(c) and isinstance(c.get("value"), str) else c
              for c in cands]               # {value: <code>} 讀成 code
     for t in cands:                        # 第一個真的寫了審稿制度的位置
-        if isinstance(t, str) and t:
-            return STATUS_LABEL.get(t) or REVIEW_LABEL.get(t, t)
-    for t in cands:                        # 都沒寫制度，但有寫「查過、沒有」
+        if isinstance(t, str) and t and t not in STATUS_LABEL:
+            return REVIEW_LABEL.get(t, t)
+    for t in cands:                        # 都沒寫制度，但有寫「查過、沒有」（mapping 或字串）
         if is_status_only(t):
             return status_label(t)
+        if isinstance(t, str) and t in STATUS_LABEL:
+            return STATUS_LABEL[t]
     return UNKNOWN
 
 
@@ -361,7 +371,7 @@ def length(rec):
     if rng and unit == "words":
         return f"建議 {fmt_int(rng[0])}–{fmt_int(rng[1])} 字"
     v = L.get("value")
-    if v is None:
+    if v is None or isinstance(v, bool) or not isinstance(v, (int, float, str)):
         return UNKNOWN
     if unit == "words":
         out = f"{fmt_int(v)} 字"
@@ -386,10 +396,15 @@ def publisher(rec):
     raw = get(rec, "identity", "publisher")
     if is_status_only(raw):
         return status_label(raw)
-    structured = raw is not None and not isinstance(raw, str)   # mapping 或清單：只用文字比對已知名稱
-    p = str(raw) if structured else (raw or "")
+    structured = raw is not None and not isinstance(raw, str)   # mapping 取 name，清單取第一個字串
+    if isinstance(raw, dict):
+        p = raw.get("name") if isinstance(raw.get("name"), str) else ""
+    elif isinstance(raw, (list, tuple)):
+        p = next((x for x in raw if isinstance(x, str)), "")
+    else:
+        p = raw if isinstance(raw, str) else ""
     low = p.lower()
-    if low.startswith("acm"):
+    if re.match(r"acm\b", low):
         return "ACM"
     for k, v in PUBLISHER_SHORT:
         if k in low:
@@ -477,7 +492,8 @@ def main():
     if a.format == "quartiles":
         for i in ids:
             m = get(load(i, a.root), "identity", "metrics")
-            print(i + "\t" + "；".join(safe(quartile_detail, m if isinstance(m, dict) else {}) or []))
+            detail = safe(quartile_detail, m if isinstance(m, dict) else {})
+            print(i + "\t" + "；".join(detail if isinstance(detail, list) else []))
         return
     if a.format == "json":
         print(json.dumps(rows, ensure_ascii=False, indent=2))

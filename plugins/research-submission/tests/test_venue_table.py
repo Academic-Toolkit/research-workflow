@@ -179,7 +179,13 @@ class FixRound1(unittest.TestCase):
                  ({"identity": {"metrics": {"quartiles": {"system": "SJR", "value": 1}}}}, "q", "未取得"),
                  ({"identity": {"metrics": {"quartiles": [{"system": "JCR", "quartile": nf}]}}}, "q", "?"),
                  ({"identity": {"metrics": {"jcr_category_rank": {"ranks": "Q1"}}}}, "q", "?"),
-                 ({"requirements": {"review": {"type": ""}}}, "review", "?")]
+                 ({"requirements": {"review": {"type": ""}}}, "review", "?"),
+                 ({"identity": {"metrics": {"time_to_first_decision": [30]}}}, "first", "?"),
+                 ({"identity": {"metrics": {"impact_factor": {"value": {"x": 1}}}}}, "if", "?"),
+                 ({"identity": {"metrics": {"acceptance_rate": {"value": [1]}}}}, "accept", "?"),
+                 ({"requirements": {"length": {"value": [1], "unit": "words"}}}, "length", "?"),
+                 ({"requirements": {"fees": {"apc": {"amount": [2000], "currency": "USD", "mandatory": True}}}},
+                  "apc", "?")]
         for kw, col, expected in cases:
             with self.subTest(kw=kw):
                 self.assertEqual(build(**kw)[col], expected)
@@ -190,13 +196,13 @@ class FixRound1(unittest.TestCase):
             d = Path(root) / "venues" / "test"
             d.mkdir(parents=True)
             (d / "venue.yaml").write_text("id: test/venue\nkind: journal\nidentity:\n  name: T\n  publisher: P\n"
-                                          "  metrics:\n    quartiles: Q1\nrequirements: {}\n", encoding="utf-8")
+                                          "  metrics:\n    quartiles: [Q1]\nrequirements: {}\n", encoding="utf-8")
             p = subprocess.run([sys.executable, str(SCRIPT), "--root", root, "--format", "quartiles", "test/venue"],
                                capture_output=True, text=True)
         self.assertEqual(p.returncode, 0, p.stderr[-300:])
         lines = p.stdout.splitlines()
         self.assertEqual(len(lines), 1)
-        self.assertTrue(lines[0].startswith("test/venue"))
+        self.assertEqual(lines[0].split("\t"), ["test/venue", ""])
 
     def test_web_of_science_decides_the_indexing_cell(self):
         # spec-example: venue-table / web of science decides the indexing cell
@@ -239,12 +245,18 @@ class FixRound1(unittest.TestCase):
         # spec-example: venue-table / review model in other positions
         self.assertEqual(build(requirements={"review": {"type": {"value": "single_blind"}}})["review"], "單盲")
         self.assertEqual(build(requirements={"review": {"type": "", "model": "double_anonymous"}})["review"], "雙匿名")
+        self.assertEqual(build(requirements={"review": {
+            "type": "not_published", "model": "double_anonymous"}})["review"], "雙匿名")
+        self.assertEqual(build(requirements={"review": {"type": "not_published"}})["review"], "未公布")
 
     def test_publisher_short_names(self):
         # spec-example: venue-table / publisher short names
         cases = [("Association for Computing Machinery", "ACM"),
                  ("ACM Digital Library（2026 proceedings）", "ACM"),
                  ({"name": "Elsevier B.V."}, "Elsevier"),
+                 ({"name": "ACM Press"}, "ACM"),
+                 ("Acme Books", "Acme Books"),
+                 ({"name": "Unknown House", "note": "formerly Wiley"}, "?"),
                  ({"name": "Unknown House"}, "?"),
                  (["Unknown House"], "?")]
         for pub, expected in cases:
@@ -271,6 +283,7 @@ class ConferenceRecords(unittest.TestCase):
         for metrics, col, expected in cases:
             with self.subTest(metrics=metrics, col=col):
                 self.assertEqual(build(kind="conference", identity={"metrics": metrics})[col], expected)
+        self.assertEqual(build(kind="conference", identity={"indexing": {}})["index"], "?")
 
     def test_conference_apc_is_read_like_a_journal(self):
         # spec-example: venue-table / conference apc is read like a journal
@@ -320,6 +333,7 @@ class Baseline(unittest.TestCase):
         compared, skipped, mismatches = compare_baseline(rows)
         self.assertEqual(mismatches, [])
         self.assertEqual(compared + skipped, 23)
+        self.assertGreater(compared, 0)
 
     def test_changed_record_is_not_compared(self):
         # spec-example: venue-table / changed record is not compared
