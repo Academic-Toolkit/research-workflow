@@ -24,9 +24,9 @@ Each getter accepts a fixed set of field shapes and assumes the record is a jour
 
 ## Success Criteria
 
-- The script exits 0 and prints no `?` for the four records that exposed the problem (two software-engineering journals, two conferences), reproduced as minimal fixtures in the tests.
+- The shapes used by the four records that exposed the problem (two software-engineering journals, two conferences) are reproduced as minimal fixtures in the tests, and each prints a value. A `?` remains only where a record does not state the value.
 - `jnspg/jns-spine`, which crashes on `main`, produces a row.
-- For the 23 records that produce a row on `main`, every cell is unchanged unless it was `?` before.
+- For the 23 records that produce a row on `main`, every cell is unchanged unless it was `?` or the raw review code `double_anonymous` before.
 - `python3 -m unittest discover -s plugins/research-submission/tests` passes, and each test fails on `main` before the script change.
 
 ## Impact

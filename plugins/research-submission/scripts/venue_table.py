@@ -141,6 +141,8 @@ def wos(rec):
 # ---------------------------------------------------------------- 指標
 def impact_factor(m):
     v = m.get("impact_factor")
+    if isinstance(v, (list, tuple, set)):      # 認不得的形狀
+        return UNKNOWN
     if v is None:
         return STATUS_LABEL["not_applicable"] if m.get("_conference") else UNKNOWN
     if is_unknown(v):
@@ -161,6 +163,8 @@ def quartile(m):
         q = [{**q, "quartile": q.get("quartile") or q.get("value")}]   # 單一類別寫成一個 mapping
     if isinstance(q, dict):
         return "未取得"
+    if not isinstance(q, list) or any(not isinstance(x, dict) for x in q):   # 字串、字串清單等：認不得
+        return UNKNOWN
     if not q:
         return "未取得"
     for system in ("JCR", "SJR"):
@@ -192,7 +196,7 @@ def quartile_detail(m):
 
 def acceptance(m):
     v = m.get("acceptance_rate")
-    if v is None:
+    if v is None or isinstance(v, (list, tuple, set)):
         return UNKNOWN
     if isinstance(v, dict) and "insights_page" in v:        # 例：JEP，社論的世代數字
         sub = v.get("editorial_2023_cohort") or {}
@@ -251,6 +255,8 @@ def duration(m, key):
 # ---------------------------------------------------------------- 費用、審稿、篇幅
 def apc(rec):
     fees = get(rec, "requirements", "fees") or {}
+    if is_status_only(fees):               # 整個費用區塊只有 status（例：研討會查不到費用資訊）
+        return status_label(fees)
     a = fees.get("apc") if isinstance(fees, dict) else None
     if is_status_only(a):                  # 整欄只有 status：查過，官方沒有 APC 資訊
         return status_label(a)
@@ -260,12 +266,11 @@ def apc(rec):
         return UNKNOWN
     cur = a.get("currency") or fees.get("currency")
     amt = a.get("amount")
-    optional_hint = False
+    optional_hint = bool(a.get("applies_when")) and a.get("mandatory") is not True   # 有條件才收：選付
     if amt is None and isinstance(a.get("currency_rates"), list):      # 多幣別定價：取 USD
         usd = [x for x in a["currency_rates"] if isinstance(x, dict) and x.get("currency") == "USD"]
         if usd and isinstance(usd[0].get("value"), (int, float)):
             cur, amt = "USD", usd[0]["value"]
-            optional_hint = bool(a.get("applies_when"))
     if amt is None and isinstance(a.get("list_price_usd"), dict):      # 分級定價：取最高的一級（未折扣的定價）
         tiers = [x for x in a["list_price_usd"].values() if isinstance(x, (int, float))]
         if tiers:
@@ -313,7 +318,9 @@ def review(rec):
 
 
 def length(rec):
-    req = rec.get("requirements") or {}
+    req = rec.get("requirements")
+    if not isinstance(req, dict):
+        return UNKNOWN
     L = req.get("length") or req.get("length_policy") or req.get("length_note") or req.get("length_limit")
     if not isinstance(L, dict):
         return UNKNOWN
@@ -365,7 +372,9 @@ DISCOUNTS = {}   # venue id -> 文字；由 --discounts 檔提供（機構專屬
 
 
 def row(rec):
-    m = get(rec, "identity", "metrics") or {}
+    m = get(rec, "identity", "metrics")
+    if not isinstance(m, dict):            # 沒有 metrics，或寫成清單等認不得的形狀
+        m = {}
     m = {**m, "_id": rec["id"], "_conference": is_conference(rec)}
     return {
         "id": rec["id"],

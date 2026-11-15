@@ -13,6 +13,7 @@ and one row was written for each record that did not make the script raise (23 o
 import importlib.util
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -38,6 +39,16 @@ def build(**kw):
     return vt.row(record(**kw))
 
 
+def run_on_record(yaml_text):
+    """Write one record file under a temporary plugin root and run the script on it."""
+    with tempfile.TemporaryDirectory() as root:
+        d = Path(root) / "venues" / "test"
+        d.mkdir(parents=True)
+        (d / "venue.yaml").write_text(yaml_text, encoding="utf-8")
+        return subprocess.run([sys.executable, str(SCRIPT), "--root", root, "--format", "json", "test/venue"],
+                              capture_output=True, text=True)
+
+
 class StatusMappings(unittest.TestCase):
     def test_review_type_status_mapping(self):
         # spec-example: venue-table / review type status mapping
@@ -52,7 +63,51 @@ class StatusMappings(unittest.TestCase):
         self.assertNotIn("status", r["publisher"])
 
 
+class FeesBlock(unittest.TestCase):
+    def test_fees_block_status_mapping(self):
+        # spec-example: venue-table / fees block status mapping
+        r = build(kind="conference", requirements={"fees": {"status": "not_found", "checked": "2026-11-15"}})
+        self.assertEqual(r["apc"], "未取得")
+
+    def test_apc_amount_with_applies_when(self):
+        # spec-example: venue-table / apc amount with applies_when
+        r = build(requirements={"fees": {"apc": {
+            "amount": 3000, "currency": "USD", "applies_when": "author chooses open access"}}})
+        self.assertEqual(r["apc"], "USD 3,000（選付）")
+
+
+class Stderr(unittest.TestCase):
+    def test_indexing_list_warns_on_stderr(self):
+        # spec-example: venue-table / indexing list warns on stderr
+        p = run_on_record("id: test/venue\nkind: journal\nidentity:\n  name: T\n  publisher: P\n"
+                          "  indexing: [Scopus, PubMed]\nrequirements: {}\n")
+        self.assertEqual(p.returncode, 0, p.stderr[-300:])
+        lines = [l for l in p.stderr.splitlines() if "test/venue" in l and "「收錄」" in l]
+        self.assertEqual(len(lines), 1)
+
+    def test_conference_columns_write_no_warning(self):
+        # spec-example: venue-table / conference columns write no warning
+        p = run_on_record("id: test/venue\nkind: conference\nidentity:\n  name: T\n  publisher: P\n"
+                          "requirements: {}\n")
+        self.assertEqual(p.returncode, 0, p.stderr[-300:])
+        for label in ("「收錄」", "「IF」", "「分區」", "「首次決定（中位）」", "「投稿→接受（中位）」"):
+            with self.subTest(label=label):
+                self.assertNotIn(label, p.stderr)
+
+
 class UnrecognisedShapes(unittest.TestCase):
+    def test_scalar_and_list_values_in_metric_fields(self):
+        # spec-example: venue-table / scalar and list values in metric fields
+        cases = [({"identity": {"metrics": {"quartiles": "Q1"}}}, "q"),
+                 ({"identity": {"metrics": {"quartiles": ["Q1"]}}}, "q"),
+                 ({"identity": {"metrics": {"impact_factor": [1]}}}, "if"),
+                 ({"identity": {"metrics": {"acceptance_rate": [1]}}}, "accept"),
+                 ({"identity": {"metrics": ["x"]}}, "if"),
+                 ({"requirements": ["x"]}, "length")]
+        for kw, col in cases:
+            with self.subTest(kw=kw):
+                self.assertEqual(build(**kw)[col], "?")
+
     def test_indexing_as_a_list(self):
         # spec-example: venue-table / indexing as a list
         r = build(identity={"indexing": ["Scopus", "PubMed"]})

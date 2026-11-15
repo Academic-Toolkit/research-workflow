@@ -4,9 +4,9 @@ The venue table is the comparison table that `plugins/research-submission/script
 
 ## ADDED Requirements
 
-### Requirement: Status mappings print their status label in every column
+### Requirement: Status mappings print their status label
 
-When a field read for a table column holds a mapping whose `status` is `not_published`, `not_found` or `not_applicable` and that carries no `value` or `amount`, the script SHALL print the label of that status (`未公布`, `未取得`, `不適用`) in that column. This SHALL hold for the review column and the publisher column as it does for the others, and the script SHALL NOT raise.
+When a field read for the publisher, indexing, impact factor, APC or review column holds a mapping whose `status` is `not_published`, `not_found` or `not_applicable` and that carries no `value` or `amount`, the script SHALL print the label of that status (`未公布`, `未取得`, `不適用`) in that column and SHALL NOT raise. For the APC column this SHALL also hold when `requirements.fees` itself is such a mapping. The quartile, acceptance rate, review time and length columns keep the labels they printed before this change; aligning them is outside this change.
 
 #### Scenario: Review type recorded as not published
 
@@ -18,6 +18,12 @@ When a field read for a table column holds a mapping whose `status` is `not_publ
 - **GIVEN** a journal record whose `requirements.review.type` is `{status: not_published, checked: 2026-11-15}`
 - **WHEN** the row is built
 - **THEN** the review cell is `未公布`
+
+##### Example: fees block status mapping
+
+- **GIVEN** a conference record whose `requirements.fees` is `{status: not_found, checked: 2026-11-15}`
+- **WHEN** the row is built
+- **THEN** the APC cell is `未取得`
 
 ##### Example: publisher status mapping
 
@@ -40,6 +46,23 @@ When a field read for a table column holds a value whose shape the script does n
 - **WHEN** the row is built
 - **THEN** the indexing cell is `?`
 
+##### Example: indexing list warns on stderr
+
+- **GIVEN** a record file whose `identity.indexing` is a list
+- **WHEN** the script is run on that record
+- **THEN** stderr contains one line naming the record and the column `收錄`
+
+##### Example: scalar and list values in metric fields
+
+| Field | Value | Cell | Result |
+| ----- | ----- | ---- | ------ |
+| identity.metrics.quartiles | "Q1" | quartile | ? |
+| identity.metrics.quartiles | ["Q1"] | quartile | ? |
+| identity.metrics.impact_factor | [1] | impact factor | ? |
+| identity.metrics.acceptance_rate | [1] | acceptance rate | ? |
+| identity.metrics | ["x"] | impact factor | ? |
+| requirements | ["x"] | length | ? |
+
 ##### Example: review type of an unknown mapping
 
 - **GIVEN** a journal record whose `requirements.review.type` is `{kind: custom}`
@@ -56,6 +79,7 @@ The script SHALL read the shapes below in addition to the shapes it read before 
 - Length: `requirements.length_limit`, read the same way as `requirements.length`.
 - Review: `requirements.review.model`, and `requirements.review.model_by_track.research` when neither `type` nor `model` is present.
 - Review codes `double_anonymous` and `double-anonymous` SHALL print `雙匿名`.
+- APC kind: an `apc` mapping that carries `applies_when` and does not set `mandatory: true` SHALL print `選付`, whichever way the amount is written.
 
 #### Scenario: Web of Science flags
 
@@ -81,6 +105,12 @@ The script SHALL read the shapes below in addition to the shapes it read before 
 - **GIVEN** `requirements.fees.apc` is `{applies_when: "author chooses open access", currency_rates: [{currency: GBP, value: 2390}, {currency: USD, value: 3390}]}`
 - **WHEN** the row is built
 - **THEN** the APC cell is `USD 3,390（選付）`
+
+##### Example: apc amount with applies_when
+
+- **GIVEN** `requirements.fees.apc` is `{amount: 3000, currency: USD, applies_when: "author chooses open access"}`
+- **WHEN** the row is built
+- **THEN** the APC cell is `USD 3,000（選付）`
 
 ##### Example: apc from list price tiers
 
@@ -116,6 +146,12 @@ For a record whose `kind` is `conference`, when the record does not state the fi
 - **GIVEN** a record with `kind: conference`, `identity.metrics` holding only `acceptance_rate: {status: not_published}`, and no `requirements.fees`
 - **WHEN** the row is built
 - **THEN** indexing, impact factor, quartile, first decision and submission-to-acceptance are each `不適用`, and APC is `未公布`
+
+##### Example: conference columns write no warning
+
+- **GIVEN** a conference record file with no `identity.indexing`, no impact factor, no quartiles and no review times
+- **WHEN** the script is run on that record
+- **THEN** stderr has no warning line for `收錄`, `IF`, `分區`, `首次決定（中位）` or `投稿→接受（中位）`
 
 ##### Example: journal with the same gaps
 
