@@ -255,6 +255,8 @@ class FixRound1(unittest.TestCase):
                  ("ACM Digital Library（2026 proceedings）", "ACM"),
                  ({"name": "Elsevier B.V."}, "Elsevier"),
                  ({"name": "ACM Press"}, "ACM"),
+                 ({"value": "Elsevier"}, "Elsevier"),
+                 ("IEEE and ACM", "ACM"),
                  ("Acme Books", "Acme Books"),
                  ({"name": "Unknown House", "note": "formerly Wiley"}, "?"),
                  ({"name": "Unknown House"}, "?"),
@@ -262,6 +264,85 @@ class FixRound1(unittest.TestCase):
         for pub, expected in cases:
             with self.subTest(pub=pub):
                 self.assertEqual(build(identity={"publisher": pub})["publisher"], expected)
+
+
+class FixRound2(unittest.TestCase):
+    def test_indexing_block_status_mapping(self):
+        # spec-example: venue-table / indexing block status mapping
+        r = build(identity={"indexing": {"status": "not_found", "checked": "2026-11-15"}})
+        self.assertEqual(r["index"], "未取得")
+
+    def test_values_that_are_not_numbers_or_text(self):
+        # spec-example: venue-table / values that are not numbers or text
+        cases = [({"requirements": {"fees": {"apc": {"amount": False, "currency": "USD"}}}}, "apc"),
+                 ({"requirements": {"fees": {"apc": {"currency_rates": [{"currency": "USD", "value": False}]}}}}, "apc"),
+                 ({"requirements": {"fees": {"apc": {"mandatory": True, "list_price_usd": {"non_member": False}}}}}, "apc"),
+                 ({"requirements": {"fees": {"apc": {"amount": 2000, "currency": ["USD"], "mandatory": True}}}}, "apc"),
+                 ({"requirements": {"fees": {"apc": {"all_other_articles": {"amount": [1]}, "mandatory": True}}}}, "apc"),
+                 ({"requirements": {"length": {"value": 10, "unit": ["pages"]}}}, "length"),
+                 ({"identity": {"name": ["A", "B"]}}, "name")]
+        for kw, col in cases:
+            with self.subTest(kw=kw):
+                self.assertEqual(build(**kw)[col], "?")
+
+    def test_failed_column_leaves_no_footnote(self):
+        # spec-example: venue-table / failed column leaves no footnote
+        r = build(identity={"metrics": {"time_submission_to_acceptance": {"status": "not_published"},
+                                        "estimates": {"sub_to_acceptance": {"value": "fast", "n": 10}}}})
+        self.assertEqual(r["sub_accept"], "?")
+        self.assertEqual(vt.NOTES, [])
+
+    def test_apc_kind_for_amounts_from_the_new_price_keys(self):
+        # spec-example: venue-table / apc kind for amounts from the new price keys
+        tiers = {"member": 1300, "non_member": 1800}
+        cases = [({"applies_when": "author chooses open access",
+                   "currency_rates": [{"currency": "USD", "value": 3390}]}, "USD 3,390（選付）"),
+                 ({"list_price_usd": tiers}, "USD 1,800（?）"),
+                 ({"mandatory": True, "list_price_usd": tiers}, "USD 1,800（必付）"),
+                 ({"amount": {"status": "not_published"}, "status": "optional"}, "未公布（選付）")]
+        for apc, expected in cases:
+            with self.subTest(apc=apc):
+                r = build(identity={"open_access": "hybrid"}, requirements={"fees": {"apc": apc}})
+                self.assertEqual(r["apc"], expected)
+
+    def test_quartile_list_with_one_unreadable_entry(self):
+        # spec-example: venue-table / quartile list with one unreadable entry
+        q = [{"system": "JCR", "category": "A", "quartile": {"status": "not_found"}},
+             {"system": "SJR", "category": "B", "quartile": "Q1", "year": 2025}]
+        self.assertEqual(build(identity={"metrics": {"quartiles": q}})["q"], "Q1（SJR）")
+        self.assertEqual(vt.quartile_detail({"quartiles": q}), ["B Q1（SJR 2025）"])
+
+    def test_metrics_indexing_is_still_read(self):
+        # spec-example: venue-table / metrics indexing is still read
+        r = build(identity={"indexing": {}, "metrics": {
+            "indexing": {"web_of_science": {"scie": True, "ssci": False}}}})
+        self.assertEqual(r["index"], "SCIE")
+
+    def test_prescribed_length_shape_validates(self):
+        # spec-example: venue-table / prescribed length shape validates
+        import yaml
+        unknown = {"status": "not_published", "checked": "2026-11-15"}
+        src = yaml.safe_load((PLUGIN / "venues" / "psychometric-society" / "psychometrika.yaml").read_text(encoding="utf-8"))
+        results = []
+        for key in ("length_limit", "length"):
+            rec = yaml.safe_load(yaml.safe_dump(src, allow_unicode=True))
+            rec["requirements"].pop("length", None)
+            rec["requirements"][key] = unknown
+            with tempfile.TemporaryDirectory() as d:
+                f = Path(d) / "record.yaml"
+                f.write_text(yaml.safe_dump(rec, allow_unicode=True), encoding="utf-8")
+                p = subprocess.run([sys.executable, str(PLUGIN / "scripts" / "validate.py"), str(f)],
+                                   capture_output=True, text=True)
+            results.append(p.returncode)
+        self.assertEqual(results, [0, 1])
+
+    def test_skill_text_names_the_validating_shape(self):
+        # spec-example: venue-table / skill text names the validating shape
+        text = (PLUGIN / "skills" / "add-venue" / "SKILL.md").read_text(encoding="utf-8")
+        row = [l for l in text.splitlines() if l.startswith("| 篇幅 |")]
+        self.assertEqual(len(row), 1)
+        self.assertIn("requirements.length_limit: {status: not_published, checked}", row[0])
+        self.assertNotIn("requirements.length: {status: not_published, checked}", row[0])
 
 
 class ConferenceRecords(unittest.TestCase):
@@ -345,6 +426,8 @@ class Baseline(unittest.TestCase):
 
     def test_record_that_raised_now_builds(self):
         # spec-example: venue-table / record that raised now builds
+        self.assertIsInstance(vt.load("jnspg/jns-spine", str(PLUGIN))["identity"]["indexing"], list,
+                              "precondition changed: the record no longer has the shape that raised")
         p = subprocess.run([sys.executable, str(SCRIPT), "--format", "json", "jnspg/jns-spine"],
                            capture_output=True, text=True)
         self.assertEqual(p.returncode, 0, p.stderr[-400:])
