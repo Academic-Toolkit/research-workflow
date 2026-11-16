@@ -19,3 +19,7 @@
 
 - [x] 4.1 For the spec Example inputs and the probe inputs quoted in the three verification rounds, every cell that differs between the script at 02dad572 and the script after this change maps to an Example; verified by a comparison run whose output lists each differing cell with its Example title [after: 3.1]
 - [x] 4.2 The four records that triggered issue 11 build with the script after this change; verified by a run of the script on copies of those records [after: 3.1]
+
+## 5. Findings from the change verification
+
+- [x] 5.1 The spec says only the first USD entry of currency_rates is considered and list_price_usd is used only when every tier is a number, names `amount` as the field whose status mapping gets the status label, the skill's APC row names all_other_articles and a_type for the identity.open_access step, and the prescribed-shapes table covers an unpublished amount and list_price_usd with other keys; verified by the tests with markers `spec-example: venue-table / prescribed column shapes validate` and `spec-example: venue-table / skill text on price tiers and unpublished amounts` passing

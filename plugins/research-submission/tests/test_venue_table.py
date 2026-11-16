@@ -343,7 +343,11 @@ class FixRound2(unittest.TestCase):
                   (("requirements", "review"), {"type": "double_anonymized"}),
                   (("requirements", "review"), {"type": unknown}),
                   (("requirements", "review"), {"model_by_track": {"research": "double_anonymized"}}),
-                  (("identity", "publisher"), unknown)]
+                  (("identity", "publisher"), unknown),
+                  (("requirements", "fees"), {"apc": {"amount": unknown, "applies_when": "author chooses open access"}}),
+                  (("requirements", "fees"), {"apc": {"list_price_usd": {"member": 1300, "non_member": 1800},
+                                                      "mandatory": True, "as_of": "2026-11-15", "src": "open_access",
+                                                      "note": "tiers by membership"}})]
         src = (PLUGIN / "venues" / "psychometric-society" / "psychometrika.yaml").read_text(encoding="utf-8")
         for (section, key), value in shapes:
             with self.subTest(key=key, value=value):
@@ -421,6 +425,7 @@ class FixRound3(unittest.TestCase):
         row = [l for l in text.splitlines() if l.startswith("| APC |")]
         self.assertEqual(len(row), 1)
         self.assertIn("只放價格級別", row[0])
+        self.assertIn("第一筆 USD", row[0])
         self.assertIn("金額沒公布時", row[0])
 
 
