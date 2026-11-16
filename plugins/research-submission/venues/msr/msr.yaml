@@ -1,0 +1,571 @@
+--- # research-submission venue record
+# 研討會 — MSR 2027 (Dublin, co-located with ICSE 2027)。全部內容擷取自 2027.msrconf.org，2026-11-15 當日實際讀過的頁面。
+#
+# 版本來源：requirements 與 cycle 都取自 MSR 2027 的 CFP（本次沒有退回舊屆）。
+# 注意：2027 的格式是 IEEE（頁面明寫「IEEE format is being used this year, whereas last year it was ACM format」），
+# 所以 2026 以前的 ACM 格式知識不可沿用 —— 這是 requirements 通常「慢」、但 MSR 實際上逐年換的例子。
+
+schema_version: 1
+id: msr/msr
+kind: conference
+family: software-engineering-conferences
+status: active
+
+sources:
+  - id: tech_cfp
+    role: authoritative
+    url: https://2027.msrconf.org/track/msr-2027-technical-papers
+    note: >-
+      Technical Papers 的 CFP 本體（頁數、模板、雙匿名、預印本政策、AI 揭露、Open Science、日期）。
+      URL 是 researchr 平台格式 track/msr-<年>-<track slug>，由首頁「Tracks」選單導覽取得，非推測。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Maximum ten pages"
+        min_extracted_chars: 15000
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: dates
+    role: authoritative
+    url: https://2027.msrconf.org/dates
+    note: 全部 track 的合併日期表，頁首寫明會期與地點（Mon 26 - Tue 27 April 2027, Dublin）。各頁 Important Dates 標註 AoE (UTC-12h)。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Early Reject Notification"
+        min_extracted_chars: 1000
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: data_tool_cfp
+    role: authoritative
+    url: https://2027.msrconf.org/track/msr-2027-data-and-tool-showcase-track
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Data showcase submissions"
+        min_extracted_chars: 6000
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: challenge_cfp
+    role: authoritative
+    url: https://2027.msrconf.org/track/msr-2027-mining-challenge
+    note: 同一頁同時含「Call for Mining Challenge Papers」與「Call for Mining Challenge Proposals」（資料集提案，已於 2026-08 結束）。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "GitSkills"
+        min_extracted_chars: 15000
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: rr_cfp
+    role: authoritative
+    url: https://2027.msrconf.org/track/msr-2027-registered-reports
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "In-Principle Acceptance"
+        min_extracted_chars: 10000
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: industry_cfp
+    role: authoritative
+    url: https://2027.msrconf.org/track/msr-2027-industry-track
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Problems: the talk outlines"
+        min_extracted_chars: 2500
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: tutorials_cfp
+    role: authoritative
+    url: https://2027.msrconf.org/track/msr-2027-tutorials
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Lessons Learnt"
+        min_extracted_chars: 1800
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: junior_pc
+    role: supporting
+    url: https://2027.msrconf.org/track/msr-2027-junior-pc
+    note: Junior PC 是審稿人招募，不是投稿 track；列在此是因為它改變 Technical Papers 的審稿組成（每篇 2 位正式 PC + 1 位 Junior PC）。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Who Can Participate"
+        min_extracted_chars: 5000
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: awards
+    role: supporting
+    url: https://2027.msrconf.org/track/msr-2027-msr-awards
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Distinguished Doctoral Research Award"
+        min_extracted_chars: 3000
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: series_home
+    role: supporting
+    url: https://www.msrconf.org/
+    note: 系列層級頁（學會通則、CORE 排名陳述、Steering Committee 聯絡）。年度細節一律在各屆網站。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "International Conference on Mining Software Repositories"
+        min_extracted_chars: 2000
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: venue_page
+    role: supporting
+    url: https://2027.msrconf.org/venue/icse-2027-venue
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Convention Centre Dublin"
+        min_extracted_chars: 400
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+identity:
+  name: International Conference on Mining Software Repositories (MSR)
+  short_name: MSR
+  publisher: {status: not_published, checked: 2026-11-15, src: tech_cfp,
+              note: Technical Papers 頁只說「electronic proceedings」，未點名出版社；見 requirements.proceedings。}
+  homepage: https://www.msrconf.org/
+  frequency: annual
+  edition_numbering: 「The 24th International Conference on Mining Software Repositories」= MSR 2027（tech_cfp）
+  issn: {status: not_applicable, checked: 2026-11-15}
+  core_rank: {value: A, src: series_home,
+              note: 系列首頁自述「MSR in ranked A in the CORE ranking」；是主辦方自述，未對照 CORE 官網。}
+  metrics:
+    acceptance_rate: {status: not_published, checked: 2026-11-15,
+                      note: MSR 2027 與 2026 的 Technical Papers、dates 頁及 2027 其餘 track 頁均無錄取率或投稿數。}
+
+# ─────────────────────────────────────────────────────────────
+# SLOW — 研討會這一塊薄。但 MSR 的「模板」逐年換（2026 ACM → 2027 IEEE），故 refresh 取 P12M。
+# ─────────────────────────────────────────────────────────────
+requirements:
+  refresh: {check_every: P12M, method: extracted_hash_diff}
+
+  scope:
+    aims: >-
+      "the premier conference for data science (DS), machine learning (ML), and artificial intelligence (AI)
+      in software engineering"（tech_cfp 原文）
+    topics_of_interest_quote:
+      src: tech_cfp
+      text: >-
+        "The MSR conference invites significant research contributions in which software data plays a central role.
+        MSR Technical Track submissions using data from software repositories, either solely or combined with data from
+        other sources, can take many forms, including: studies applying existing DS/ML/AI techniques to better understand
+        the practice of software engineering, software users, and software behavior; empirically-validated applications of
+        existing or novel DS/ML/AI-based techniques to improve software development and support the maintenance of software
+        systems; and cross-cutting concerns around the engineering of DS/ML/AI-enabled software systems."
+      data_sources_listed: >-
+        "source control systems, defect trackers, code review repositories, app stores, archived communications between
+        project personnel, question-and-answer sites, CI build servers, package registries, and run-time telemetry"
+      note: >-
+        2027 的 Technical Papers CFP 沒有獨立的「topics of interest」清單，也沒有「software evolution」「version history」
+        這類字樣；與版本歷史最接近的官方措辭是資料來源清單裡的「source control systems」。「agent」「LLM」一詞在
+        Technical Papers 頁只出現「LLM-assisted」（指審稿工具）；AI coding agent 的字眼出現在 Mining Challenge。
+    topics_by_track:
+      mining_challenge:
+        src: challenge_cfp
+        text: >-
+          "This year the MSR Mining Challenge features two community datasets, both capturing new natural-language
+          artefacts that AI coding agents produce and consume. ... GitSkills, a dataset of agent skills, and SpecMine,
+          a corpus of spec-driven development artefacts."
+      data_tool_showcase:
+        src: data_tool_cfp
+        text: >-
+          "reusable datasets and tools that are designed and built not only for a specific research project but for the
+          MSR community as a whole"; 明言「not intended for empirical studies」。
+    first_held: {status: not_published, checked: 2026-11-15, src: series_home,
+                 note: 系列首頁只列歷屆（2004 Edinburgh 起）；未明寫創辦年份，故不從列表推算。}
+    typical_months: {status: not_published, checked: 2026-11-15,
+                     note: 逐屆與 ICSE 同地同週，故月份隨 ICSE；不在官網以通則表述。}
+
+  colocation:
+    with: ICSE 2027
+    src: dates
+    note: 頁首「co-located with ICSE 2027」。
+
+  # 以下是 Technical Papers（主軌）的穩定規定；其他 track 見 tracks[]
+  length:
+    value: 10
+    unit: pages_typeset
+    basis: {template: IEEE conference proceedings, latex: "\\documentclass[10pt,conference]{IEEEtran} (no compsoc / compsocconf)",
+            title_font: 24pt, text_font: 10pt}
+    includes: [figures, tables, appendixes]
+    exceptions: >-
+      原文："All submissions must not exceed 10 pages for the main text, inclusive of all figures, tables, appendices, etc.
+      Two more pages containing only references are permitted." 參考文獻頁另計（最多 2 頁，且該 2 頁只能放參考文獻）。
+      錄取後 camera-ready 可多 1 頁正文（"Accepted papers will be allowed one extra page for the main text of the
+      camera-ready version"）。Short work-in-progress：4 頁 + 1 頁參考文獻。
+
+  abstracts: []        # schema 要求 array；MSR 主軌無摘要字數規定，說明見 abstract_policy
+  abstract_policy:
+    status: not_published
+    checked: 2026-11-15
+    src: tech_cfp
+    note: >-
+      Technical Papers 頁沒有摘要字數上限。但有「Abstract」截止日（2026-10-20 AoE），並寫「we encourage authors to
+      submit at least the paper abstract and author details well in advance of the deadline, to leave enough time
+      to properly enter conflicts of interest」——語氣是鼓勵，未寫「未登記摘要即不得投稿」。
+
+  fees:
+    apc:
+      status: not_published
+      checked: 2026-11-15
+      note: >-
+        Technical Papers 頁未見 APC 或頁面費，也未點名出版社（見 requirements.author_fee 與 identity.publisher）。報名費另計，不是 APC。
+  review:
+    model: double_anonymous
+    src: tech_cfp
+    reviewers_per_paper: "We expect that each paper will receive three reviews from PC members."
+    junior_pc_note: >-
+      junior_pc 頁寫每篇由兩位正式 PC + 一位 Junior PC 審；tech_cfp 寫「three reviews from PC members」，兩者不矛盾但措辭不同。
+    author_response: true
+    conditional: []
+
+  preprint_policy:
+    src: tech_cfp
+    applies_to: technical_papers
+    quotes:
+      - "While authors have the right to upload preprints on ArXiV or similar sites, they must avoid specifying that the manuscript was submitted to MSR 2027."
+      - "During review, authors should not publicly use the submission title. We recommend using a different paper title for any pre-print in arxiv or similar websites."
+    summary_note: >-
+      可以先放 arXiv，但（1）預印本不得標明已投 MSR 2027；（2）審查期間不得公開使用投稿標題，建議預印本改用不同標題。
+      「Authors’ names must be omitted from the submission」「All references to the author’s prior work should be in the third person」。
+      此為 Technical Papers 的規定；Data and Tool Showcase 為單匿名、Registered Reports 為單匿名（見 tracks）。
+    challenge_track_selfarchive: >-
+      Mining Challenge 頁的 Open Science Policy 另寫："We encourage authors to self-archive pre- and postprints of their papers in
+      open, preserved repositories such as arXiv.org." 該段未談匿名與預印本的衝突；該軌也是雙匿名審查。
+
+  proceedings:
+    exists: true
+    publisher:
+      status: not_published
+      checked: 2026-11-15
+      src: tech_cfp
+      note: >-
+        Technical Papers / Data and Tool / Registered Reports 頁只寫「electronic proceedings」。Mining Challenge 頁明寫
+        "Accepted papers in the Mining Challenge will be published as Short Papers in IEEE Xplore."；Industry 與 Tutorials 頁寫
+        "ACM or IEEE Digital Libraries" 且已錄取摘要要用 ACM Primary Article（acmart sigconf）格式。
+        主軌用 IEEE 模板與「IEEE Policy on Authorship」，但未明說論文集出版於 IEEE Xplore —— 此處不替官網補這句。
+    publication_date_note: >-
+      Industry 與 Challenge 頁："The official publication date is the date the proceedings are made available in ... Digital Libraries.
+      This date may be up to two weeks prior to the first day of MSR 2027（Challenge）/ before the first day of ICSE 2027（Industry）."
+    extra_pages: >-
+      Industry / Challenge 頁寫 "Purchases of additional pages in the proceedings are not allowed."
+      Technical Papers 頁未寫購買額外頁數的規定。
+    registered_reports_exception: >-
+      Registered Reports 頁："Due to the timeline, RRs will not be published in the MSR 2027 proceedings"（錄取的 Stage 1 報告須在會上報告，
+      全文送 EMSE 期刊）。
+    open_access_model: {status: not_published, checked: 2026-11-15,
+                        note: 各軌頁均未陳述論文集的開放取用模式；僅「鼓勵」作者把預印／後印放開放庫。}
+    author_fee: {status: not_published, checked: 2026-11-15,
+                 note: 未見 APC／頁面費。有義務：「at least one author of each paper is expected to register and present the paper」（見 attendance）。}
+
+  attendance:
+    src: tech_cfp
+    rule: >-
+      "If a submission is accepted, at least one author of the paper is required to register for MSR 2027 and present the paper."
+      Industry 與 Registered Reports：「A full registration and in-person presentation are required for papers accepted at the conference.」
+    authorship_after_acceptance: >-
+      "After acceptance, the list of paper authors can not be changed under any circumstances and the list of authors on camera-ready
+      papers must be identical to those on submitted papers. After acceptance paper titles can not be changed except by permission of
+      the Program Co-Chairs ..."
+
+  open_science:
+    src: tech_cfp
+    policy_summary: >-
+      重現性是明列的評審準則（Replicability）。期望揭露：相關軟體原始碼、論文使用的資料、重現說明。
+      須在投稿論文內附「supporting statement on the data availability」，若不能公開要論證原因。
+    quotes:
+      - "We expect all contributing authors to disclose the (anonymized and curated) data to increase reproducibility, replicability, and/or recoverability of the studies, provided that there are no ethical, legal, technical, economic, or sensible barriers preventing the disclosure."
+      - "Submissions should also include a supporting statement on the data availability, per the Open Science policy below."
+      - "We encourage authors to make artifacts available upon submission (either privately or publicly) and upon acceptance (publicly)."
+    archiving: >-
+      應存於 zenodo.org、figshare.com、www.softwareheritage.org、osf.io 或機構庫；GitHub／GitLab 不算 properly archived；
+      個人網站、Dropbox 等「may increase the risk of violating anonymity if used at submission time」。資料用 CC0 或 CC-BY 4.0 之類開放授權，
+      軟體用開源授權。匿名化 repo 可用 anonymous.4open.science。
+    artifact_evaluation_track: {status: not_published, checked: 2026-11-15, src: tech_cfp,
+                                note: 沒有獨立的 artifact evaluation 流程或徽章；開放科學是 CFP 內的期望與評分準則。}
+
+  ai_policy:
+    src: tech_cfp
+    disclosure: >-
+      投稿須遵守 ACM 與 IEEE 作者政策：生成式 AI 不得列為作者；用 AI 產生內容須在 Acknowledgements 揭露；
+      僅用於文字潤飾（如 Grammarly 類）不必揭露（引 ACM 原文）。IEEE：AI 生成文字須在 acknowledgments 揭露，且該段需引用所用 AI 系統。
+    new_this_year_desk_reject: >-
+      「New This Year」：作者對內容正確性負全責，下列情形可能被直接退稿（desk reject）：虛構參考文獻（引用不存在的論文、作者、
+      場地、資料集、工具，或引文內容在被引來源中根本不存在）、未經查證的 AI 生成文字痕跡（如 "As an AI language model…"、
+      "[insert citation here]" 之類未填的佔位）、針對自動化工具的隱藏指令（白字、極小字、PDF metadata 內嵌指令）。
+      一般書目錯誤（拼錯作者、年份錯、連結過時）本身不構成退稿理由。這些檢查「may be applied at any stage of the review process」。
+
+  # 各 track 的規定。研討會的 requirements 薄，但 MSR 同時開六個投稿軌，彼此規則差很大 —— 比較不同 track 時不可混用。
+  tracks:
+    - id: technical_papers
+      src: tech_cfp
+      label: Technical Papers（含 Short work-in-progress）
+      full_paper: {pages_main: 10, pages_references_extra: 2, camera_ready_extra_main_page: 1}
+      short_wip_paper: {pages_main: 4, pages_references_extra: 1}
+      template: IEEE conference proceedings (IEEEtran, 10pt, conference; no compsoc / compsocconf)
+      review: double_anonymous
+      author_response: "Fri 4 - Tue 8 Dec 2026（dates 頁）"
+      submission_system: HotCRP — https://msr2027.hotcrp.com/
+      deadlines_aoe:
+        abstract: 2026-10-20
+        paper: 2026-10-23
+        early_reject_notification: 2026-12-03
+        author_response: 2026-12-04/2026-12-08
+        author_notification: 2027-01-08
+        camera_ready: 2027-01-26
+      desk_reject_triggers: >-
+        超頁、改動間距／字級等偏離 IEEE 格式、署名未移除、未附資料可得性聲明、違反雙重投稿政策，皆「likely to be desk rejected」。
+      anonymity_quirk: "No title in public during review; preprint must not say submitted to MSR 2027（見 preprint_policy）。"
+    - id: data_and_tool_showcase
+      src: data_tool_cfp
+      pages: {main: 4, references_extra: 1}
+      template: IEEE conference proceedings (IEEEtran, 10pt, conference)
+      review: single_anonymous
+      review_note: >-
+        "Submissions will undergo single-anonymous peer review. ... authors’ names should be listed on the manuscript, as opposed to
+        the double-anonymous peer review of the main track" —— 理由是必須引用作者先前使用過該資料／工具的研究。
+      submission_system: HotCRP — https://msr2027-data-tool.hotcrp.com/
+      deadlines_aoe: {abstract: 2026-11-05, paper: 2026-11-10, acceptance_notification: 2027-01-05, camera_ready: 2027-01-24}
+      artifact_rule: >-
+        資料集或工具須在送審時即可取得（審查期間視為機密，發表前保密）；錄取後須存於可給 DOI 的持久、非商業庫
+        （osf.io、zenodo.org、figshare.com、Archive.org），camera-ready 要附 DOI 引用。工具須開源並附授權、可引用特定 release 與 DOI。
+      out_of_scope: "not intended for empirical studies, datasets based on poorly documented or untrustworthy collection methods, or artifacts resulting from the trivial application of existing tools."
+      award: Distinguished Paper Award（最佳 dataset/tool paper）
+    - id: mining_challenge
+      src: challenge_cfp
+      label: Mining Challenge（分析 GitSkills 與／或 SpecMine 資料集）
+      pages: {main: 4, references_extra: 1, strict: true, purchase_extra_pages: not_allowed}
+      template: IEEE conference proceedings (IEEEtran, 10pt, conference)
+      review: double_anonymous
+      publication: "Accepted papers in the Mining Challenge will be published as Short Papers in IEEE Xplore."
+      submission_system: HotCRP — https://msr2027-challenge.hotcrp.com/
+      deadlines_aoe: {abstract: 2026-12-18, paper: 2026-12-23, author_notification: 2027-01-19, camera_ready: 2027-01-26}
+      special_requirements: >-
+        須註明所用資料集的版本／快照（如 Zenodo 上的 July 2026 版）；結論前要有獨立的倫理含義章節
+        （"Submissions should consider the ethical implications of the research conducted within a separate section before the conclusion"）；
+        可帶自有資料（BYOD），但嚴禁分享或使用 PII。
+      award_conditions: >-
+        Best Mining Challenge Paper Award 只考慮「程式碼與資料已存於 preserved archives」的錄取論文；
+        Best Student Presentation Award 由會上公開投票，僅限學生。
+      proposals_for_next_dataset: "Call for Mining Challenge Proposals（資料集提案）截止 2026-08-03、通知 2026-08-07 —— 已過（dates 頁）。"
+    - id: registered_reports
+      src: rr_cfp
+      pages: {main: 6, references_extra: 1, strict: true}
+      template: IEEE conference proceedings (IEEEtran, 10pt, conference)
+      review: >-
+        單匿名。Author Guide 的 Authors 欄寫："At this stage, we believe that a single anonymous review is most productive"。
+        Stage 1 由 4 位 PC 審、Stage 2 由 3 位 PC 審。
+      two_stage_process: >-
+        Stage 1 錄取後作者執行研究並把完整論文投到 Springer 的 Empirical Software Engineering (EMSE)；
+        Stage 1 結果為 In-Principle Acceptance、Continuity Acceptance 或 Rejection。
+      submission_system: HotCRP — https://msr2027-registered-reports.hotcrp.com
+      deadlines_aoe:
+        initial_report_abstract: 2026-11-13
+        initial_report: 2026-11-20
+        reviews_to_authors: 2026-12-23
+        response_letter_and_revised_report: 2027-01-15
+        stage1_notification: 2027-02-04
+        accepted_rr_to_preprint_server: 2027-02-28
+        full_paper_to_emse: 2027-09-30
+      note: >-
+        回覆信 + 修訂報告合計不得超過 12 頁（另加 1 頁參考文獻）。錄取報告須放到有公開 DOI 的預印本平台（OSF Preprints、SSRN 等）。
+        Stage 1 審過的 PC 成員及其直接指導學生不得成為 Stage 2 投稿的共同作者。EMSE 投稿的作者異動需簽「Change of authorship request form」。
+    - id: industry_track
+      src: industry_cfp
+      pages: {abstract_main: 1, references_extra: 1}
+      template: 送審階段不要求特定模板；錄取後若要刊登摘要須用 ACM Primary Article 格式（acmart）。
+      review: {status: not_published, checked: 2026-11-15, src: industry_cfp,
+               note: 頁面只寫評審準則（relevance and clarity），未說明匿名模式。}
+      eligible_authors: "We invite practitioners to submit an abstract ... outlining a talk or a poster presentation."
+      submission_system: HotCRP — https://msr2027-industry.hotcrp.com/
+      deadlines_aoe: {paper: 2026-12-18, author_notification: 2027-01-11, camera_ready: 2027-01-22}
+    - id: tutorials
+      src: tutorials_cfp
+      pages: {abstract_main: 1, references_extra: 1}
+      template: 送審階段不要求特定模板；錄取後若要刊登摘要須用 ACM Primary Article（sigconf）格式。
+      review: "The submissions will be evaluated by the two tutorial track co-chairs."
+      submission_system: {status: not_published, checked: 2026-11-15, src: tutorials_cfp,
+                          note: 頁面寫 "Submission link is coming soon."}
+      deadlines_aoe: {status: not_published, checked: 2026-11-15,
+                      note: 頁面寫 "To be communicated soon"；dates 頁也沒有 Tutorials 的日期。}
+    - id: junior_pc
+      src: junior_pc
+      label: Junior PC（審稿人招募，非投稿軌）
+      note: 自我提名截止 2026-09-15 AoE、名單 2026-10-15 公布 —— 已過。
+    - id: awards
+      src: awards
+      label: MSR Awards（Doctoral Research / Ric Holt Early Career / Foundational Contribution，提名制）
+      note: 提名截止 2026-11-23、通知 2027-03-01（dates 頁）；非投稿軌。
+
+  journal_first:
+    status: not_published
+    checked: 2026-11-15
+    note: >-
+      MSR 2027 各軌頁面均未見 journal-first 軌。與期刊的連結只有：Registered Reports 的全文送 EMSE，以及
+      Technical Papers 頁 "A selection of the best papers will be invited to an Empirical Software Engineering (EMSE) Special Issue."
+
+# ─────────────────────────────────────────────────────────────
+# FAST — 每年翻新。
+# ─────────────────────────────────────────────────────────────
+cycle:
+  applies_to: 2027
+  # 各軌狀態不一致：Technical Papers、Data and Tool 已截止；Registered Reports 的初稿（11-20）、Industry（12-18）、Challenge（12-23）尚開放。
+  # 單一欄位只能取一個，故取 submissions_open（至少一個投稿軌仍開放），細節見 deadlines。
+  status: submissions_open
+  expires_at: 2027-04-27           # 會議結束日（Tue 27 April 2027）
+
+  edition: MSR 2027 (24th International Conference on Mining Software Repositories)
+  dates:
+    start: 2027-04-26
+    end: 2027-04-27
+  venue:
+    institution: The Convention Centre Dublin (CCD)
+    city: Dublin
+    country: Ireland
+    mode: in_person
+    note: >-
+      與 ICSE 2027 同址（2027.msrconf.org/venue/icse-2027-venue 寫 "The venue for ICSE 2027 is the Convention Centre Dublin (CCD)"）。
+      MSR 自己的頁面寫 "Mon 26 - Tue 27 April 2027 Dublin, Ireland / co-located with ICSE 2027"。venue 頁描述的是 ICSE 場地，
+      未逐字說 MSR 場次就在 CCD 內；此處依「co-located」與 ICSE 場地頁推得，未得 MSR 專屬的會場聲明。
+    mode_note: 頁面未有 virtual／hybrid 描述；Industry 與 Registered Reports 寫「in-person presentation are required」，故記 in_person。
+
+  portal:
+    system: HotCRP（每個 track 一個獨立站）
+    url: https://msr2027.hotcrp.com/
+    verified: false    # 僅由 CFP 頁面連出，本次未擷取 HotCRP 站本身
+    note: >-
+      Technical Papers https://msr2027.hotcrp.com/；Data and Tool https://msr2027-data-tool.hotcrp.com/；
+      Challenge https://msr2027-challenge.hotcrp.com/；RR https://msr2027-registered-reports.hotcrp.com；
+      Industry https://msr2027-industry.hotcrp.com/。皆為 CFP 頁面上的連結，未實際登入驗證。
+
+  # 時區：所有日期皆 AoE（Anywhere on Earth, UTC-12h）。各頁 Important Dates 區明寫 "AoE (UTC-12h)"。
+  # 狀態以 2026-11-15 為「今天」判斷。
+  deadlines:
+    - {id: tech_abstract, track: technical_papers, date: 2026-10-20, timezone: AoE (UTC-12h),
+       label: Technical Papers 摘要, status_today: passed,
+       note: 頁面為「Abstract」，語氣為鼓勵提早登錄，未明言為強制}
+    - {id: tech_paper, track: technical_papers, date: 2026-10-23, timezone: AoE (UTC-12h),
+       label: Technical Papers 全文截止, status_today: passed}
+    - {id: tech_early_reject, track: technical_papers, date: 2026-12-03, timezone: AoE (UTC-12h), label: Early Reject Notification}
+    - {id: tech_author_response, track: technical_papers, date: 2026-12-04, end: 2026-12-08, timezone: AoE (UTC-12h), label: Author Response Period}
+    - {id: tech_notification, track: technical_papers, date: 2027-01-08, timezone: AoE (UTC-12h), label: Technical Papers 錄取通知}
+    - {id: tech_camera_ready, track: technical_papers, date: 2027-01-26, timezone: AoE (UTC-12h), label: Technical Papers camera-ready}
+
+    - {id: data_abstract, track: data_and_tool_showcase, date: 2026-11-05, timezone: AoE (UTC-12h), label: Data and Tool 摘要, status_today: passed}
+    - {id: data_paper, track: data_and_tool_showcase, date: 2026-11-10, timezone: AoE (UTC-12h), label: Data and Tool 全文截止, status_today: passed}
+    - {id: data_notification, track: data_and_tool_showcase, date: 2027-01-05, timezone: AoE (UTC-12h), label: Data and Tool 錄取通知}
+    - {id: data_camera_ready, track: data_and_tool_showcase, date: 2027-01-24, timezone: AoE (UTC-12h), label: Data and Tool camera-ready}
+
+    - {id: rr_abstract, track: registered_reports, date: 2026-11-13, timezone: AoE (UTC-12h), label: RR 初稿摘要, status_today: passed}
+    - {id: rr_initial_report, track: registered_reports, date: 2026-11-20, timezone: AoE (UTC-12h), label: RR 初稿報告（Stage 1）, status_today: open}
+    - {id: rr_reviews_out, track: registered_reports, date: 2026-12-23, timezone: AoE (UTC-12h), label: RR 作者收到審查意見}
+    - {id: rr_revision, track: registered_reports, date: 2027-01-15, timezone: AoE (UTC-12h), label: RR 回覆信 + 修訂報告}
+    - {id: rr_stage1_notification, track: registered_reports, date: 2027-02-04, timezone: AoE (UTC-12h), label: RR Stage 1 通知}
+    - {id: rr_preprint, track: registered_reports, date: 2027-02-28, timezone: AoE (UTC-12h), label: 錄取 RR 報告須在此日前放預印本平台（dates 頁：Accepted RR Report Submission; RR 頁：Before February 28, 2027）}
+    - {id: rr_emse_full_paper, track: registered_reports, date: 2027-09-30, timezone: AoE (UTC-12h), label: 全文送 EMSE（RR 頁：Before September 30, 2027）}
+
+    - {id: challenge_abstract, track: mining_challenge, date: 2026-12-18, timezone: AoE (UTC-12h), label: Challenge 摘要, status_today: open}
+    - {id: challenge_paper, track: mining_challenge, date: 2026-12-23, timezone: AoE (UTC-12h), label: Challenge 全文截止, status_today: open}
+    - {id: challenge_notification, track: mining_challenge, date: 2027-01-19, timezone: AoE (UTC-12h), label: Challenge 錄取通知}
+    - {id: challenge_camera_ready, track: mining_challenge, date: 2027-01-26, timezone: AoE (UTC-12h), label: Challenge camera-ready}
+
+    - {id: industry_paper, track: industry_track, date: 2026-12-18, timezone: AoE (UTC-12h), label: Industry 摘要截止, status_today: open}
+    - {id: industry_notification, track: industry_track, date: 2027-01-11, timezone: AoE (UTC-12h), label: Industry 錄取通知}
+    - {id: industry_camera_ready, track: industry_track, date: 2027-01-22, timezone: AoE (UTC-12h), label: Industry camera-ready}
+
+    - {id: tutorials_submission, track: tutorials, date: null, status: not_published, checked: 2026-11-15,
+       label: Tutorials 投稿截止, note: 頁面寫 "To be communicated soon"，dates 頁無此項}
+
+    - {id: awards_nominations, track: msr_awards, date: 2026-11-23, timezone: AoE (UTC-12h), label: MSR Awards 提名截止（dates 頁）}
+    - {id: awards_notification, track: msr_awards, date: 2027-03-01, timezone: AoE (UTC-12h), label: MSR Awards 通知（dates 頁）}
+
+  fees: {status: not_published, checked: 2026-11-15,
+         note: 本次讀過的 MSR 2027 頁面均無註冊費或投稿費；僅有「至少一位作者須註冊並報告」的義務。}
+
+  next_edition: {status: not_published, checked: 2026-11-15, src: series_home,
+                 note: 系列首頁「Upcoming conferences」只列到 MSR 2027；2028 未公布。}
+
+warnings:
+  - >-
+    Technical Papers 的截止日已過：摘要 2026-10-20、全文 2026-10-23（AoE）。今天（2026-11-15）無法再投 MSR 2027 主軌。
+    Data and Tool Showcase 也已過（摘要 11-05、全文 11-10 AoE）。仍開放：Registered Reports 初稿（2026-11-20 AoE，
+    其摘要 11-13 已過；頁面未說摘要是否為強制）、Industry（2026-12-18 AoE）、Mining Challenge（摘要 12-18、全文 12-23 AoE）；
+    Tutorials 截止日尚未公布。
+  - >-
+    所有日期為 AoE（UTC-12h）。AoE 的截止日要到臺北時間（UTC+8）次日 20:00 才真正過；
+    但以「當日 AoE 結束」自行推算容易出錯，實際投稿請以 HotCRP 顯示的截止為準。
+  - >-
+    2027 年改用 IEEE 模板（\documentclass[10pt,conference]{IEEEtran}，不得帶 compsoc／compsocconf），2026 是 ACM。
+    格式偏離（間距、字級）「may result in desk rejection without further review」。
+  - >-
+    預印本政策（主軌雙匿名）：可放 arXiv，但「must avoid specifying that the manuscript was submitted to MSR 2027」，
+    且「During review, authors should not publicly use the submission title」——建議預印本用不同標題。
+    Data and Tool 與 Registered Reports 是單匿名，不受此限；Mining Challenge 是雙匿名。
+  - >-
+    投稿規定的 AI 條款（2027 新增）：虛構參考文獻、未清除的 chatbot 殘留文字、對自動化工具的隱藏指令（白字、PDF metadata）
+    都可能被直接退稿，且檢查可在審查的任何階段進行。使用 AI 產生內容須在 Acknowledgements 揭露；僅文字潤飾可免揭露。
+  - >-
+    主軌 10 頁正文「inclusive of all figures, tables, appendices」，附錄算進 10 頁；參考文獻另有 2 頁但只能放參考文獻。
+    各軌頁數不同（Short WIP 4+1、Data/Tool 4+1、Challenge 4+1、RR 6+1、Industry 與 Tutorials 摘要 1+1），不可混用。
+  - >-
+    本記錄只涵蓋 MSR 2027 的網站內容。論文集出版社、開放取用模式、作者費用、錄取率與投稿數，官方頁面均未陳述
+    （標為 not_published），並非漏查。Registered Reports 不會刊於 MSR 論文集。
+  - >-
+    主軌錄取後作者名單與標題凍結（"can not be changed under any circumstances"），且至少一位作者須註冊並親自報告。
+  - >-
+    投稿站（HotCRP）本次未實際擷取，portal.verified: false；網址來自 CFP 頁面。

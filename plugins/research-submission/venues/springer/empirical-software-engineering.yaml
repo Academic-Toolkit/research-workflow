@@ -1,0 +1,598 @@
+# research-submission venue record
+# 內容擷取自 Springer Nature Link 的 EMSE 官方頁面、期刊自己的網站 emsejournal.github.io 與 Open Science Initiative 的 GitHub 說明，2026-11-15。
+#
+# sources 排序是刻意的：http 來源全部排在前面、browser 來源排在最後。
+# verify.py --write 以「替換第一個 extracted_sha256: null」寫回 hash，若 browser 來源排在前面，
+# http 來源的 hash 會被寫進 browser 來源的欄位。
+
+schema_version: 1
+id: springer/empirical-software-engineering
+kind: journal
+family: software-engineering-journals
+status: active
+
+# ─────────────────────────────────────────────────────────────
+sources:
+  - id: emse_faq
+    role: supporting
+    url: https://emsejournal.github.io/faq
+    note: >-
+      期刊編輯群自己維護的網站（emsejournal.github.io，由網站首頁導覽列的「FAQ」進入）。目前只有三則 Q&A，
+      其中一則明確規定 systematic review／mapping／tertiary study 的收稿標準。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Does EMSE accept submissions and, potentially, publish secondary studies"
+        min_extracted_chars: 1500
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: emse_registered_reports
+    role: supporting
+    url: https://emsejournal.github.io/registered_reports
+    note: >-
+      Registered Reports 兩階段流程的說明頁。頁面最新列出的研討會是 2023 年（ICSME／ESEM／MSR 2023），
+      內容明顯沒有更新，只能當作流程描述，不能當作目前有哪些 RR track 的清單。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "worked with conferences to provide registered reports"
+        min_extracted_chars: 500
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: emse_special_issues
+    role: supporting
+    url: https://emsejournal.github.io/special_issues
+    note: >-
+      特刊與徵稿清單。「Open calls」區段混有已過期的項目（例如標 September 28, 2026 與 February 28, 2026 者），
+      本頁內部沒有標示哪些已關閉，所以日期只能當線索，以 Springer 的 collections 頁為準。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Open calls for papers"
+        min_extracted_chars: 2500
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: openscience_github
+    role: authoritative
+    url: https://github.com/emsejournal/openscience/
+    note: >-
+      EMSE Open Science Initiative 的完整流程與 FAQ（replication package 何時交、誰審、badge 條件）。
+      Springer 的 Journal updates 頁只有摘要並連到這裡。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "The authors are given 2 weeks to submit their replication package after the final acceptance"
+        min_extracted_chars: 8000
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: submission_guidelines
+    role: authoritative
+    url: https://link.springer.com/journal/10664/submission-guidelines
+    note: >-
+      規定本體（Instruction for Authors）。期刊首頁的「Submission guidelines」連結指向此頁。
+      頁面約 59,000 字元；safari-browser 的 get text 在約 54,000 字元處截斷（只少了頁尾），
+      以 js 讀 document.body.innerText 可得完整文字。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: >-
+        Springer Nature Link 的「Client Challenge」頁：curl 回 HTTP 200、3,038 bytes；
+        journal home、aims-and-scope、submission-guidelines、how-to-publish-with-us 四個不同 URL 的 body md5 完全相同
+        （ef34477109bd5fe7e7bed6cd8efe5ade）。safari-browser（真實 Safari）可正常讀取。
+      validity:
+        must_contain: "This journal follows a single-blind reviewing procedure"
+        min_extracted_chars: 20000
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: aims_scope
+    role: authoritative
+    url: https://link.springer.com/journal/10664/aims-and-scope
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 submission_guidelines（3,038 bytes 的 Client Challenge 空殼）。
+      validity:
+        must_contain: "provides a forum for applied software engineering research with a strong empirical component"
+        min_extracted_chars: 1500
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: journal_home
+    role: supporting
+    url: https://link.springer.com/journal/10664
+    note: >-
+      Metrics、主編、開放中的徵稿都在這頁。首頁的 Latest articles 與徵稿清單常變，hash 會頻繁變動，
+      CHANGED 時只需核對 metrics 與 calls 兩區。頁面會依讀者的 IP 顯示機構的 open access 資助訊息，因人而異。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 submission_guidelines（3,038 bytes 的 Client Challenge 空殼）。
+      validity:
+        must_contain: "Submission to first decision (median)"
+        min_extracted_chars: 2500
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: how_to_publish
+    role: authoritative
+    url: https://link.springer.com/journal/10664/how-to-publish-with-us
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 submission_guidelines（3,038 bytes 的 Client Challenge 空殼）。
+      validity:
+        must_contain: "The current APC for Empirical Software Engineering is"
+        min_extracted_chars: 3000
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: ethics_disclosures
+    role: supporting
+    url: https://link.springer.com/journal/10664/ethics-and-disclosures
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 submission_guidelines（3,038 bytes 的 Client Challenge 空殼）。
+      validity:
+        must_contain: "member of the Committee on Publication Ethics"
+        min_extracted_chars: 1000
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: openscience_update
+    role: supporting
+    url: https://link.springer.com/journal/10664/updates/17253958
+    note: Springer 上的 Open Science Initiative 摘要；完整流程在 openscience_github。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 submission_guidelines（3,038 bytes 的 Client Challenge 空殼）。
+      validity:
+        must_contain: "The EMSE Open Science Initiative will be implemented in a minimally intrusive manner"
+        min_extracted_chars: 1500
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: journals_first_update
+    role: supporting
+    url: https://link.springer.com/journal/10664/updates/17308930
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 submission_guidelines（3,038 bytes 的 Client Challenge 空殼）。
+      validity:
+        must_contain: "can be submitted as Journals-First papers"
+        min_extracted_chars: 800
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: springer_journal_policies
+    role: supporting
+    url: https://link.springer.com/brands/springer/journal-policies
+    note: >-
+      Springer 出版社層級的政策頁（preprint、authorship、AI 等）。EMSE 自己的須知頁沒有 preprint 規定，
+      只在 Editorial procedure 說明「adheres to the standard Peer Review Policy ... as outlined by Springer
+      under Editorial Policies」；preprint 政策出自本頁，是出版社層級，不是 EMSE 專屬條文。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: 同 submission_guidelines（3,038 bytes 的 Client Challenge 空殼）。
+      validity:
+        must_contain: "Springer Nature journals encourage posting of preprints of primary research manuscripts"
+        min_extracted_chars: 20000
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: clarivate_mjl
+    role: external_standard
+    url: https://mjl.clarivate.com/search-results
+    note: >-
+      Web of Science Master Journal List。URL 帶 ?issn= 參數時結果頁不會套用查詢（篩選條件全空），
+      要先到 https://mjl.clarivate.com/home，在 #search-box 輸入 1382-3256 再按 #search-button，
+      才出現「Exact Match Found」。此頁是 JS 應用程式，verify.py 無法重現這個互動，只能由人或 agent 重查。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: >-
+        curl 回 HTTP 200、約 11 KB 的 Angular 空殼（沒有任何期刊資料）；結果只在輸入查詢後由 JS 繪出。
+      validity:
+        must_contain: "Web of Science Core Collection"
+        min_extracted_chars: 1500
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+# ─────────────────────────────────────────────────────────────
+identity:
+  name: Empirical Software Engineering
+  subtitle: An International Journal
+  publisher: Springer Nature
+  issn: {print: "1382-3256", electronic: "1573-7616", src: clarivate_mjl}
+  homepage: https://link.springer.com/journal/10664
+  editor_site: https://emsejournal.github.io
+  editors:
+    - {role: Editor-in-Chief, name: Robert Feldt, src: journal_home}
+    - {role: Editor-in-Chief, name: Thomas Zimmermann, src: journal_home}
+  publishing_model: hybrid
+  external_ids:
+    crossref: "1382-3256"
+    openalex: issn:1382-3256
+  metrics:
+    impact_factor:
+      value: 3.4
+      year: 2025
+      as_of: 2026-11-15
+      src: journal_home
+      note: 頁面標 "Journal Impact Factor 3.4 (2025)"，沒有寫出處是否為 Clarivate JCR，也沒給分區
+    impact_factor_5yr: {value: 4.0, year: 2025, as_of: 2026-11-15, src: journal_home}
+    quartiles:
+      status: not_published
+      checked: 2026-11-15
+      src: journal_home
+      note: >-
+        Springer 的期刊頁與 EMSE 官方網站都沒有公布 JCR 或 SJR 分區；JCR 需訂閱，本次未讀。
+        emsejournal.github.io/metrics 只有 2014–2018 年的 JIF 與 CiteScore，已過時，不採用
+    acceptance_rate: {status: not_published, checked: 2026-11-15, src: journal_home}
+    time_to_first_decision:
+      value_days: 24
+      statistic: median
+      as_of: 2026-11-15
+      src: journal_home
+      note: 頁面標 "Submission to first decision (median) 24 days"，未註明統計年度；須知頁另寫 "In most cases, the decision is made in less than three months"
+    time_submission_to_acceptance: {status: not_published, checked: 2026-11-15, src: journal_home}
+    downloads: {value: 1.1M, year: 2025, src: journal_home}
+  indexing:
+    web_of_science:
+      scie: true
+      ssci: false
+      esci: false
+      other: [Current Contents Engineering Computing & Technology, Essential Science Indicators]
+      as_of: 2026-11-15
+      src: clarivate_mjl
+      note: >-
+        MJL 的 Exact Match 結果在 Web of Science Core Collection 欄只列 Science Citation Index Expanded；
+        Additional Web of Science Indexes 欄列 Current Contents 與 Essential Science Indicators；沒有 SSCI 或 ESCI
+    scopus: {status: not_found, checked: 2026-11-15, note: 本次沒有查 Scopus 來源清單}
+
+# ─────────────────────────────────────────────────────────────
+requirements:
+  refresh: {check_every: P6M, method: extracted_hash_diff}
+
+  scope:
+    aims_quote: >-
+      "Empirical Software Engineering provides a forum for applied software engineering research with a strong
+      empirical component."
+    aims_extra_quotes:
+      - '"Empirical Software Engineering aims at promoting the publication of industry-relevant research since one of its goals is to address the significant gap between research and practice."'
+      - '"Both original and replicated studies can be reported, varying from controlled experiments to field studies, from data intensive to qualitative. Preference is given to studies that can be replicated or expanded upon. Papers on the infrastructure for supporting empirical research are also of interest."'
+    topics_listed: >-
+      Analysis and design; Model-driven development; Requirements engineering; Verification and validation;
+      Maintenance and evolution; Quality assurance; Dependability analysis; Project management;
+      Organization models for software development; Predictive models for software dependability;
+      Software engineering economics; Applications of artificial intelligence techniques to software engineering;
+      Qualitative analysis
+    out_of_scope_statement: {status: not_published, checked: 2026-11-15, src: aims_scope, note: Aims and scope 頁沒有列出不收的題材}
+    scope_questions_route: >-
+      須知頁："If you have questions about the scope and suitability of your article, the Editor-in-Chief will need to view
+      the entire manuscript"；在 Editorial Manager 投稿時可附說明
+    mentions:
+      tools_and_infrastructure: "有：「Papers on the infrastructure for supporting empirical research are also of interest」；沒有獨立的 tool paper 或 technical paper 類型"
+      replication: "有：「Both original and replicated studies can be reported」「Preference is given to studies that can be replicated or expanded upon」"
+      mining_software_repositories: >-
+        Aims and scope 頁沒有出現 mining repositories 字樣。與 MSR 研討會的合作只見於 Registered Reports 頁與特刊清單
+        （MSR 2023 等），見 emse_registered_reports、emse_special_issues
+      llm_and_ai: >-
+        Aims and scope 頁只有「Applications of artificial intelligence techniques to software engineering」，沒有提 LLM 或 agent。
+        須知頁在 Title Page 一節規定 LLM 不能列為作者、使用須在 Methods 說明。特刊清單有多個 LLM／agent 主題
+        （Advancing Software Engineering with Large Language Models、Agentic Software Engineering: The Rise of AI Teammates、
+        Human-Centered AI Transformation for Software Engineering 等），見 emse_special_issues
+    src: [aims_scope, submission_guidelines, emse_special_issues]
+
+  article_types:
+    - id: research_article
+      label: Research Articles（官方頁用語）
+      note: 含原創研究與 replication study；方法從 controlled experiment 到 field study、從資料密集到質性
+      src: aims_scope
+    - id: replication
+      label: Replicated studies
+      note: 屬 Research Articles 底下；另有曾經的特刊「Replications and Negative Results (RENE)」與「Replications of software engineering experiments」（見 emse_special_issues）
+      src: [aims_scope, emse_special_issues]
+    - id: registered_report_stage2
+      label: Registered Reports（stage 2 報告）
+      note: >-
+        兩階段：第一階段在研討會的 RR track 取得 in-principle acceptance，作者依 stage 1 protocol 做完研究、寫成論文，
+        再投 EMSE 做 stage 2 審查。官方頁列的研討會停在 2023 年，目前有哪些 RR track 本次沒有查到
+      src: emse_registered_reports
+    - id: secondary_study
+      label: Secondary studies（SLR、systematic mapping）
+      note: >-
+        FAQ："EMSE occasionally publishes secondary studies, but the expectations are high. A review that merely summarizes the
+        current state of the field or outlines trends is unlikely to be accepted."；若已有類似的 SLR，須強力說明為何再做一次
+      src: emse_faq
+    - id: tertiary_study
+      label: Tertiary studies（SLR of SLRs）
+      note: 'FAQ："EMSE generally does not consider tertiary studies, such as a SLR of SLRs, as relevant."'
+      src: emse_faq
+    - id: journals_first
+      label: Journals-First 軟體工程研討會 track
+      note: >-
+        官方：EMSE 稿件可投 Journals-First 才能參加多個 SE 研討會的 Journals-First track；細節與截稿日看各研討會網站。
+        「If published, Journals-First authors agree that their email addresses, as disclosed in the published article,
+        can be shared with conference organizers.」
+      src: journals_first_update
+    - id: tool_or_technical_paper
+      status: not_published
+      checked: 2026-11-15
+      note: 須知頁與 Aims and scope 都沒有 tool paper、technical paper、short paper、industrial experience 等類型的定義；首頁簡介提到 industrial experience reports
+      src: [submission_guidelines, aims_scope, journal_home]
+    - id: special_issue_and_collection
+      label: 特刊／徵稿 collection（含 by-invitation 的研討會延伸特刊）
+      src: [journal_home, emse_special_issues]
+
+  length_limit:
+    status: not_published
+    checked: 2026-11-15
+    src: submission_guidelines
+    note: >-
+      Instruction for Authors 全文沒有頁數或字數上限（掃過 pages／words／length 等字樣，只有摘要 150–250 字與關鍵字 4–6 個）。
+      也沒有指明什麼算入篇幅。須知頁寫明：期刊不提供 MS Word 範本，接受後由出版社排版。
+
+  abstracts:
+    - id: main
+      min_words: 150
+      max_words: 250
+      required_at: submission
+      constraints: 不得含未定義的縮寫或未指明的引用
+      structured: >-
+        "Structured abstracts are permitted, but not required, in Empirical Software Engineering."
+        若採結構式摘要，分為 Context、Objective、Method、Results、Conclusions
+      src: submission_guidelines
+  keywords: {min: 4, max: 6, purpose: indexing, src: submission_guidelines}
+
+  structure:
+    title_page:
+      contents:
+        - 標題（concise and informative）
+        - 作者姓名、機構（institution, (department), city, (state), country）
+        - 通訊作者標示與有效 email
+        - ORCID（"If available"）
+        - Acknowledgments（放在 title page 的獨立區段）
+        - '"Statements and Declarations"：Funding、Competing interests、Ethics approval、Consent、Data／Materials／Code availability、Authors'' contribution'
+      note: 缺相關聲明的投稿 "will be returned as incomplete"；接受後出版社才把聲明放進正文的獨立區段
+      src: submission_guidelines
+    headings: 十進位編號，至多三層
+    footnotes: 一律用 footnotes，不用 endnotes
+    llm_disclosure_placement: Methods 章節；沒有 Methods 時放在稿件內其他適當位置
+    src: submission_guidelines
+
+  formatting:
+    file_formats:
+      stated: >-
+        頁面說法並存：Source Files 段寫 ".docx or LaTeX"；Text 段寫 "Manuscripts should be submitted in Word"
+        並說明 "Manuscripts with mathematical content can also be submitted in LaTeX"
+      latex: >-
+        建議用 Springer Nature LaTeX 範本；上傳的原始檔會自動編譯成單一 PDF 供作者核准；
+        LaTeX 投稿 "Please do not use subfolders"（圖、bib 檔都不可放子資料夾）
+      editable_source_required: 每次投稿與修稿都要附完整可編輯原始檔，缺者 "will result in your article not being considered for review"
+      word_template: 期刊不提供 MS Word 範本
+      src: submission_guidelines
+    font_and_page: "Text 段寫 'Use a normal, plain font (e.g., 10-point Times Roman)'；使用自動頁碼；沒有行距或頁邊距規定"
+    line_numbers: {status: not_published, checked: 2026-11-15, src: submission_guidelines}
+    citation_style:
+      in_text: author–year in parentheses，例 "(Thompson 1990)"、"(Abbott 1991; Barakat et al. 1995a, b)"
+      reference_list: 依第一作者姓氏字母序；有 DOI 一律附 https://doi.org/ 完整連結；期刊名用 ISSN LTWA 縮寫（不確定就用全名）；可用 "et al" 縮短長作者列
+      src: submission_guidelines
+    figures: {src: submission_guidelines, note: 標準 Springer 圖檔規定（向量用 EPS、半色調用 TIFF；線稿 1200 dpi、半色調 300 dpi、組合 600 dpi）；圖說放在正文檔}
+    supplementary: 以 "Online Resource N" 引用，檔名 ESM_N.ext；補充資料照原檔刊出，不轉換、不編修
+
+  review:
+    type: single_blind
+    quote: '"This journal follows a single-blind reviewing procedure."'
+    peer_review_policy: 遵循 Springer 的標準 Peer Review Policy；審稿報告隨決定一起寄給作者
+    editorial_screening: 先做完整性檢查，再由編輯決定是否送審；"A concern raised by a single peer reviewer or the Editor themselves may result in the manuscript being rejected."
+    author_may_suggest_or_exclude_reviewers: true
+    reviewer_suggestion_conditions: 建議的審稿人要完全獨立；通訊作者須提供每位建議審稿人的機構 email，或其他可驗證身分的方式
+    editors_as_authors: 編輯是作者時改由另一位編輯委員督導，與其他稿件同一套審查流程
+    src: [submission_guidelines, ethics_disclosures]
+
+  openness:
+    data_availability_statement:
+      required: true
+      applies_to: original research
+      quote: '"All original research must include a data availability statement."'
+      non_public_data: 無法公開時（例如個資疑慮），聲明須說明如何取得資料與再利用條件
+      src: submission_guidelines
+    data_sharing_policy: 依 Springer Nature research data policy；公開 repository 是 "strongly encouraged"，不是強制
+    repository_licence: 鼓勵開放授權，但期刊不強制特定授權
+    data_citation: 建議引用公開資料並附 persistent identifier（DOI）
+    code_and_materials: >-
+      須知頁只在 Authorship principles 的 Data transparency 要求 "all data and materials as well as software application or
+      custom code support their published claims and comply with field standards"；沒有獨立的程式碼必交規定
+    open_science_initiative:
+      status: optional_after_acceptance
+      process: >-
+        論文拿到 "Minor revision" 或 "Acceptance" 時，決定信會邀請作者提交 replication package，由 open science board 的一位成員另外審；
+        作者在最終接受後有 2 週交 package；審稿人有 2 週；需修改時作者再有 2 週。審查為 single-blind。
+        品質達 good 或 excellent 者，論文可標註 "Open Science Replication Package validated by the Open Science Board" 並取得 open science badge
+      does_not_affect_review: '"All submissions to EMSE will undergo the same known review process regardless of whether authors decide to disclose their data or not."'
+      recommended_repositories: [zenodo.org, figshare.com]
+      not_recommended: 個人或機構網站、Dropbox、SVN／Git、Academia.edu、ResearchGate
+      restricted_access: 限制取用的資料不能拿 open science badge；無法公開的資料（如受 NDA 約束的產業資料）須在稿件中簡短說明
+      non_code_artifacts: 模型、圖、需求文件等非執行檔也是合格的 artifact；偏好機器可讀的開放格式（JSON、XMI）
+      src: [openscience_update, openscience_github]
+    preregistration: {status: not_published, checked: 2026-11-15, src: submission_guidelines, note: 須知頁沒有預先註冊的規定；registered reports 見 article_types}
+    top_guidelines: {status: not_found, checked: 2026-11-15, note: Springer 出版社政策頁的 data availability 段落有連結到 ToP 準則，本次沒有讀該段全文，不寫等級}
+
+  journal_first_presentation:
+    available: true
+    note: 見 article_types.journals_first；EMSE 稿件可參加多個 SE 研討會的 Journals-First track，是否收、截稿日由各研討會決定
+    src: journals_first_update
+
+  authorship:
+    llm_authorship: 'LLM 不符合作者資格："an attribution of authorship carries with it accountability for the work, which cannot be effectively applied to LLMs"'
+    contribution_statement: 建議（"recommends"）列出各作者貢獻，可用自由文字或 CRediT；放 title page
+    changes_after_acceptance: 不接受新增、刪除作者或改變順序；修稿階段 "generally not permitted"，須說明理由、由 Editor-in-Chief 裁量
+    orcid: {required: false, note: 'title page "If available"；Authorship principles 段 "recommended"', src: submission_guidelines}
+    src: submission_guidelines
+
+  submission:
+    system: Editorial Manager
+    portal:
+      url: https://www.editorialmanager.com/emse
+      verified: true
+      note: 2026-11-15 以 curl 確認轉址到 https://www.editorialmanager.com/emse/default.aspx（HTTP 200、頁面含 Empirical Software Engineering）；網址取自 Springer 首頁「Submit your manuscript」按鈕
+    cover_letter:
+      required: {status: not_published, checked: 2026-11-15, src: submission_guidelines}
+      content_when_applicable: 通訊作者須在 cover letter 說明重複使用的材料，並提及稿中的未出版材料（如 in press）
+    funding_in_system: 經費資訊除了 title page，還要在投稿系統內填寫（會進 CrossMark 記錄，不加進稿件本身）
+    src: submission_guidelines
+
+  fees:
+    submission_fee: {value: 0, quote: '"The journal does not charge a submission fee or publication fee."', src: submission_guidelines}
+    model: hybrid（接受後才選訂閱或 open access）
+    no_fee_route: 選訂閱模式則不收任何費用（"no APC charges apply"）
+    apc:
+      applies_when: 作者於接受後選擇 open access
+      currency_rates:
+        - {currency: GBP, value: 2390}
+        - {currency: USD, value: 3390}
+        - {currency: EUR, value: 2790}
+      price_basis: APC 價格以接受日當天為準
+      taxes: 視地區另加 VAT 或當地稅
+      src: how_to_publish
+    licences: [CC BY, CC BY-NC-ND]
+    institutional_agreements: >-
+      Springer Nature 與多所機構有 OA 協議，可減免 APC；是否適用取決於通訊作者的機構，頁面依讀者 IP 顯示，
+      本記錄不判定任何機構的資格。emsejournal.github.io/open_access 的國家清單是 2019 年的，不採用
+    color: 線上彩圖免費；印刷版彩色需作者分攤
+    src: [how_to_publish, submission_guidelines]
+
+  policies:
+    dual_submission: forbidden
+    prior_publication: >-
+      "no submission, or substantially overlapping submission, be published or be under review at another journal or conference
+      at any time during the review process"
+    extended_conference_papers: >-
+      "Papers extending previously published conference papers are acceptable, as long as the journal submission provides a
+      significant contribution beyond the conference paper, and the overlap is described clearly at the beginning of the journal submission."
+    preprints:
+      allowed: true
+      scope_note: >-
+        出版社層級政策（springer_journal_policies），EMSE 自己的須知頁與 Aims 頁沒有 preprint 專屬條文
+        （須知頁全文搜尋 preprint、arxiv 皆無命中）
+      quotes:
+        - '"Springer Nature journals encourage posting of preprints of primary research manuscripts on preprint servers of the authors'' choice, authors'' or institutional websites, and open communications between researchers whether on community preprint servers or preprint commenting platforms."'
+        - '"Posting of preprints is not considered prior publication and will not jeopardize consideration at Springer Nature journals."'
+        - '"preprints may be posted at any time during the peer review process."'
+      disclosure: '"Authors should disclose details of preprint posting, including DOI and licensing terms, upon submission of the manuscript or at any other point during consideration at a Springer Nature journal."'
+      after_publication: 作者須在 preprint 紀錄補上正式版的 DOI 與期刊網址
+      licence: 作者可自選 preprint 授權（含 Creative Commons）
+      citation_form: "Preprint at http://arxiv.org/abs/... (年份)"
+      arxiv_named: 政策只泛稱 "preprint servers"，範例引用格式用 arXiv，沒有逐一列出 arXiv
+      src: springer_journal_policies
+    similarity_screening: 可能使用軟體檢查抄襲；遵循 COPE 指引
+    generative_ai:
+      authorship: 不得列為作者
+      disclosure_required: >-
+        LLM 的使用須在 Methods（或其他適當位置）說明；"AI assisted copy editing"（對人寫的文字做可讀性、文法、拼字、標點、語氣的改進，
+        不含生成性編輯與自主產生內容）不必聲明
+      accountability: 最終文字必須有人負責，且作者同意修改反映其原創工作
+      images: 須遵守 Springer 的生成式 AI 圖像政策
+      src: submission_guidelines
+    competing_interests:
+      disclosure_required: true
+      scope: 研究開始前 3 年內的利益；3 年外若可能被視為影響稿件也要揭露
+      placement: title page 的 Declarations
+      src: submission_guidelines
+    salami_slicing: 一個研究不得拆成多篇投到多本期刊或同一本期刊
+    text_recycling: 擴充舊作須說明重複使用的部分
+    ethics_human_participants: 涉及人類參與者的研究須有倫理核准與 informed consent 聲明
+    cope_member: true
+    src: [submission_guidelines, ethics_disclosures]
+
+  standards: []
+
+# ─────────────────────────────────────────────────────────────
+cycle:
+  applies_to: null
+  rolling_calls:
+    - id: promise_2026
+      label: "By Invite Only - PROMISE 2026"
+      type: by_invitation_conference_extension
+      deadline: {date: 2026-12-31, timezone: {status: not_published, checked: 2026-11-15}}
+      src: journal_home
+    - id: icsme_2026
+      label: "By invite only - ICSME 2026"
+      type: by_invitation_conference_extension
+      deadline: {date: 2027-01-15, timezone: {status: not_published, checked: 2026-11-15}}
+      src: journal_home
+    - id: icpc_2027
+      label: "By Invite Only - International Conference on Program Comprehension (ICPC 2027)"
+      type: by_invitation_conference_extension
+      deadline: {status: not_applicable, note: 首頁標 Submission deadline "Ongoing"}
+      src: journal_home
+    - id: human_centered_ai_transformation
+      label: Human-Centered AI Transformation for Software Engineering
+      type: special_issue
+      deadline: {date: 2027-01-31, timezone: {status: not_published, checked: 2026-11-15}}
+      note: 僅見於 emsejournal.github.io 的特刊清單；Springer 首頁的徵稿清單沒有，是否公開徵稿本次沒有核對
+      src: emse_special_issues
+    - id: prompt_se
+      label: Empirical Studies on Prompts and other Instruction Artifacts in Software Engineering (PROMPT-SE)
+      type: special_issue
+      deadline: {date: 2027-03-01, timezone: {status: not_published, checked: 2026-11-15}}
+      note: 同上，僅見於 emsejournal.github.io
+      src: emse_special_issues
+  note: >-
+    2026-11-15 Springer 首頁的「Calls for papers」三項都是 by invitation（研討會的延伸特刊），不接受一般投稿。
+    一般投稿沒有截稿日，隨時可投。特刊清單隨時變動，以 Springer 的 collections 頁與 emsejournal.github.io 為準。
+
+# ─────────────────────────────────────────────────────────────
+warnings:
+  - 單盲審查：審稿人看得到作者；稿件與 title page 不需要匿名化。
+  - 官方須知頁沒有頁數或字數上限；也沒有 MS Word 範本。摘要 150–250 字、關鍵字 4–6 個。
+  - 須知頁沒有 preprint 專屬條文；preprint（含 arXiv）依 Springer 出版社政策允許，且不算 prior publication。投稿時要揭露 preprint 的 DOI 與授權。
+  - 缺 "Statements and Declarations"（Funding、Competing interests、Ethics、Data availability 等）的投稿會被退回、視為不完整。
+  - 原創研究必須附 Data Availability Statement；公開 repository 只是強烈建議。
+  - 每次投稿與修稿都要附完整可編輯原始檔（.docx 或 LaTeX），缺者不送審；LaTeX 不可用子資料夾。
+  - 延伸研討會論文可以，但須有明顯的新貢獻，並在開頭說明重疊；不得同時在另一個期刊或研討會審查中。
+  - Systematic review／mapping 的門檻高，只摘要現況的稿件不太可能被接受；tertiary study 一般不收。
+  - 接受後才選 open access 或訂閱；APC 以接受日價格為準（GBP 2,390／USD 3,390／EUR 2,790，另加稅）。選訂閱則不收費。
+  - Open science review 是選配，且發生在 "Minor revision" 或接受之後，不影響審查結果；限制取用的資料拿不到 badge。
+  - emsejournal.github.io 的 metrics 頁（2018 年止）、open_access 頁（2019 年）與 registered_reports 頁（2023 年止）都已過時，只能當線索。
+  - 官方只在首頁標示 JIF 與 5-year JIF（2025），沒有分區、錄取率或投稿到接受的時間；本記錄對這些欄位標 not_published。
+  - Clarivate MJL 的 Core Collection 只列 SCIE；沒有 SSCI 或 ESCI。

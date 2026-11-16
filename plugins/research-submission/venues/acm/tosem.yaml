@@ -1,0 +1,982 @@
+--- # research-submission venue record
+# 內容擷取自 ACM Digital Library 的 TOSEM 期刊頁、ACM 政策頁、Clarivate MJL 與 SCImago，2026-11-15。
+#
+# 抓取紀錄：dl.acm.org、www.acm.org、authors.acm.org、www.scimagojr.com 對 curl 一律回 Cloudflare 403（約 5.4–5.6 KB 挑戰頁），
+# 全部改用 safari-browser（--profile 個人）讀取。Cloudflare 驗證頁在背景分頁會一直停在「請稍候...」（等了 70 秒以上沒過），
+# 用 `safari-browser tab focus` 把自己開的分頁切到前景後約 10 秒內通過、之後同一個瀏覽器 session 的其他頁不再被擋。
+# 沒有點任何驗證框、沒有解 CAPTCHA。
+# mjl.clarivate.com 對 curl 回 200 + 約 11 KB 的 Angular 空殼（不含搜尋結果），搜尋結果要在瀏覽器裡填搜尋框才會出現。
+#
+# sources 全部是 method: browser，verify.py 會標 NEEDS_AGENT，沒有 http 來源可以建 hash 基準。
+
+schema_version: 1
+id: acm/tosem
+kind: journal
+family: software-engineering-journals
+status: active
+
+# ─────────────────────────────────────────────────────────────
+sources:
+  - id: journal_home
+    role: authoritative
+    url: https://dl.acm.org/journal/tosem
+    note: >-
+      期刊首頁：期刊簡介（scope 的短版）、主編、EISSN、最新一期、ACM 政策公告。
+      導覽列的真實路徑（Author Guidelines、Journal-First Papers、Fast-Impact Track Papers、Continuous Special Sections、
+      Calls for Papers、Reviewers、About、Open Access、Charter）都是從這一頁的連結取得，不是推測。
+      首頁沒有 impact factor、錄取率、審查時間等數字。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: >-
+        Cloudflare 挑戰頁：curl HTTP 403、約 5.4 KB。safari-browser 開在背景分頁時挑戰一直停在「請稍候...」，
+        切到前景（tab focus）後約 10 秒通過。
+      validity:
+        must_contain: "publishes papers on all aspects of that challenge: specification, design, development and maintenance"
+        min_extracted_chars: 2500
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: author_guidelines
+    role: authoritative
+    url: https://dl.acm.org/journal/tosem/author-guidelines
+    note: >-
+      規定本體：Paper Relevance（scope）、投稿方式、審查流程、ORCID、ACM 政策、作者權利、開放取用、Artifacts and Reproducibility、範本。
+      全頁沒有一般論文的頁數／字數上限，沒有摘要字數，沒有說審查是單盲還是雙盲。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Cloudflare 挑戰頁（同 journal_home），curl HTTP 403、約 5.5 KB。
+      validity:
+        must_contain: "original and significant results in all areas of software engineering research"
+        min_extracted_chars: 12000
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: about
+    role: supporting
+    url: https://dl.acm.org/journal/tosem/about
+    note: 只有出刊頻率與聯絡信箱；沒有 metrics。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Cloudflare 挑戰頁，curl HTTP 403、約 5.4 KB。
+      validity:
+        must_contain: "TOSEM publishes one volume yearly"
+        min_extracted_chars: 1200
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: open_access
+    role: authoritative
+    url: https://dl.acm.org/journal/tosem/open-access
+    note: APC 金額（2027 年定價）、免 APC 的兩條路、2026 年補貼結束的說明。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Cloudflare 挑戰頁，curl HTTP 403、約 5.5 KB。
+      validity:
+        must_contain: "2027 APC Pricing"
+        min_extracted_chars: 2500
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: charter
+    role: supporting
+    url: https://dl.acm.org/journal/tosem/editorial-charter
+    note: 編輯宗旨。署名是前任主編 Mauro Pezze，與首頁現任主編不同，內容可能是舊的，見 warnings。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Cloudflare 挑戰頁，curl HTTP 403、約 5.5 KB。
+      validity:
+        must_contain: "original, significant, reproducible and archival results"
+        min_extracted_chars: 1800
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: journal_first
+    role: authoritative
+    url: https://dl.acm.org/journal/tosem/journalfirstpapers
+    note: >-
+      TOSEM 的「journal-first」是一種投稿類型（投 TOSEM 的新研究，可以到 ICSE 報告），
+      不是常見的「已在研討會發表、再到期刊報告」的意思。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Cloudflare 挑戰頁，curl HTTP 403、約 5.5 KB。
+      validity:
+        must_contain: "must differ by more than 70% from any other previous publication"
+        min_extracted_chars: 1200
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: fast_impact
+    role: authoritative
+    url: https://dl.acm.org/journal/tosem/fastimpacttrackpapers
+    note: Fast-impact track 的頁數上限與審查時程。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Cloudflare 挑戰頁，curl HTTP 403、約 5.5 KB。
+      validity:
+        must_contain: "no-more than 45 pages of text"
+        min_extracted_chars: 1500
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: continuous_special_sections
+    role: supporting
+    url: https://dl.acm.org/journal/tosem/continuousspecialsections
+    note: 兩個常設的特別專區（Sustainable SE、Quantum SE），隨時可投。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Cloudflare 挑戰頁，curl HTTP 403、約 5.5 KB。
+      validity:
+        must_contain: "Continuous special sections (CSS) will span consecutive issues"
+        min_extracted_chars: 2500
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: calls_for_papers
+    role: authoritative
+    url: https://dl.acm.org/journal/tosem/calls-for-papers
+    note: >-
+      六個徵稿入口的總表（Human AI Collaboration、Agentic AI in Software、Roadmap to 2030、New Frontiers、RCR Reports、Registered Papers）。
+      各自的細則頁從這一頁的 READ MORE 連結取得。Roadmap to 2030 與 New Frontiers 的細則頁（/roadmap2030、/frontiers）本次沒有讀。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Cloudflare 挑戰頁，curl HTTP 403、約 5.5 KB。
+      validity:
+        must_contain: "Replicated Computational Result (RCR) Reports"
+        min_extracted_chars: 2000
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: rcr_cfp
+    role: authoritative
+    url: https://dl.acm.org/journal/tosem/replicated-computational-results
+    note: Replicated Computational Results（RCR）報告的收件規定。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Cloudflare 挑戰頁，curl HTTP 403、約 5.5 KB。
+      validity:
+        must_contain: "RCR reports must refer to a TOSEM paper"
+        min_extracted_chars: 5000
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: registered_papers
+    role: authoritative
+    url: https://dl.acm.org/journal/tosem/registered-papers
+    note: Registered Papers（兩階段 registered report）的流程與審查準則。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Cloudflare 挑戰頁，curl HTTP 403、約 5.5 KB。
+      validity:
+        must_contain: "In-principle acceptance is decided at this stage"
+        min_extracted_chars: 3500
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: cfp_human_ai
+    role: supporting
+    url: https://dl.acm.org/journal/tosem/human-ai-collaboration-software-engineering
+    note: Human AI Collaboration in Software Engineering 特刊的徵稿頁（含題目範圍、不收的類型、日期）。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Cloudflare 挑戰頁，curl HTTP 403、約 5.6 KB。
+      validity:
+        must_contain: "Reviews, technical reports, opinion pieces, and white papers are outside the scope"
+        min_extracted_chars: 4500
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: cfp_agentic
+    role: supporting
+    url: https://dl.acm.org/journal/tosem/agentic-ai-software
+    note: Agentic AI in Software 特刊的徵稿頁。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Cloudflare 挑戰頁，curl HTTP 403、約 5.5 KB。
+      validity:
+        must_contain: "Special issue on Agentic Artificial Intelligence (AI) in Software"
+        min_extracted_chars: 2000
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: reviewers_info
+    role: supporting
+    url: https://dl.acm.org/journal/tosem/reviewers
+    note: 給審稿人的說明（編輯向，不是對作者的約束），但交代了審稿人身分對作者保密、審查四項準則與決定選項。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Cloudflare 挑戰頁，curl HTTP 403、約 5.4 KB。
+      validity:
+        must_contain: "Reviewers' names are not disclosed to authors"
+        min_extracted_chars: 2800
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: ae_guidelines
+    role: supporting
+    url: https://dl.acm.org/journal/tosem/associate-editor-guidelines
+    note: 給副編輯的說明（編輯向）：desk reject 的理由、至少三位審稿人、相似度檢查。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Cloudflare 挑戰頁，curl HTTP 403、約 5.5 KB。
+      validity:
+        must_contain: "All refereed articles accepted for publication need to have three qualified reviews"
+        min_extracted_chars: 5500
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: acm_author_rights
+    role: authoritative
+    url: https://authors.acm.org/author-resources/author-rights
+    note: >-
+      作者權利與自我典藏（Post）：pre-print、arXiv 的明文。
+      journal 頁的 "ACM Author Policies" 連到 https://authors.acm.org/journals/rights-policies，
+      該頁只是索引，再連到本頁。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Cloudflare 挑戰頁，curl HTTP 403、約 5.7 KB。
+      validity:
+        must_contain: "an example of a site ACM authors may post all pre-publication versions of their work to is arXiv"
+        min_extracted_chars: 5500
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: acm_prior_publication
+    role: authoritative
+    url: https://www.acm.org/publications/policies/simultaneous-submissions
+    note: Prior Publication and Simultaneous Submissions 政策。TOSEM 作者須知頁與副編輯須知頁都引用它。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Cloudflare 挑戰頁，curl HTTP 403、約 5.7 KB。
+      validity:
+        must_contain: "Issuing the paper as a technical report, posting the paper on a web site"
+        min_extracted_chars: 4000
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: acm_authorship
+    role: authoritative
+    url: https://www.acm.org/publications/policies/new-acm-policy-on-authorship
+    note: ACM Policy on Authorship，含生成式 AI 的使用與揭露規定。TOSEM 首頁與作者須知頁都連到它。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Cloudflare 挑戰頁，curl HTTP 403、約 5.7 KB。
+      validity:
+        must_contain: "ACM no longer requires the disclosure of information regarding the use of AI"
+        min_extracted_chars: 8000
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: acm_peer_review
+    role: supporting
+    url: https://www.acm.org/publications/policies/peer-review
+    note: >-
+      ACM Peer Review Policy。只談「單盲或雙盲」的共通義務（保密、不得把稿件交給第三方 LLM），
+      沒有說 TOSEM 用哪一種。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Cloudflare 挑戰頁，curl HTTP 403、約 5.7 KB。
+      validity:
+        must_contain: "This policy defines the principles and practices for peer review in ACM Publications"
+        min_extracted_chars: 5500
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: acm_artifact_badging
+    role: external_standard
+    url: https://www.acm.org/publications/policies/artifact-review-and-badging-current
+    note: ACM Artifact Review and Badging。RCR 報告依此評審。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Cloudflare 挑戰頁，curl HTTP 403、約 5.7 KB。
+      validity:
+        must_contain: "artifacts associated with the work undergo a formal audit"
+        min_extracted_chars: 3000
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: acm_templates
+    role: supporting
+    url: https://www.acm.org/publications/authors/submissions
+    note: ACM 範本頁：審查階段用單欄 manuscript 格式、期刊用 acmsmall、投稿系統。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Cloudflare 挑戰頁，curl HTTP 403、約 5.7 KB。
+      validity:
+        must_contain: "single column format"
+        min_extracted_chars: 10000
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: clarivate_mjl
+    role: supporting
+    url: https://mjl.clarivate.com/search-results?issn=1049-331X&hide_exact_match_fl=true
+    note: >-
+      Web of Science Master Journal List。這個 URL 帶 query 直接開會被導回首頁（空殼，沒有結果）；
+      實際做法是開 https://mjl.clarivate.com/home，在搜尋框填 ISSN 1049-331X 後按 Search Journals，
+      結果頁網址是不含 query 的 https://mjl.clarivate.com/search-results。
+      Journal Citation Reports 的 impact factor 與分區要免費登入才看得到，本次沒有登入。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: >-
+        curl HTTP 200 但只回約 11 KB 的 Angular 空殼（含 script 標籤、不含搜尋結果）；搜尋結果由前端 JS 填入，
+        且 URL 的 query 在載入後被丟掉。
+      validity:
+        must_contain: "1049-331X / 1557-7392"
+        min_extracted_chars: 2500
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: scimago
+    role: supporting
+    url: https://www.scimagojr.com/journalsearch.php?q=18121&tip=sid&clean=0
+    note: >-
+      SCImago Journal Rank（以 Scopus 資料計算）。q=18121 是 SCImago 的內部 ID，從
+      https://www.scimagojr.com/journalsearch.php?q=1049-331X&tip=iss 的搜尋結果連結取得。
+      這是第三方指標，不是期刊或 ACM 自己公布的；quartiles 欄位採用它是因為 TOSEM 官方頁面沒有任何分區。
+    fetch:
+      method: browser
+      http_viable: false
+      http_failure_mode: Cloudflare 挑戰頁，curl HTTP 403、約 5.6 KB。
+      validity:
+        must_contain: "SJR 2025"
+        min_extracted_chars: 8000
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+# ─────────────────────────────────────────────────────────────
+identity:
+  name: ACM Transactions on Software Engineering and Methodology
+  abbreviation: TOSEM
+  publisher: Association for Computing Machinery
+  issn: {print: "1049-331X", electronic: "1557-7392"}
+  issn_src: {print: clarivate_mjl, electronic: journal_home}
+  homepage: https://dl.acm.org/journal/tosem
+  editor:
+    name: Abhik Roychoudhury
+    title: Editor-in-Chief
+    email: abhik@nus.edu.sg
+    src: [journal_home, author_guidelines]
+    note: 作者須知頁寫「Correspondence on editorial matters should be addressed to abhik@nus.edu.sg」；首頁只列名字。
+  journal_administrator: {email: tosem-admin@acm.org, src: author_guidelines}
+  frequency: >-
+    每年一卷、每卷 12 期月刊（"12 monthly issues per year beginning with the 2026 volume"）。首頁顯示 Volume 35, Issue 11, November 2026。
+  frequency_src: about
+  external_ids:
+    crossref: "1049-331X"
+    openalex: issn:1049-331X
+
+  metrics:
+    impact_factor:
+      status: not_published
+      checked: 2026-11-15
+      src: journal_home
+      note: >-
+        TOSEM 首頁、About、Open Access、Author Guidelines 都沒有 impact factor。JCR 需免費登入，本次沒有登入，所以沒有 JCR 的值。
+    quartiles:
+      system: SJR
+      category: Software（Computer Science）
+      year: 2025
+      value: Q1
+      as_of: 2026-11-15
+      src: scimago
+      history: "Q1 1999–2015；Q2 2016–2020；Q1 2021–2025"
+      note: >-
+        分區制是 SCImago 的 SJR，不是 JCR；JCR 分區沒有查（JCR 需登入）。SCImago 同頁寫 SJR 2025 = 1.590、H-Index 95。
+        這是第三方計算的指標，TOSEM 或 ACM 的官方頁面沒有公布任何分區。
+    sjr: {value: 1.590, year: 2025, as_of: 2026-11-15, src: scimago}
+    acceptance_rate: {status: not_published, checked: 2026-11-15, src: journal_home}
+    time_to_first_decision:
+      status: not_published
+      checked: 2026-11-15
+      src: journal_home
+      note: >-
+        一般論文沒有公布決定時間的統計值。只有 fast-impact track 有承諾時程：第一輪審查不超過 90 天、
+        後續輪不超過 45 天（見 requirements.review.fast_impact_timeline）；副編輯須知寫標準的審稿邀請要求審稿人四週內交稿。
+    time_submission_to_acceptance: {status: not_published, checked: 2026-11-15, src: journal_home}
+
+  indexing:
+    web_of_science:
+      scie: true
+      ssci: false
+      esci: false
+      other: [Current Contents Engineering Computing & Technology, Essential Science Indicators]
+      as_of: 2026-11-15
+      src: clarivate_mjl
+      note: >-
+        MJL 的 Exact Match 結果（ISSN 1049-331X / eISSN 1557-7392）在 Web of Science Core Collection 欄只列
+        Science Citation Index Expanded；Additional Web of Science Indexes 欄列 Current Contents 與 Essential Science Indicators。
+        沒有 SSCI 或 ESCI。
+    scopus:
+      status: not_found
+      checked: 2026-11-15
+      note: >-
+        沒有查 Scopus 的來源清單。SCImago（以 Scopus 資料計算）列有這份期刊，涵蓋年份 1992–2026，但這不等於查過 Scopus 本身。
+
+# ─────────────────────────────────────────────────────────────
+requirements:
+  refresh: {check_every: P6M, method: extracted_hash_diff}
+
+  scope:
+    aims_quote: >-
+      "ACM Transactions on Software Engineering and Methodology is a publication for original and significant results in all areas of
+      software engineering research."
+    aims_extra_quotes:
+      - >-
+        "Designing and building a large, complex software system is a tremendous challenge. ACM Transactions on Software Engineering
+        and Methodology (TOSEM) publishes papers on all aspects of that challenge: specification, design, development and maintenance.
+        It covers tools and methodologies, languages, data structures, and algorithms."
+      - >-
+        "The scope of TOSEM includes models, languages, methods, mechanisms, and tools for the elaboration, evaluation, and evolution of
+        products and processes all along the software lifecycle, from requirements specification to software maintenance. Formal and
+        experimental approaches are both in the scope of TOSEM."
+      - >-
+        "The software systems of interest for this journal are charactered in most cases by a scale requiring development by teams, not
+        individuals. They should be sufficiently complex and long-lived to justify investment in languages, methods, and tools that support
+        specification, design, implementation, validation, documentation, maintenance, reengineering, and other related activities."
+      - >-
+        "Submitted papers should address important research topics; the results described must be reproducible, extensible, scalable, and
+        have practical relevance."
+    src: [journal_home, author_guidelines]
+    topics_listed:
+      - Agentic software engineering
+      - Human–AI collaboration in software engineering
+      - "Requirements engineering: acquisition, modeling, specification, analysis, and prototyping"
+      - "Design engineering: software architectures, specification, refinement, design methods, strategies, and styles; documentation of design rationales"
+      - "Software testing, analysis and verification: algorithms, techniques and processes for assuring or assessing software with respect to functional or non-functional requirements"
+      - "Configuration management: version control and system evolution"
+      - Software understanding and reengineering
+      - "Reuse: techniques for reusing components such as specifications, designs, or code, and for making such products reusable"
+      - "Software process engineering: modeling, analysis, customization, enactment, and evolution"
+      - "Software engineering environments: organization, tool integration and interoperability; object management, language-directed tools, knowledge-based tools, and dedicated tools; software visualization"
+      - "Measurement, metrics, estimation methods, and empirical studies"
+      - Human-Software interaction
+      - Collaborative software engineering
+      - Adaptation of techniques from programming languages, artificial intelligence, or databases
+      - Domain-specific software engineering techniques
+    topics_src: author_guidelines
+    mentions:
+      tools: >-
+        有。scope 句含 "tools"、"dedicated tools"、"tool integration"；
+        "Papers on specific systems should concentrate on technical and architectural issues rather than providing feature-by-feature descriptions."
+      empirical_studies: >-
+        有。主題清單含 "Measurement, metrics, estimation methods, and empirical studies"；
+        "Experimental papers should describe the experimental method used and interpret the results in terms of practice."
+      llm_or_ai_agents: >-
+        有。主題清單第一、二項是 "Agentic software engineering" 與 "Human–AI collaboration in software engineering"；
+        另有 Agentic AI in Software 與 Human AI Collaboration in Software Engineering 兩個特刊徵稿（見 cycle.rolling_calls），
+        徵稿頁明寫 "Large Language Model (LLM) agents"。
+    evaluation_criteria:
+      quote: >-
+        "Papers submitted are judged primarily on originality, significance, technical soundness and quality of presentation."
+      reviewer_page_quote: >-
+        "Papers for TOSEM must be of high quality and fall within the scope of the journal. There are four main ingredients to an acceptable
+        paper: Originality, Significance and interest, Technical soundness, and Quality of presentation."
+      acceptable_paper_must_contain: >-
+        reviewers_info："(a) motivation and clear objectives, (b) demonstration of novelty and superiority compared to related work,
+        (c) evidence of effectiveness, reproducibility, scalability, and practical relevance."
+      src: [author_guidelines, reviewers_info]
+    out_of_scope_hints:
+      - case: 沒有說明軟體工程研究新挑戰的經驗報告
+        statement: >-
+          "Experience reports on the use of advanced software engineering techniques are also welcome. To be publishable, however, they
+          must provide thoughtful insights about the development world or the application of a technology, that result in the
+          identification of new important challenges for software engineering research."
+        src: author_guidelines
+      - case: 逐項功能描述的系統論文
+        statement: >-
+          "Papers on specific systems should concentrate on technical and architectural issues rather than providing feature-by-feature
+          descriptions."
+        src: author_guidelines
+      - case: 與軟體工程實務沒有連結的理論／方法論文
+        statement: >-
+          "Theoretical or methodological papers should clearly show how the results presented may contribute to software engineering practice."
+        src: author_guidelines
+    out_of_scope_statement: >-
+      作者須知沒有單獨列出「不收」的題材；上面三條是與 scope 相對的條件式限制。
+      Human AI Collaboration 特刊有自己的 out-of-scope 清單（見 cycle.rolling_calls，只適用該特刊）。
+      副編輯須知把 "topic is clearly out of scope, irrelevant, or outdated" 列為 desk reject 理由之一（ae_guidelines）。
+
+  article_types:
+    - id: research_paper
+      label: 一般研究論文（regular）
+      note: 作者須知描述的主體；本次沒有找到頁數上限，見 length_limit。
+      src: author_guidelines
+    - id: experience_report
+      label: 軟體工程技術的經驗報告
+      note: 有條件地收，條件見 scope.out_of_scope_hints。
+      src: author_guidelines
+    - id: short_contribution
+      label: 短文與針對已刊論文的技術通訊（short contributions and technical correspondence）
+      note: charter 寫 "may appear, as is customary in scientific journals"；沒有長度規定。
+      src: charter
+    - id: survey
+      label: Survey
+      note: >-
+        首頁最新一期的目錄把兩篇文章標為 SURVEY（頁碼 pp 1-61、pp 1-66）；本次沒有找到 survey 專屬的投稿規定。
+      src: journal_home
+    - id: journal_first
+      label: Journal-First Paper（投稿類型）
+      limits: "與任何已發表的出版物相差 70% 以上；cover letter 附 200 字的 novelty 聲明"
+      note: 不是「已發表的論文再到期刊報告」；任何時間都可投；可在 ICSE 報告（TOSEM 與 ICSE 有協議）。
+      src: journal_first
+    - id: fast_impact
+      label: Fast-Impact Track Paper
+      limits: 45 頁（正文，不含參考文獻）
+      note: 以 Journal-First 類型投稿且符合頁數，編輯部自動升級。
+      src: fast_impact
+    - id: continuous_special_section
+      label: Continuous Special Section（Sustainable SE、Quantum SE）
+      limits: 與 fast-impact track 相同（45 頁、不含參考文獻）
+      src: continuous_special_sections
+    - id: special_issue_or_track
+      label: 特刊／專區徵稿（Human AI Collaboration、Agentic AI in Software、Roadmap to 2030、New Frontiers）
+      note: Roadmap to 2030 與 New Frontiers 以 fast-impact track 處理，細則頁本次沒有讀。
+      src: calls_for_papers
+    - id: rcr_report
+      label: Replicated Computational Results（RCR）Report
+      note: 只能對應一篇 TOSEM 論文；標題須為 "[Paper Title] – RCR Report"。
+      src: rcr_cfp
+    - id: registered_paper
+      label: Registered Paper（兩階段 registered report）
+      limits: 45 頁（不含參考文獻），須符合 journal-first
+      src: registered_papers
+
+  length_limit:
+    status: not_published
+    checked: 2026-11-15
+    src: author_guidelines
+    note: >-
+      作者須知全頁沒有一般論文的頁數或字數上限（掃過 page、word、length 字樣，只有 fast-impact 與特刊的 45 頁）。
+      但副編輯須知把 "the manuscript is incomplete, over the page limit, or incorrectly formatted" 列為 desk reject 理由，
+      代表有頁數上限，只是作者面的頁面沒寫。要投一般論文且篇幅大時，應先問主編。
+
+  length_fast_impact:
+    value: 45
+    unit: pages_of_text
+    excludes: [bibliography]
+    format_basis: >-
+      頁面沒有說明用什麼版面。ACM 範本頁規定審查階段用單欄 manuscript 格式（\documentclass[manuscript]{acmart}）、
+      期刊用 acmsmall，推測 45 頁是在此版面下計算，但這是推測，頁面沒有明寫。
+    quote: >-
+      "The TOSEM editorial staff will upgrade papers submitted as journal-first papers and with no-more than 45 pages of text (not
+      including bibliography) to fast-impact track papers."
+    applies_to: [fast_impact, continuous_special_section, special_issue_or_track, registered_paper, rcr_report]
+    src: [fast_impact, continuous_special_sections, calls_for_papers, registered_papers]
+    note: >-
+      這是 fast-impact 與其下各專區的上限，不是一般論文的上限。RCR 與各特刊頁面對 RCR／Registered 寫的是同一句
+      "their length can be up to 45 pages (plus bibliography)"。Human AI 特刊多一句 "although shorter submissions are encouraged"。
+
+  abstracts:
+    - id: main
+      max_words: {status: not_published, checked: 2026-11-15, src: author_guidelines}
+      required_at: {status: not_published, checked: 2026-11-15, src: author_guidelines}
+      note: 作者須知與範本頁都沒有摘要字數規定。
+  keywords:
+    status: not_published
+    checked: 2026-11-15
+    src: author_guidelines
+    note: >-
+      投稿階段的關鍵字數沒有規定。範本頁寫 "CCS Concepts and user-defined keywords are required for all articles over two pages in length"
+      （範本頁，套用在最終稿的 acmart 範本）；作者須知把 CCS 分類列在接受後的步驟。
+
+  formatting:
+    style_manual: ACM 範本（acmart）
+    template:
+      journals: acmsmall（範本頁："All ACM journals use the acmsmall template with the following exceptions"，例外名單不含 TOSEM）
+      review_submission: >-
+        範本頁："All authors should submit manuscripts for review in a single column format."
+        LaTeX 用 \documentclass[manuscript]{acmart}；Word 用 Submission Template（Review Submission Format）。
+      src: acm_templates
+      note: 作者須知寫 "Submissions must also use the ACM authoring templates."
+    ccs: 接受後要提供 ACM Computing Classification System 索引詞（author_guidelines "ACM Computing Classification System (CCS)" 段）。
+    file_formats: {status: not_published, checked: 2026-11-15, src: author_guidelines, note: 作者須知寫 "uploading an electronic version"，沒有列檔案格式。}
+    supplemental: >-
+      接受後可附僅線上發布的補充材料（text and multimedia），要提供簡短說明；範本頁寫會以 readme.txt 形式顯示。
+    src: [author_guidelines, acm_templates]
+
+  structure:
+    cover_letter:
+      journal_first: 附 200 字的 novelty 聲明（"Authors of these types of manuscripts shall submit a 200-word statement that attests to the novelty of their work relative to these criteria, as part of the cover letter."）
+      rcr: cover letter 要寫出主張哪些 badge
+      conference_extension: >-
+        若是研討會或工作坊論文的擴充版，主要作者要指出該研討會並說明與會議版的差異（author_guidelines "How to Submit"）；
+        title page 要註明先前出現的場合（ACM prior publication 規定）。
+      src: [journal_first, rcr_cfp, author_guidelines]
+    submission_statement: >-
+      主要作者要建立帳號並聲明「the material contained in the submitted paper has not been previously published and is not currently
+      considered for publication elsewhere」。
+      src: author_guidelines
+    author_note_or_funding_statements: {status: not_published, checked: 2026-11-15, src: author_guidelines}
+
+  review:
+    type:
+      status: not_published
+      checked: 2026-11-15
+      src: author_guidelines
+      note: >-
+        TOSEM 的官方頁面沒有說審查是單盲還是雙盲：作者須知、審稿人須知、副編輯須知、ACM Peer Review Policy 與 FAQ 都沒有寫。
+        ACM 政策頁只寫 "Most ACM publications use single or double anonymous peer review"，沒有點名 TOSEM。
+    reviewer_identity_hidden_from_authors:
+      value: true
+      quote: "Reviewers' names are not disclosed to authors, so contacting an author can only be done at your discretion."
+      src: reviewers_info
+    author_identity_hidden_from_reviewers: {status: not_published, checked: 2026-11-15, src: author_guidelines}
+    process: >-
+      author_guidelines "Review Process"：作者向主編（EIC）投稿；EIC 指派 Senior AE 與 AE；AE 邀請審稿人；
+      所有審查回來後由 AE 提出建議、Senior AE 檢查、EIC 發決定信。決定有四種：Accept、Minor Revision、Major Revision、Reject。
+      Minor Revision 通常只由 AE 檢查；Major Revision 通常送原審稿人再審。
+      "Papers generally are allowed at most one decision of Major Revision."
+    reviewers_required: >-
+      ae_guidelines："All refereed articles accepted for publication need to have three qualified reviews."
+      標準審稿邀請要求四週內交稿。
+    desk_reject_reasons_quote: >-
+      ae_guidelines："topic is clearly out of scope, irrelevant, or outdated; the work clearly does not meet sufficient standards of novelty
+      or quality of presentation; there is plagiarism, self-plagiarism, or simultaneous submission; the manuscript is incomplete, over the
+      page limit, or incorrectly formatted; the manuscript does not otherwise meet the basic standards of scholarship for TOSEM"
+    fast_impact_timeline:
+      first_review_days_max: 90
+      subsequent_review_days_max: 45
+      condition: "on the condition that the paper is revised within 45 days as requested by the handling editor"
+      src: fast_impact
+      note: 這是承諾的上限，不是統計出來的實際中位數。
+    author_may_suggest_reviewers: {status: not_published, checked: 2026-11-15, src: author_guidelines, note: 副編輯須知寫「Select ... one suggested by the authors」與「Some authors will also list referees that they prefer you not to invite」，代表投稿系統可填，但作者須知沒有寫。}
+    appeal: "To appeal the rejection of an article submitted to an ACM journal, please first contact the Editor(s)-in-Chief of the journal. If you are unable to resolve the matter, please contact ACM's Director of Publications."
+    resubmission_of_rejected: "Authors have the right to submit a revision of a rejected paper as a new submission ... If a rejected paper is submitted as a new submission, the authors should not submit an author response."
+    src: [author_guidelines, reviewers_info, ae_guidelines]
+
+  preprints_and_prior_publication:
+    arxiv_policy:
+      allowed: true
+      quote: >-
+        "For the avoidance of doubt, an example of a site ACM authors may post all pre-publication versions of their work to is arXiv."
+      context_quote: >-
+        "all ACM published authors of magazine articles, journal articles, and conference papers retain the right to post the pre-submitted
+        (also known as "pre-prints"), submitted, accepted, and peer-reviewed versions of their work in any and all of the following sites:
+        Author's Homepage; Author's Institutional Repository; Any Repository legally mandated by the agency or funder funding the research
+        on which the work is based; Any Non-Commercial Repository or Aggregation that does not duplicate ACM tables of contents."
+      request: >-
+        "ACM does request authors, who post to arXiv or other permitted sites, to also post the published version's Digital Object Identifier
+        (DOI) alongside the pre-published version on these sites"
+      not_allowed_sites: "ResearchGate, Academia.edu, Mendeley, or Sci-Hub"
+      src: acm_author_rights
+    prior_publication_quote: >-
+      "Issuing the paper as a technical report, posting the paper on a web site, or presenting the paper at a workshop or conference that
+      does not publish formally reviewed proceedings does not disqualify it from appearing in an ACM publication."
+    prior_publication_src: acm_prior_publication
+    simultaneous_submission_quote: >-
+      "Manuscripts that have been submitted simultaneously to other magazines, journals or conferences, symposia, or workshops without the
+      prior written consent of the Editor-in-Chief will be rejected outright and will not be reconsidered."
+    simultaneous_submission_src: author_guidelines
+    expanded_conference_papers: >-
+      author_guidelines："Publication of expanded versions of papers that have been disseminated via proceedings or newsletters is permitted
+      only if the Editor-in-Chief judges that (a) the revision contains significant amplification or clarification of the original material or
+      (b) there is a significant additional benefit to be gained from journal publication."
+    journal_first_overlap: >-
+      Journal-First 類型要求 "must differ by more than 70% from any other previous publication"（journal_first）。
+      頁面沒有說 arXiv 上的預印本算不算 "previous publication"；ACM 政策頁把預印本與正式出版分開處理，但 TOSEM 對 70% 規則的解讀沒有公布。
+
+  openness:
+    artifacts:
+      encouraged: true
+      quote: "ACM encourages authors to submit software and data sets with their papers."
+      mandatory: {status: not_published, checked: 2026-11-15, src: author_guidelines, note: 作者須知只寫鼓勵，並寫 "the results described must be reproducible"；沒有強制的 data／code availability 聲明，本次沒有找到。}
+      src: author_guidelines
+    artifact_badging:
+      standard: ACM Artifact Review and Badging
+      note: 作者須知列出 "Software and Data Artifacts in the ACM Digital Library" 與 "Artifact Review and Badging" 兩個連結；RCR 報告依 badging 評審。
+      src: [author_guidelines, rcr_cfp, acm_artifact_badging]
+    replication_track:
+      id: rcr_report
+      quote: >-
+        "We invite TOSEM authors to make the artifacts available to the software engineering community and to submit RCR reports to supplement
+        the accepted TOSEM papers and facilitate the access to and citation of the artifacts."
+      timing: >-
+        "For already accepted TOSEM papers we limit RCR submissions to 6 months after publication. For submitted papers, RCR reports may be
+        submitted at any time and may be accepted pending the acceptance of the related paper."
+      archival: Figshare 或 Zenodo（強烈建議），其他平台須符合 FAIR；需要 DOI。
+      src: rcr_cfp
+    registered_reports:
+      id: registered_paper
+      model: >-
+        兩階段：Stage 1 投 registered report（不含結果的完整論文，附方法細節與可行性的初步結果），審查新穎性與研究設計的可靠度，
+        通過後給 in-principle acceptance；Stage 2 投含結果的完整論文，只審是否照協議做、結果是否被正確詮釋。
+      stage2_deadline: "Stage 2 authors are expected to submit the full paper within 10 weeks and have a maximum of three months to submit it"
+      constraints: 須符合 journal-first；允許公開預先註冊（例如在工作坊發表 Stage 1 的初稿）；45 頁（不含參考文獻）。
+      src: registered_papers
+    journal_first_presentation:
+      available: true
+      quote: "The TOSEM agreement with ICSE gives authors of journal-first papers the opportunity to present their results at ICSE."
+      src: journal_first
+      note: 頁面沒有說明申請流程、名額或截止日。
+
+  authorship:
+    policy: ACM Policy on Authorship
+    criteria_quote: >-
+      "they have made substantial intellectual contributions to some components of the original work described in the paper; and they have
+      participated in drafting and/or revision of the paper; and they are aware that the paper has been submitted for publication; and they
+      agree to be held accountable for any issues relating to correctness or integrity of the work."
+    other_contributors: "Other contributors may be acknowledged at the end of the paper, before the bibliography, with explicitly described roles, preferably using the roles found in the CASRAI Contributor Roles Taxonomy."
+    src: author_guidelines
+
+  submission:
+    portal: https://mc.manuscriptcentral.com/tosem
+    system: ScholarOne Manuscripts（Manuscript Central）
+    note: >-
+      作者須知寫的網址是 http://mc.manuscriptcentral.com/tosem；2026-11-15 開 https://mc.manuscriptcentral.com/tosem 的登入頁，
+      標題為 "Transactions on Software Engineering and Methodology"，只讀登入頁，沒有登入或操作。
+    orcid:
+      required_at_submission: "All submitting authors are required to provide an ORCID (Open Researcher and Contributor ID) at the time of manuscript submission."
+      coauthors: "Co-authors are encouraged to provide their ORCID at the submission stage ... If and when a manuscript is accepted for publication, all listed authors must have a registered and valid ORCID before the paper can proceed to production."
+      src: author_guidelines
+    accepted_papers: 接受後仍經 Manuscript Central 上傳最終版，並依 ACM production 指示（author_guidelines "Procedures for Accepted Papers"）。
+    src: [author_guidelines]
+
+  fees:
+    model: 全面開放取用（"As of January 1, 2026, ACM is a fully Open Access Publisher."）；投稿與審稿費用沒有在頁面出現。
+    apc:
+      applies_to: 2027-01-01 12:00am US Eastern 之後被接受的期刊論文
+      list_price_usd:
+        no_acm_or_sig_member: 1800
+        at_least_one_acm_or_sig_member: 1300
+        lower_middle_income_country_no_member: 900
+        lower_middle_income_country_at_least_one_member: 650
+      currency: USD
+      src: open_access
+      mandatory: true
+      mandatory_note: >-
+        接受後要付 APC 才進入出版流程（payment_timing）。例外只有 no_fee_routes 列的兩種：通訊作者的機構參加 ACM Open，或機構所在國家是世界銀行的低收入國家。
+      quote: >-
+        "For all journal articles that are accepted after 12:00 am US Eastern time on January 1, 2027, APCs for journals will return to list pricing."
+      before_2027: >-
+        頁面寫 2026 年有 ACM 出資的暫時補貼 APC，但只列 2027 年的金額；2026 年補貼後的實際金額頁面沒有列。
+        2026-11-15 現在投稿的論文會在哪個年度被接受，取決於審查時程，頁面沒有承諾。
+    no_fee_routes:
+      - id: acm_open_institution
+        quote: "If the corresponding author is affiliated with an institution participating in ACM's transformative ACM Open model."
+        note: 參與機構名單在 https://authors.acm.org/xpages/open-access/open-participants-authors-copy，本次沒有查。
+      - id: low_income_country
+        quote: "If the country in which your institution is located is classified by the World Bank as a low-income country."
+    waivers: >-
+      頁面連到 Policy on Geographic APC Waivers and Discounts 與 Policy on APC Waivers for Financial Hardship（本次沒有讀）。
+    payment_timing: "no production work, including posting the Author's Accepted Manuscripts (AAM) in the Just Accepted section online, will proceed until APC payment is received."
+    license: 作者保留著作權；可選 CC-BY 或 CC-BY-NC-ND（author_guidelines "Author Rights"）。ACM 另取得非專屬出版授權與商業權利（含授權第三方做 LLM 訓練）。
+    color_print_or_page_charges: {status: not_published, checked: 2026-11-15, src: open_access}
+    submission_fee: {status: not_published, checked: 2026-11-15, src: author_guidelines}
+    src: open_access
+
+  policies:
+    dual_submission: forbidden
+    dual_submission_src: author_guidelines
+    preprints: allowed
+    preprints_src: acm_author_rights
+    similarity_screening: >-
+      副編輯須知：副編輯可用 Manuscript Central 的 iThenticate 檢查相似度；
+      "By ACM policy, conference papers must have at least 25 percent new material"（ae_guidelines，連到 simultaneous-submissions 政策）。
+    generative_ai:
+      research_use_disclosure: >-
+        "When using Artificial Intelligence to conduct research, including the design and methodology of the research project, creation and
+        selection of data sources, designing experiments, generation and collection of data, coding, implementing models, running simulations,
+        data analysis, testing, validating results, deploying software, archiving data and code for reproducibility, or any other aspects of
+        the research lifecycle that are directly relevant to the conclusions of the research underlying the Work, the specific use(s) of AI
+        tools must be described in detail in the methods section of the Work."
+      writing_assistance_disclosure: >-
+        "When using Artificial Intelligence to assist with writing an ACM submission, ACM no longer requires the disclosure of information
+        regarding the use of AI (as distinct from AI used in the conduct of the research itself, addressed in item 1 above)."
+      accountability: "All named authors on an ACM submission will be held responsible and accountable for any problematic content contained in the submission regardless of the source of that problematic content."
+      src: acm_authorship
+      note: 這是 ACM 全體政策；TOSEM 的作者須知只連到它，沒有另訂。TOSEM 的研究常以 LLM／agent 為研究對象或工具，用在「研究本身」的 AI 都落在第一項。
+    reviewer_use_of_llm: >-
+      ACM Peer Review Policy 禁止審稿人把機密稿件上傳到不保證保密的第三方系統（含 LLM）（acm_peer_review）；這約束審稿人，不是作者。
+    ethics:
+      human_participants: ACM Publications Policy on Research Involving Human Participants and Subjects（author_guidelines 列出，本次沒有讀全文）
+      plagiarism: ACM Policy on Plagiarism, Misrepresentation, and Falsification（同上）
+    conflict_of_interest: ACM Conflict of Interest (COI) Policy（author_guidelines 列出）；主編有利益衝突時由編輯委員會成員代理主編的全部職責。
+    orcid: required_at_submission_for_submitting_author
+
+  standards:
+    - id: acm-artifact-badging
+      label: ACM Artifact Review and Badging
+      url: https://www.acm.org/publications/policies/artifact-review-and-badging-current
+      required: false
+      applicability:
+        - {case: rcr_report, status: covered, note: RCR 報告依此評審，目標是 available、functional、reusable 三個 badge}
+        - {case: main_research_paper, status: partial, note: 作者須知只說鼓勵提交 artifact 並連到 badging，沒有要求主論文通過 artifact evaluation}
+    - id: casrai-credit
+      label: CASRAI Contributor Roles Taxonomy（致謝時描述貢獻角色，建議但非強制）
+      required: false
+    - id: reporting-standard-for-empirical
+      label: 研究報告標準（reporting standard）
+      required: false
+      note: 作者須知沒有指定任何研究報告標準（reporting standard）；2026-11-15 查過 author_guidelines。
+
+# ─────────────────────────────────────────────────────────────
+cycle:
+  applies_to: null
+  rolling_calls:
+    - id: journal_first
+      label: Journal-First Papers
+      type: general_ongoing
+      deadline: {status: not_applicable, note: "Journal-first papers can be submitted at any time."}
+      url: https://dl.acm.org/journal/tosem/journalfirstpapers
+      src: journal_first
+    - id: css_sustainable
+      label: "Continuous Special Section: Sustainable SE"
+      type: general_ongoing
+      deadline: {status: not_applicable, note: "Submissions to this special section on Sustainable SE are open and may be made at any time."}
+      url: https://dl.acm.org/journal/tosem/continuousspecialsections
+      src: continuous_special_sections
+      note: 頁面標題是 Sustainable SE，但該段內文第一句寫 "The new series of the continuous special section is on quantum software engineering"，應是複製貼上的筆誤。
+    - id: css_quantum
+      label: "Continuous Special Section: Quantum Software Engineering"
+      type: general_ongoing
+      deadline: {status: not_applicable, note: "Submissions to this special section on Quantum Software Engineering are open and may be made at any time."}
+      url: https://dl.acm.org/journal/tosem/continuousspecialsections
+      src: continuous_special_sections
+    - id: rcr_reports
+      label: Replicated Computational Results Reports
+      type: general_ongoing
+      deadline: {status: not_applicable, note: 已接受論文的 RCR 限出版後 6 個月內；審查中的論文隨時可投}
+      url: https://dl.acm.org/journal/tosem/replicated-computational-results
+      src: rcr_cfp
+    - id: registered_papers
+      label: Registered Papers
+      type: general_ongoing
+      deadline: {status: not_published, checked: 2026-11-15, note: 頁面沒有列截止日}
+      url: https://dl.acm.org/journal/tosem/registered-papers
+      src: registered_papers
+    - id: roadmap_2030
+      label: Roadmap to 2030
+      type: general_ongoing
+      deadline: {status: not_published, checked: 2026-11-15, note: 只讀了 calls-for-papers 總表；細則頁 /roadmap2030 沒有讀}
+      url: https://dl.acm.org/journal/tosem/roadmap2030
+      src: calls_for_papers
+    - id: new_frontiers
+      label: New Frontiers in Software Engineering
+      type: general_ongoing
+      deadline: {status: not_published, checked: 2026-11-15, note: 只讀了 calls-for-papers 總表；細則頁 /frontiers 沒有讀}
+      url: https://dl.acm.org/journal/tosem/frontiers
+      src: calls_for_papers
+    - id: si_human_ai
+      label: Special Issue on Human AI Collaboration in Software Engineering
+      type: special_issue
+      deadline:
+        date: 2026-10-01
+        label: "Submissions deadline: September 1, 2026 EXTENDED TO: October 1, 2026"
+        note: 已過（今天 2026-11-15）。頁面其他日期：第一輪決定 2026-12-15、修改稿 2027-02-15、最終決定 2027-05-15、預計 2027-08 刊出。
+      url: https://dl.acm.org/journal/tosem/human-ai-collaboration-software-engineering
+      wants: >-
+        human／agentic／socio-technical 面向的人機協作研究；以 fast-impact track 處理（須符合 journal-first、45 頁不含參考文獻、鼓勵更短）。
+      out_of_scope_quote: >-
+        "Reviews, technical reports, opinion pieces, and white papers are outside the scope"；
+        "Submissions that present tools, benchmarks, or datasets without substantive evaluation or insight into human AI collaboration"；
+        "Incremental works that do not address fundamental human AI collaboration questions nor push the boundaries of current approaches"。
+      src: cfp_human_ai
+    - id: si_agentic_ai
+      label: "Special Issue 2025: Agentic AI in Software"
+      type: special_issue
+      deadline:
+        date: 2025-11-01
+        label: "Nov 1, 2025: Paper submission deadline"
+        note: '已過。頁面時程寫 "Jan 31, 2025: First reviews appear"，年份應是筆誤（早於截稿日）。'
+      url: https://dl.acm.org/journal/tosem/agentic-ai-software
+      wants: 代理（LLM agent）自動化軟體工程任務、信任、整合、人與代理的互動；類別代碼 [Auto]、[Trust]、[Integrate]、[A-H]、[Oth] 可寫在 cover letter。
+      src: cfp_agentic
+
+# ─────────────────────────────────────────────────────────────
+warnings:
+  - >-
+    一般論文的頁數上限、摘要字數、審查是單盲還是雙盲，TOSEM 官方頁面都沒有寫（已查作者須知、審稿人須知、副編輯須知、ACM Peer Review Policy 與 FAQ）。
+    不要自行假設雙盲；作者須知唯一寫明的是審稿人姓名不對作者公開。副編輯須知把「over the page limit」列為 desk reject 理由，所以有上限，只是作者面頁面沒寫。
+  - >-
+    TOSEM 的「journal-first」是一種投稿類型（新研究、與任何已發表的出版物相差 70% 以上、cover letter 附 200 字 novelty 聲明），
+    不是「已在研討會發表」。Fast-impact track、Registered Paper、RCR 與各特刊都要求符合 journal-first 並限 45 頁（不含參考文獻）。
+  - >-
+    要先貼 arXiv 時：ACM 的自我典藏政策明文允許（"an example of a site ACM authors may post all pre-publication versions of their work to is arXiv"，
+    並請在 arXiv 補上正式版 DOI）；但 journal-first 的「70% 規則」沒有說預印本算不算 previous publication，
+    若要走 journal-first／fast-impact，建議先向主編確認。
+  - >-
+    APC：全面開放取用。2027-01-01 後被接受的論文是 US$1800（無 ACM／SIG 會員）或 US$1300（至少一位作者是會員）；
+    對應 ACM Open 機構的通訊作者或低收入國家機構免 APC。2026 年補貼期的實際金額頁面沒有列；付款前不會進入 production。
+  - >-
+    ORCID：投稿的主要作者在投稿時必須提供；全部作者在進入 production 前都要有有效 ORCID。
+  - >-
+    頁面內容可能過時：charter 署名是前任主編 Mauro Pezze，SCImago 頁仍列 mauro.pezze@usi.ch；首頁與作者須知現任是 Abhik Roychoudhury。
+    Continuous Special Sections 頁的 Sustainable SE 段落內文錯寫成 quantum；Agentic AI 特刊時程有 2025／2026 年份筆誤。
+  - >-
+    Human AI Collaboration 特刊的截稿日（2026-10-01，已延長一次）與 Agentic AI 特刊（2025-11-01）都已過。
+    該特刊把 reviews、technical reports、opinion pieces、white papers、沒有實質評估的工具或資料集列為 out of scope，只適用該特刊。
+  - >-
+    生成式 AI：研究過程中用到的 AI（資料、程式、實驗、分析等）必須在 methods 詳細描述；只用來協助寫作則不再要求揭露（ACM Policy on Authorship）。
+  - >-
+    投稿類型要在 ScholarOne 的 manuscript type 選對（Journal-First Paper、特刊名稱、RCR report、Registered Paper）；
+    選錯類型會落入一般審查路徑，頁面沒有說明可否事後更改。
+  - >-
+    瀏覽器抓取：ACM 的所有頁面都有 Cloudflare，curl 一律 403；要用瀏覽器讀，且分頁要在前景才過得了驗證。
