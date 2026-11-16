@@ -9,3 +9,7 @@ __pycache__/
 *.fdb_latexmk
 *.xdv
 *.synctex.gz
+
+# Spectra app data
+.spectra/
+docs/spectra/.vector-search.db*

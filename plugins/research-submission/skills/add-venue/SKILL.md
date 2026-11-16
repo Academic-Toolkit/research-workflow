@@ -72,6 +72,26 @@ ls ${CLAUDE_PLUGIN_ROOT}/venues/*/          # apa/psychological-methods.yaml（�
 
 `identity.metrics` 請用 `impact_factor`、`quartiles`、`acceptance_rate`、`time_to_first_decision`、`time_submission_to_acceptance`，形狀見 `venue-report` skill 的「記錄的標準欄位」。**分區（Q）要記系統**：JCR 與 SJR 是不同的統計量，不混用。官方只公布拒絕率時，`acceptance_rate` 寫 not_published，另放 `rejection_rate`。
 
+### 比較表會讀的其他欄位（標準形狀）
+
+比較表由 `scripts/venue_table.py` 從記錄產生。下面是它讀的標準寫法；照這個寫，表上才不會出現「?」（「?」的意思是腳本認不得記錄的形狀，不是官方未公布）。
+
+| 欄 | 標準寫法 |
+|---|---|
+| 收錄 | `identity.indexing.web_of_science: {scie, ssci, esci, as_of, src}`，三個旗標各寫 `true` 或 `false`（布林，不要寫成字串）。表上只顯示 SCIE 與 SSCI；`esci` 照實記錄，但不顯示。寫了 `web_of_science` 就由它決定這一格，舊的收錄鍵不再讀 |
+| APC | `requirements.fees.apc: {amount, currency, mandatory}`，`mandatory` 寫 `true` 或 `false`。多幣別定價寫 `currency_rates: [{currency, value}, ...]`（表上取第一筆 USD）；分級定價寫 `list_price_usd: {<級別>: <金額>}`（表上取最高的一級）。`list_price_usd` 只放價格級別，每個值都會被當成一級的價格；年份、來源、附註寫在 `apc` 的其他鍵（例如 `as_of`、`src`、`note`）。必付或選付請明寫 `mandatory`。沒寫時腳本依序看：`status`（`mandatory…` 是必付、`optional` 是選付）、`identity.open_access` 有值（必付；只對直接寫 `amount`、或寫在 `all_other_articles`、`a_type` 的記錄，用 `currency_rates` 或 `list_price_usd` 寫的不看這一項）、`applies_when`（選付）；都沒有就印「?」。`identity.open_access` 寫 `hybrid` 的期刊因此一定要明寫 `mandatory: false`。金額沒公布時寫 `amount: {status: not_published, checked}`，表上印「未公布」；依同樣順序判斷但不看 `identity.open_access`，結果是選付才加「（選付）」 |
+| 篇幅 | `requirements.length: {value, unit}`，`unit` 用 `words`、`pages_double_spaced` 或 `pages_typeset`。官方沒寫上限時寫 `requirements.length_limit: {status: not_published, checked}`（schema 規定 `requirements.length` 一定要有 `value` 與 `unit`，所以「沒有上限的資訊」另放這個鍵） |
+| 審稿 | `requirements.review.type`，值用 `single_blind`、`single_anonymized`、`double_blind`、`double_anonymized`。官方沒寫時寫 `{status: not_published, checked}` |
+| 出版社 | `identity.publisher` 寫字串；官方沒寫時寫 `{status: not_published, checked}` |
+
+期刊記錄的任何一欄查過而沒有值，都寫 `{status: not_published|not_found|not_applicable, checked}`，不要留空，也不要自創別的形狀（篇幅是例外，寫在 `requirements.length_limit`，見上表）。`status` 三個值的意思不同：`not_published` 是官方沒公布，`not_found` 是查過但沒取得（例如要登入），`not_applicable` 是這一欄對這個場地不適用。表上目前只有出版社、收錄、IF、APC、審稿這五欄會照 `status` 印出對應的字；分區、接受率、審稿時間、篇幅四欄還不會區分（例如分區一律印「未取得」），記錄仍照實寫。
+
+**研討會（`kind: conference`）**：
+
+- 收錄、IF、分區、首次決定、投稿到接受這五欄**省略不寫**，表上會印「不適用」。不要替這五欄寫 `status`：分區與審稿時間欄目前不會照 `status` 印出對應的字。
+- 審稿型態各軌不同時，寫 `requirements.review.model_by_track: {research: ..., ...}`，表上取 `research`；只有一種時寫 `requirements.review.type`。
+- APC 沒有預設值，要明寫：有金額就照上表寫 `requirements.fees.apc`；官方沒公布就寫 `requirements.fees.apc: {status: not_published, checked}`。只寫報名費而沒寫 `apc`，表上會印「?」。
+
 ### 官方沒有公布審稿速度時：自行抽樣估計（只當估計，不當官方事實）
 
 官方未公布「投稿到接受」時，先寫 `not_published`（官方欄位照舊，不動）。若該刊的**文章頁標有 Received／Accepted／Published 日期**，可以用 `scripts/sample_review_times.py` 抽樣估計，結果放在 `identity.metrics.estimates`，**與官方欄位分開**：
@@ -101,7 +121,7 @@ estimates:
 
 ### 三條填寫紀律
 
-1. **查過但官網沒有 → 寫 `{status: not_published, checked: <date>}`**，不要留空。留空會讓後人以為是漏抓，於是重複去查一次不存在的東西。
+1. **查過但官網沒有 → 寫 `{status: not_published, checked: <date>}`**，不要留空。留空會讓後人以為是漏抓，於是重複去查一次不存在的東西。例外有兩個：研討會記錄的收錄、IF、分區、首次決定、投稿到接受這五欄省略不寫；篇幅沒有上限的資訊時寫在 `requirements.length_limit`（兩者見上方「比較表會讀的其他欄位」）。
    - `not_published` 官方未公布 ／ `not_found` 找不到 ／ `not_applicable` 不適用
 2. **`requirements`（慢）與 `cycle`（快）分開放。** 期刊多為 `cycle.applies_to: null`；研討會反過來——requirements 薄、cycle 厚。放錯格會導致「須知是對的但截稿日是去年」。
 3. **`extracted_sha256` 留 `null`**，交給 `verify.py` 建基準。不要手算——hash 必須由同一個 extractor 產生才可比。
