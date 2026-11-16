@@ -230,7 +230,9 @@ class FixRound1(unittest.TestCase):
                  ({"amount": 2000, "currency": "USD", "applies_when": "on acceptance"}, True, "USD 2,000（必付）"),
                  ({"amount": 2000, "currency": "USD", "mandatory": False}, True, "USD 2,000（選付）"),
                  ({"amount": np_, "mandatory": True, "applies_when": "on acceptance"}, None, "未公布"),
-                 ({"amount": np_, "applies_when": "on acceptance"}, None, "未公布（選付）")]
+                 ({"amount": np_, "applies_when": "on acceptance"}, None, "未公布（選付）"),
+                 ({"amount": np_, "status": "mandatory", "applies_when": "on acceptance"}, None, "未公布"),
+                 ({"amount": np_, "mandatory": False}, True, "未公布（選付）")]
         for apc, oa, expected in cases:
             with self.subTest(apc=apc, oa=oa):
                 ident = {"open_access": oa} if oa is not None else {}
@@ -257,6 +259,8 @@ class FixRound1(unittest.TestCase):
                  ({"name": "ACM Press"}, "ACM"),
                  ({"value": "Elsevier"}, "Elsevier"),
                  ("IEEE and ACM", "ACM"),
+                 ("Springer on behalf of ACM SIGLOG", "Springer Nature"),
+                 ("Elsevier, on behalf of ACM", "Elsevier"),
                  ("Acme Books", "Acme Books"),
                  ({"name": "Unknown House", "note": "formerly Wiley"}, "?"),
                  ({"name": "Unknown House"}, "?"),
@@ -383,6 +387,36 @@ class FixRound2(unittest.TestCase):
         self.assertEqual(len(row), 1)
         self.assertIn("requirements.length_limit: {status: not_published, checked}", row[0])
         self.assertNotIn("requirements.length: {status: not_published, checked}", row[0])
+
+
+class FixRound3(unittest.TestCase):
+    def test_empty_indexing_of_another_type(self):
+        # spec-example: venue-table / empty indexing of another type
+        wos = {"indexing": {"web_of_science": {"scie": True, "ssci": False}}}
+        for ind, metrics, expected in [([], wos, "SCIE"), ("", wos, "SCIE"), ([], {}, "?")]:
+            with self.subTest(ind=ind, metrics=metrics):
+                self.assertEqual(build(identity={"indexing": ind, "metrics": metrics})["index"], expected)
+
+    def test_price_keys_that_yield_no_price(self):
+        # spec-example: venue-table / price keys that yield no price
+        cases = [({"list_price_usd": {"member": "1300"}, "all_other_articles": {"amount": 2000, "currency": "USD"},
+                   "mandatory": True}, "USD 2,000（必付）"),
+                 ({"currency_rates": [{"currency": "USD", "value": "x"}], "a_type": {"amount": 1500, "currency": "USD"},
+                   "mandatory": False}, "USD 1,500（選付）"),
+                 ({"currency_rates": [{"currency": "USD", "value": "x"}]}, "?"),
+                 ({"currency_rates": [{"currency": "USD", "value": 3390}, {"currency": "USD", "value": 3000}],
+                   "mandatory": False}, "USD 3,390（選付）")]
+        for apc, expected in cases:
+            with self.subTest(apc=apc):
+                self.assertEqual(build(requirements={"fees": {"apc": apc}})["apc"], expected)
+
+    def test_skill_text_on_price_tiers_and_unpublished_amounts(self):
+        # spec-example: venue-table / skill text on price tiers and unpublished amounts
+        text = (PLUGIN / "skills" / "add-venue" / "SKILL.md").read_text(encoding="utf-8")
+        row = [l for l in text.splitlines() if l.startswith("| APC |")]
+        self.assertEqual(len(row), 1)
+        self.assertIn("只放價格級別", row[0])
+        self.assertIn("金額沒公布時", row[0])
 
 
 class ConferenceRecords(unittest.TestCase):
