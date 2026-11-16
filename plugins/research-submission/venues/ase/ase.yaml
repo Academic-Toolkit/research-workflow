@@ -1,0 +1,748 @@
+--- # research-submission venue record
+# IEEE/ACM International Conference on Automated Software Engineering (ASE) — 內容擷取自 2026-11-15。
+#
+# 這份記錄的結構性事實（讀之前先看這個）：
+#   * 2026-11-15 當天，ASE 2026（慕尼黑，2026-10-12 至 2026-10-16）已經辦完（官網
+#     proceedings 頁寫「已於 10 月 7 日／8 日出版」）。所以「下一屆尚未截稿的版次」是 ASE 2027。
+#   * ASE 2027 的官方頁面當天【沒有公開】：conf.researchr.org/home/ase-2027 回 HTTP 200 但內容是
+#     「Access denied / You do not have the privileges to access this part」登入牆，而不存在的
+#     屆次（ase-2028、ase-2099）回 HTTP 404 "Page not found"。這個差異顯示 ase-2027 已在系統內
+#     建立、但尚未對外公開（這是依回應差異做的推論，不是官方說明）。ASE 指導委員會網站
+#     ase-conferences.org 與 researchr 的 series 頁都只列到 ASE 2026。
+#   * 因此：cycle 區塊是 ASE 2027，欄位全部 not_published；requirements 的所有規定內容取自
+#     ASE 2026（已舉行）的正式徵稿頁。ASE 2026 的日期、地點、費用只放在
+#     requirements.previous_edition_reference 當「節奏參考」，【不得】當成 2027 的日期。
+
+schema_version: 1
+id: ase/ase
+kind: conference
+family: software-engineering-conferences
+status: active
+
+sources:
+  # ── 規定本體：取自 ASE 2026（已舉行）─────────────────────────────
+  - id: research_track_2026
+    role: authoritative
+    url: https://conf.researchr.org/track/ase-2026/ase-2026-research-track
+    note: >-
+      Research Papers 軌道頁；「Call for Papers」分頁內容（雙匿名審查、10+2 頁、研究領域清單、
+      Data Availability Statement、AI 使用揭露、arXiv 標題建議、Important Dates）。頁面約 1 MB
+      （內含整個節目與 accepted papers 清單），curl 約需 40–100 秒才傳完。URL 慣例由首頁導覽
+      點進去確認，是 /track/ase-2026/ase-2026-research-track（不是 /ase-2026-papers 之類，
+      後者是 ASE 2025 的命名）。這是已舉行屆次的頁面，內容不應再變動。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "The ASE 2026 Research Track will employ a double-anonymous review process"
+        min_extracted_chars: 120000
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: submission_policies_2026
+    role: authoritative
+    url: https://conf.researchr.org/track/ase-2026/ase-2026-submission-instructions-and-policies
+    note: >-
+      所有軌道共通的規定頁：camera-ready 頁數表、ACM 範本、註冊要求、SIGSOFT 開放科學政策、
+      作者與 AI、ACM Open 開放取用費用、Pre-Print Publications、Data Availability Statement FAQ。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "ASE 2026 follows the SIGSOFT Open Science Policy"
+        min_extracted_chars: 8000
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: industry_2026
+    role: authoritative
+    url: https://conf.researchr.org/track/ase-2026/ase-2026-industry-showcase
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Submissions to industry showcase track will not undergo double-blind reviews"
+        min_extracted_chars: 90000
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: nier_2026
+    role: authoritative
+    url: https://conf.researchr.org/track/ase-2026/ase-2026-nier
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "ASE 2026 NIER adopts a double-blind review process"
+        min_extracted_chars: 85000
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: tools_datasets_2026
+    role: authoritative
+    url: https://conf.researchr.org/track/ase-2026/ase-2026-tools-and-data-sets
+    note: >-
+      軌道名稱官網寫「Tools and Datasets」（導覽）、URL 是 tools-and-data-sets；舊屆稱 tool demonstrations。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Tools and Datasets Availability"
+        min_extracted_chars: 90000
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: journal_first_2026
+    role: authoritative
+    url: https://conf.researchr.org/track/ase-2026/ase-2026-journal-first
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "journal-first papers published recently in prestigious software engineering journals"
+        min_extracted_chars: 80000
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  - id: artifact_evaluation_2026
+    role: authoritative
+    url: https://conf.researchr.org/track/ase-2026/ase-2026-artifact-evaluation
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "The ASE artifact evaluation track uses a single-anonymous review process"
+        min_extracted_chars: 12000
+    snapshot:
+      fetched_at: 2026-11-15
+      last_verified_at: 2026-11-15
+      extracted_sha256: null
+
+  # ── 輔助來源 ─────────────────────────────────────────────────
+  - id: doctoral_symposium_2026
+    role: supporting
+    url: https://conf.researchr.org/track/ase-2026/ase-2026-doctoral-symposium
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "ASE 2026 Doctoral Symposium"
+        min_extracted_chars: 8000
+    snapshot: {fetched_at: 2026-11-15, last_verified_at: 2026-11-15, extracted_sha256: null}
+
+  - id: src_2026
+    role: supporting
+    url: https://conf.researchr.org/track/ase-2026/ase-2026-student-research-competition
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "ACM Student Research Competition (SRC) offers undergraduate and graduate students"
+        min_extracted_chars: 11000
+    snapshot: {fetched_at: 2026-11-15, last_verified_at: 2026-11-15, extracted_sha256: null}
+
+  - id: workshops_2026
+    role: supporting
+    url: https://conf.researchr.org/track/ase-2026/ase-2026-workshops
+    note: 共同舉辦活動（workshop）的 proposal 頁；各 workshop 自己的投稿規定在各自子站，本記錄未收。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Call for Proposals for Co-Located Conferences and Workshops"
+        min_extracted_chars: 3000
+    snapshot: {fetched_at: 2026-11-15, last_verified_at: 2026-11-15, extracted_sha256: null}
+
+  - id: registration_2026
+    role: supporting
+    url: https://conf.researchr.org/attending/ase-2026/registration
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Every accepted paper must be accompanied by at least one Main Conference registration"
+        min_extracted_chars: 3500
+    snapshot: {fetched_at: 2026-11-15, last_verified_at: 2026-11-15, extracted_sha256: null}
+
+  - id: proceedings_2026
+    role: supporting
+    url: https://conf.researchr.org/info/ase-2026/proceedings
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "All 15 proceedings of ASE 2026 events were published"
+        min_extracted_chars: 2500
+    snapshot: {fetched_at: 2026-11-15, last_verified_at: 2026-11-15, extracted_sha256: null}
+
+  - id: home_2026
+    role: supporting
+    url: https://conf.researchr.org/home/ase-2026
+    note: ASE 2026 首頁：日期、地點。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Munich, Germany"
+        min_extracted_chars: 3500
+    snapshot: {fetched_at: 2026-11-15, last_verified_at: 2026-11-15, extracted_sha256: null}
+
+  - id: series_page
+    role: supporting
+    url: https://conf.researchr.org/series/ase
+    note: researchr 的 ASE 系列頁；2026-11-15 只列 ASE 2019–2026，沒有 2027。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Past Editions"
+        min_extracted_chars: 4000
+    snapshot: {fetched_at: 2026-11-15, last_verified_at: 2026-11-15, extracted_sha256: null}
+
+  - id: steering_committee_site
+    role: supporting
+    url: https://ase-conferences.org/
+    note: >-
+      ASE 指導委員會網站。2026-11-15 首頁寫「Upcoming Conference: 41st ... ASE 2026, Oct. 12 - Oct. 16,
+      2026 in Munich」，尚未更新到 2027（也沒有下一屆的資訊）。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Automated Software Engineering Homepage"
+        min_extracted_chars: 150
+    snapshot: {fetched_at: 2026-11-15, last_verified_at: 2026-11-15, extracted_sha256: null}
+
+  - id: ase_2027_hidden_probe
+    role: supporting
+    url: https://conf.researchr.org/home/ase-2027
+    note: >-
+      【絆線，不是內容來源】2026-11-15 此 URL 回 HTTP 200，但內容是 researchr 的登入牆
+      （"Access denied ... You do not have the privileges to access this part"）；不存在的屆次
+      （ase-2028、ase-2099）回 404。must_contain 故意設成 "Access denied"：ASE 2027 一旦公開，
+      此頁不再含該字串，verify.py 會回報 INVALID，提醒人來重做 cycle 區塊。
+    fetch:
+      method: http
+      http_viable: true
+      validity:
+        must_contain: "Access denied"
+        min_extracted_chars: 50
+    snapshot: {fetched_at: 2026-11-15, last_verified_at: 2026-11-15, extracted_sha256: null}
+
+identity:
+  name: IEEE/ACM International Conference on Automated Software Engineering (ASE)
+  publisher: >-
+    ACM Digital Library（ASE 2026 proceedings，DOI 前綴 10.1145，open access；
+    這是 2026 屆的事實，2027 屆的出版方官方未公布）
+  homepage: https://ase-conferences.org/
+  frequency: annual
+  edition_basis: ASE 2026 為第 41 屆（ase-conferences.org 首頁："41st IEEE/ACM International Conference"）
+  issn: {status: not_applicable, checked: 2026-11-15}
+  metrics:
+    acceptance_rate:
+      status: not_published
+      checked: 2026-11-15
+      note: >-
+        ASE 2026 的 Research Papers、Submission Instructions、Proceedings 與首頁都
+        沒有公布錄取率或投稿數；未採信第三方彙整站的數字。
+    submission_counts: {status: not_published, checked: 2026-11-15}
+
+# ─────────────────────────────────────────────────────────────
+# SLOW — 規定本體。全部取自 ASE 2026（已舉行）的徵稿頁，不是 ASE 2027。
+# ─────────────────────────────────────────────────────────────
+requirements:
+  refresh: {check_every: P12M, method: extracted_hash_diff}
+  basis_edition: 2026   # 以下規定的來源屆次；2027 屆的規定尚未公布，可能改（例：2026 新增了 Early Rejection 與強制 DAS）
+
+  scope:
+    aims: >-
+      官方：「The IEEE/ACM Automated Software Engineering (ASE) Conference series is the premier
+      research forum for automated software engineering. Each year, it brings together researchers and
+      practitioners from academia and industry to discuss foundations, techniques, and tools for
+      automating the analysis, design, implementation, testing, and maintenance of large software
+      systems.」
+    src: research_track_2026
+
+  # 研究軌道的投稿規定（最常被問的那一軌）。
+  length:
+    value: 10
+    unit: pages_typeset
+    includes: [figures, tables, appendixes]
+    basis:
+      template: "ACM Primary Article Template, \\documentclass[sigconf,review,anonymous]{acmart}"
+      note: >-
+        正文 10 頁（含所有 figures、tables、appendices）；另外最多 2 頁「只放 references」。
+        投稿版的 Data Availability Statement 必須放在這 10 頁之內。
+    exceptions: >-
+      官方原文：「Submissions that do not adhere to these limits or that violate the formatting guidelines
+      will be desk-rejected without review.」另一方面 HotCRP format checker 對小字（圖、註腳、參考文獻）
+      的抱怨不會單獨導致退稿（原文："As long as the main text follows the requested format, and the figures
+      are readable, the paper will not be rejected for format violations."）。
+      錄取後 camera-ready：11 頁 + 2 頁（references 與 Data Availability Statement）。
+    src: research_track_2026
+
+  abstracts:
+    - id: research_abstract_stage
+      note: >-
+        研究軌道有「先投摘要」的階段：「For the abstract submissions, authors are required to specify the
+        title and the abstract of their papers, relevant research areas, and their conflict of interests.」
+        「submissions with dummy placeholders for titles/abstracts will be rejected」。字數限制官網未寫。
+      word_limit: {status: not_published, checked: 2026-11-15}
+      src: research_track_2026
+
+  fees:
+    apc:
+      status: not_published
+      checked: 2026-11-15
+      note: >-
+        ASE 2027 的徵稿與論文集出版方尚未公布。ASE 2026 的論文集在 ACM Digital Library 開放取用：通訊作者的機構參加 ACM Open 時通常不必付 APC，否則由作者付（見 requirements.proceedings.open_access_charges）；金額頁面沒有列。報名費另計，不是 APC。
+  review:
+    model_by_track:
+      research: double-anonymous
+      nier: double-blind
+      industry_showcase: not_blinded          # "will not undergo double-blind reviews"
+      tools_and_datasets: not_blinded         # "DO NOT follow a double-blind review process"
+      artifact_evaluation: single-anonymous
+      student_research_competition: single-blind
+      journal_first: no_technical_review      # 期刊已審；ASE 只查範圍與條件
+    research_track_process:
+      - >-
+        三位以上 reviewer + 一位 area chair（原文：Program chairs will assign "an area chair (and at least
+        three reviewers)"）。
+      - >-
+        結果三類：Accept / Revision / Reject。Revision（major revision）給最多四週修改，附
+        point-by-point summary-of-changes。
+      - >-
+        2026 新增 Early Rejection：全部評分為負的稿件在 rebuttal 前就被拒。
+      - 有 Author Response 階段（2026 為 2026-05-25 至 05-27）。
+    anonymization_rules:
+      - "Authors' names and affiliated institution names must be omitted from the submission."
+      - "All references to the author's prior work should be in the third person."
+      - >-
+        補充材料（程式、資料）也要匿名；官方建議把 repository 匯出成無版本歷史、清掉名字與 metadata 的
+        版本，用 Zenodo 這類給 DOI 的長期 repository 匿名上傳。
+    conditional:
+      - id: human_subjects
+        when: 研究牽涉人類受試者
+        requirements:
+          - "投稿時須聲明遵守 ACM Policy on Research Involving Humans；各作者須能出示倫理審查佐證。"
+      - id: experience_paper
+        when: 投稿類別是 Experience Paper
+        requirements:
+          - "摘要裡要明顯寫出「experience paper」這個詞，才會被當成 experience paper 評審。"
+      - id: genai_use
+        when: 以生成式 AI 產出文字、程式、圖表、資料、引用等內容
+        requirements:
+          - "必須在 Acknowledgements 或專節完整揭露；生成式 AI 工具不得列為作者。"
+          - "官方範例語句：ChatGPT was utilized to generate sections of this Work, including text, tables, graphs, code, data, citations, etc."
+    src: research_track_2026
+
+  standards:
+    - id: acm_policy_on_authorship
+      url: https://www.acm.org/publications/policies/new-acm-policy-on-authorship
+      label: ACM Policy on Authorship（2023-04-20）與 FAQ
+      required: true
+    - id: acm_artifact_badging_v1_1
+      label: ACM Artifact Review and Badging Version 1.1（Artifact Evaluation 軌用）
+      required: false
+    - id: sigsoft_open_science_policy
+      label: SIGSOFT Open Science Policy（官網：ASE 2026 follows ...；strongly encouraged 公開 artifacts）
+      required: false
+
+  # ── 研究軌道以外的各軌（ASE 2026 規定；2027 未公布）──────────────────
+  tracks:
+    - id: research_papers
+      name: Research Papers（Technical / Experience 兩類）
+      exists_in_2026: true
+      submission_pages: "10 + 最多 2 頁 references（全文引用見 length）"
+      camera_ready_pages: "11 + 2（data availability statement + references）"
+      template: "\\documentclass[sigconf,review,anonymous]{acmart}"
+      review: double-anonymous
+      portal: HotCRP（https://ase26.hotcrp.com）
+      src: research_track_2026
+    - id: industry_showcase
+      name: Industry Showcase
+      exists_in_2026: true
+      submission_pages: "Long：10 頁 + 2 頁 references；Short：5 頁 + 1 頁 references"
+      camera_ready_pages: "Long：11 + 2（DAS + references）；Short：6 + 1（DAS + references）"
+      template: "\\documentclass[sigconf,review]{acmart}"
+      review: not_blinded
+      review_note: "原文：Submissions to industry showcase track will not undergo double-blind reviews. 作者不必隱藏身分。至少三位 PC 成員審。"
+      portal: HotCRP（https://ase26-industry.hotcrp.com/）
+      src: industry_2026
+    - id: nier
+      name: NIER（New Ideas and Emerging Results）
+      exists_in_2026: true
+      submission_pages: "4 頁（含所有文字、附錄、圖）+ 最多 2 頁只放 references；Data Availability Statement 不計頁"
+      camera_ready_pages: "4 + 2（DAS + references）"
+      template: "\\documentclass[sigconf,review,anonymous]{acmart}"
+      review: double-blind
+      categories: [Groundbreaking research papers, Reflection papers, Late-breaking advances papers]
+      scope_note: "主題範圍與 Research Track 相同。"
+      portal: HotCRP（https://ase2026-nier.hotcrp.com）
+      src: nier_2026
+    - id: tools_and_datasets
+      name: Tools and Datasets（舊稱 tool demonstrations）
+      exists_in_2026: true
+      submission_pages: "4 頁（含所有文字、references、圖）"
+      camera_ready_pages: "5 頁（含 references）"
+      template: "\\documentclass[sigconf,review]{acmart}"
+      review: not_blinded
+      extra: >-
+        必須附不超過 5 分鐘的 screencast（上傳 YouTube，URL 放在摘要末尾）；若同時投研究軌，
+        HotCRP 的 “Connection with research track” 要選 Yes。
+      portal: HotCRP（https://ase26-tools-datasets.hotcrp.com）
+      src: tools_datasets_2026
+    - id: nier_and_tools_page_limit_note
+      name: （備註）Tools 軌投稿頁數與 camera-ready 頁數不同
+      note: >-
+        徵稿頁寫「must not exceed four pages (including all text, references, and figures)」，
+        共通規定頁的 camera-ready 表寫「Tools and Datasets 5 pages (including references)」。
+        兩者都是官網原文，不是矛盾：前者是投稿版，後者是錄取後。
+    - id: journal_first
+      name: Journal First
+      exists_in_2026: true
+      submission: "一頁 presentation proposal（title、authors、extended abstract、presenter、期刊論文連結），並上傳原期刊論文。"
+      eligible_journals: [Automated Software Engineering Journal (Springer), IEEE TSE, ACM TOSEM, Empirical Software Engineering (Springer), Journal of Systems and Software (Elsevier)]
+      conditions: >-
+        2026：論文須在 2025-01-01 之後被接受；不得純為 secondary study；須有「至少約 70% 新內容」（相對先前發表）；
+        不得同時在其他會議的 journal-first 計畫。不進 ASE proceedings，但列在程式中；至少一位作者須註冊並來報告。
+      portal: HotCRP（https://ase2026-jf.hotcrp.com）
+      src: journal_first_2026
+    - id: artifact_evaluation
+      name: Artifact Evaluation
+      exists_in_2026: true
+      applies_to: "已被 Research、Industry showcase、NIER、Tool demonstration 軌錄取的論文（錄取後才能投）"
+      review: single-anonymous（每個 artifact 三位審查）
+      badges: >-
+        官網徵稿段落寫可申請 "Artifacts Available" 與 "Artifacts Reusable" 兩種徽章；
+        評審標準段落另列 Functional、Reusable、Available 三種。兩處原文不完全一致，皆如實記錄。
+      hosting_rule: >-
+        必須放在有 DOI 的長期存檔庫（Zenodo、FigShare、Software Heritage）；GitHub 不算；
+        Dropbox / Google Drive / 個人網站不算。可執行 artifact 要以 Docker/Podman 容器或 VM image 提供。
+      portal: HotCRP（https://ase26artifact.hotcrp.com/）
+      src: artifact_evaluation_2026
+    - id: doctoral_symposium
+      name: Doctoral Symposium
+      exists_in_2026: true
+      submission: "研究提案 2–4 頁（上限 4 頁含 references，IEEEtran 格式）+ 指導教授支持信；單一作者；不進 proceedings。"
+      portal: HotCRP（https://ase26-doctoral-symposium.hotcrp.com）
+      src: doctoral_symposium_2026
+    - id: student_research_competition
+      name: Student Research Competition (SRC)
+      exists_in_2026: true
+      submission: "2 頁摘要（+ 第 3 頁只放 references）；單一作者、須為 ACM 學生會員；single-blind；錄取者的摘要進 proceedings。"
+      portal: HotCRP（https://ase2026-src.hotcrp.com/）
+      src: src_2026
+    - id: workshops
+      name: Workshops / co-located events
+      exists_in_2026: true
+      note: >-
+        2026 共有 15 個 workshop/共同活動的 proceedings 出版（proceedings 頁）。各 workshop 的投稿規定在各自子站，
+        本記錄未收。主辦端 proposal 截止 2026-04-15（AoE）。workshop 論文與主會論文同樣要有一位作者的
+        regular registration 來覆蓋（見 registration 頁）。
+      src: workshops_2026
+    - id: posters
+      name: Posters
+      cfp:
+        status: not_found
+        checked: 2026-11-15
+        note: >-
+          Posters 軌頁只寫現場海報張貼流程（Forum 9-14，Not-in-Person 論文者上傳海報到 ACM），
+          沒有獨立的徵稿與截止日。
+
+  topics:
+    note: >-
+      以下是 ASE 2026 Research Track 的九個 Research Areas 原文（官方註：「these topics are by no means
+      exhaustive」）。每篇投稿要選一個 primary area，可選一個 secondary area。
+      這份清單【沒有出現 "LLM"、"agent"、"large language model" 等字眼】（逐字檢查過）；
+      與 AI／LLM 最相關的是 "AI and Software Engineering" 區的 AI4SE、SE4AI 等條目。
+      ASE 2026 的 NIER 軌「scope and topics ... are the same as those of the ASE 2026 Research Track」。
+    verbatim_areas:
+      ai_and_software_engineering:
+        - Autonomous and self-adapting systems
+        - Search-based software engineering
+        - Recommender systems
+        - AI4SE
+        - SE4AI
+      software_analytics:
+        - Mining software repositories
+        - Analysis of mobile apps, app stores
+        - Data-driven user experience understanding and improvement
+        - Data-driven decision making in software engineering
+        - Software metrics (and measurements)
+      maintenance_and_evolution:
+        - Debugging and fault-localization
+        - Refactoring and reengineering
+        - Reverse engineering
+        - Software reuse
+        - API design and management
+      testing_and_analysis:
+        - Regression, mutation, and model-based testing
+        - System, unit, and integration testing
+        - Black-, grey-, and white-box fuzzing
+        - Automated program repair and synthesis
+        - Static and dynamic analysis
+        - Empirical program analysis
+      human_and_social_aspects:
+        - Software engineering processes (e.g., agile, DevOps)
+        - Green and sustainable technologies
+        - Software engineering ethics and values
+        - Software economics
+        - Systematic code review and inspection
+        - Program comprehension and visualization
+        - Crowd-based and collaborative software engineering
+        - Human-computer interface
+      requirements_and_design:
+        - Requirements elicitation and management, traceability analysis
+        - Software architecture and design
+        - Modeling and model-driven engineering
+        - Software product lines
+        - Component-based or service-oriented systems
+        - Object-oriented or aspect-oriented systems
+      formal_aspects_of_software_engineering:
+        - Formal methods and model checking
+        - Programming languages
+        - Domain-specific or specification languages
+        - Software validation and verification
+      security_and_other_non_functional_properties:
+        - Security and privacy
+        - Dependability and safety
+        - Reliability and availability
+        - Performance
+    src: research_track_2026
+
+  paper_types:
+    research_track:
+      - "Technical Research Papers（評審：Significance、Novelty、Soundness）"
+      - "Experience Papers（評審：Importance and Scope、Insights and Evidence、Perspective）"
+      - "兩類共同評審：Verifiability、Presentation。"
+    src: research_track_2026
+
+  preprint_policy:
+    during_review:
+      quote: >-
+        "Authors are encouraged to title their submissions differently than preprints of the authors on
+        arXiV or similar sites. During review, authors should not publicly use the submission title."
+      source_section: 'ASE 2026 Research Papers → Call for Papers → "Double Anonymous Review Process"'
+      src: research_track_2026
+      interpretation_note: >-
+        （我的解讀，不是官方文字）徵稿頁沒有寫「禁止」把稿件先貼到 arXiv，只要求：投稿題目與 preprint
+        題目不同、審查期間不得公開使用投稿題目，並要求作者盡力維持雙匿名。該頁也沒有說明
+        「先貼了 arXiv 且帶作者姓名」是否算違反匿名。要不要先貼，最穩妥的辦法是在投稿前寄信問 PC chairs
+        （徵稿頁列的信箱：j.petke@ucl.ac.uk、snejati@uottawa.ca）。
+    after_acceptance:
+      quote: >-
+        "The copyright for publications in the ASE 2026 proceedings and the companion proceedings remains
+        with the authors and they grant ACM a non-exclusive license to publish it. Therefore, authors can
+        publish pre-prints of their work or parts thereof on their websites or publication archives. Once a
+        DOI is issued for the ACM publication, ACM requests that this publication is referenced from the
+        pre-print or author copy."
+      src: submission_policies_2026
+    nier_note: "NIER 軌同為雙盲，但其徵稿頁沒有獨立的 preprint 規定句。"
+
+  proceedings:
+    exists: true
+    publisher: ACM（ASE 2026 proceedings DOI https://doi.org/10.1145/3832783，ACM Digital Library）
+    open_access: >-
+      proceedings 頁："All 15 proceedings of ASE 2026 events were published on October 7 (conference) or 8
+      (workshops) and are publicly available in the ACM Digital Library (open access)."
+    copyright: "作者保留版權、授權 ACM 非專屬出版（見 preprint_policy.after_acceptance）。"
+    publication_date_warning: >-
+      官方正式出版日 = 論文在 ACM DL 公開的日期，可能早於會議第一天最多兩週；影響專利申請期限。
+    open_access_charges:
+      model: >-
+        ACM Open（機構會員制）或作者支付 APC。官方：從 2026-01-01 起 ACM 全面 Open Access；
+        參加 ACM Open 的機構，作者通常不必付 APC（官方估計約 70–75% 的 ACM 會議論文）。
+      subsidy_2026: >-
+        2026 年所有 ACM 會議的過渡補貼價：ACM/SIG 會員 US$250、非會員 US$350（折扣約 65%）。
+        此為「2026 年」的措施，是否延續到 2027 官方未公布。
+      waivers: "豁免少見，依 ACM 的 Discretionary / Geographic APC waiver policy。"
+      src: [research_track_2026, submission_policies_2026]
+    registration_requirement: >-
+      官方：「Every accepted paper (including workshop papers) must be covered by at least one regular
+      registration by one of the authors. Papers that are not covered by a regular registration by the
+      registration deadline will be withdrawn from the conference proceedings.」學生價註冊不能涵蓋論文
+      （registration 頁："Student rate registrations cannot cover a paper."）；一張非學生註冊可以涵蓋多篇。
+    src: [submission_policies_2026, registration_2026, proceedings_2026]
+
+  open_science:
+    policy: >-
+      ASE 2026 遵守 SIGSOFT Open Science Policy；研究 artifacts 「strongly encouraged」公開，
+      建議用 Zenodo、Figshare 等長期存檔庫並以 DOI 連結。
+    data_availability_statement:
+      mandatory: true
+      rule: >-
+        所有 camera-ready 稿必須有名為 “Data Availability Statement” 的章節，放在參考文獻之前的最後一節；
+        研究軌的【投稿版】也要有，且必須算在 10 頁之內（錄取後的版本不計頁）。
+        所有導出結果的資料「should be made available」；不能公開時要在該節說明理由（法律、倫理、隱私等）。
+        引用的公開材料要用 DOI。出版方會檢查，不符者不收 camera-ready。
+      new_in_2026: "官方：「so far this was actively supported and encouraged, now we require it」。"
+    doi_references_for_cited_works: "strongly recommend 在參考文獻附 DOI（官方理由：減少被誤判為幻覺引用的風險）。"
+    src: [research_track_2026, submission_policies_2026]
+
+  eligibility:
+    originality: >-
+      必須是未發表、且未同時投到別處（「must not have been published elsewhere and must not be under
+      review or submitted for review elsewhere」）。主席保留與他會議交換投稿清單、使用 ACM/IEEE 抄襲偵測的權利。
+    authorship: >-
+      錄取後作者名單不得變更（「cannot be changed under any circumstances」）；題目非經 Track Chairs 許可不得改。
+    per_author_submission_cap:
+      status: not_found
+      checked: 2026-11-15
+      note: 研究軌徵稿頁與共通規定頁都沒有每位作者最多投幾篇的限制。
+    src: [research_track_2026, submission_policies_2026]
+
+  # ── ASE 2026 的日期與費用：已舉行屆次的節奏參考，【不是】2027 ─────────────
+  previous_edition_reference:
+    edition: ASE 2026
+    status: held
+    WARNING: >-
+      這個區塊是已舉行的 ASE 2026 的資料。只能用來估「每年大概什麼時候截稿」的節奏，
+      不得當成 ASE 2027 的任何日期或費用。ASE 2027 的對應欄位見 cycle（全部 not_published）。
+    timezone_as_stated: >-
+      各軌 Important Dates 標題寫 “Important Dates AoE (UTC-12h)”；註冊費截止則寫
+      “All cut-off dates below are Central European Summer Time.”
+    event: {dates: "2026-10-12 至 2026-10-16", main_conference: "2026-10-13 至 2026-10-15（registration 頁）", city: Munich, country: Germany, site: "Holiday Inn Munich – City Centre"}
+    research_track_deadlines_aoe:
+      - {label: Paper Submission,                 date: 2026-03-26}
+      - {label: Early Rejection Notification,    date: 2026-05-25}
+      - {label: Author Response,                  date: "2026-05-25 至 2026-05-27"}
+      - {label: Initial Notification,             date: 2026-06-18}
+      - {label: Revision Submission (major revision only), date: 2026-07-16}
+      - {label: Notification (major revisions),   date: 2026-07-29}
+      - {label: Camera-Ready Papers (all papers), date: 2026-08-03}
+      - {label: Abstract Submission,  date: null, status: not_published, checked: 2026-11-15,
+         note: "徵稿文字提到摘要階段，但 Important Dates 列表沒有列出摘要截止日。"}
+    other_track_deadlines_aoe:
+      industry_showcase: {abstract: 2026-04-23, paper: 2026-04-30, notification: 2026-06-30, camera_ready: 2026-08-03}
+      nier: {paper: 2026-05-12, notification: 2026-07-01, camera_ready: 2026-08-03}
+      tools_and_datasets: {paper: 2026-05-11, notification: 2026-06-19, camera_ready: 2026-08-03}
+      journal_first: {paper: 2026-07-06, notification: 2026-07-31}
+      artifact_evaluation: {initially_accepted_papers: 2026-07-03, major_revision_papers: 2026-08-07}
+      doctoral_symposium: {paper: 2026-06-30, notification: 2026-07-28}
+      student_research_competition: {paper: 2026-07-30, paper_note: "官網標 (extended)", notification: 2026-08-24, camera_ready: 2026-09-01}
+      workshop_proposals: {proposal: 2026-04-15}
+    fees_main_conference_eur:
+      note: >-
+        registration 頁原表欄位為 Early / Standard / Late / On-site；Early 的括號原文是
+        "(By Aug 3 Aug 13)"（官網原文如此，截止日自相矛盾，未擅自裁定）。Standard 到 8/31、Late 到 9/20。
+      acm_ieee_member: {early: 950, standard: 1140, late: 1330, on_site: 1520}
+      non_member: {early: 1050, standard: 1260, late: 1470, on_site: 1680}
+      student_member: {early: 750, standard: 900, late: 1050, on_site: 1200}
+      student_non_member: {early: 830, standard: 1000, late: 1160, on_site: 1330}
+
+# ─────────────────────────────────────────────────────────────
+# FAST — ASE 2027（下一屆尚未截稿的版次）。官方尚未公開，全部 not_published。
+# ─────────────────────────────────────────────────────────────
+cycle:
+  applies_to: 2027
+  status: upcoming
+  # 【注意】官方沒公布 2027 會議日期，所以 expires_at 不是官方日期。
+  # schema 規定 conference 的 expires_at 必填，這裡填 2027-12-31 當「保守的失效上限」：
+  # ASE 2026 是 10 月舉行；這個日期之後此 cycle 視為作廢；實際日期公布後必須改成會議結束日。
+  expires_at: 2027-12-31
+
+  edition: ASE 2027
+  edition_number:
+    status: not_published
+    checked: 2026-11-15
+    note: ASE 2026 為第 41 屆；2027 屆官方頁面未公開，不寫屆次。
+  dates:
+    dates_status:
+      status: not_published
+      checked: 2026-11-15
+      note: >-
+        官方（researchr 與 ase-conferences.org）沒有 2027 日期。WebSearch 找到一個第三方
+        彙整站（conferencelists.org）寫 El Paso、2027-10-24，但那不是官方來源，
+        沒有任何官方頁面佐證，本記錄不採信，也未寫進欄位。
+  # schema 的 cycle.venue.* 是字串／enum，放不下 unknown 物件，所以 venue 整塊省略，改用 venue_status。
+  venue_status:
+    status: not_published
+    checked: 2026-11-15
+    note: 城市、場館、國家、舉辦形式（in_person/virtual/hybrid）2027 屆官方都未公布。
+
+  portal:
+    system: HotCRP
+    verified: false
+    note: >-
+      ASE 2026 各軌用 HotCRP（每軌一個子站，例如 ase26.hotcrp.com）；2027 的投稿系統與網址未公布。
+      HotCRP 是 2026 的事實，只當線索。
+
+  deadlines:
+    - {id: research_abstract_submission, date: null, status: not_published, checked: 2026-11-15, label: 研究軌摘要投稿截止}
+    - {id: research_paper_submission,    date: null, status: not_published, checked: 2026-11-15, label: 研究軌論文投稿截止}
+    - {id: research_notification,        date: null, status: not_published, checked: 2026-11-15, label: 研究軌初審通知}
+    - {id: research_camera_ready,        date: null, status: not_published, checked: 2026-11-15, label: 研究軌 camera-ready}
+    - {id: other_tracks, date: null, status: not_published, checked: 2026-11-15,
+       label: Industry / NIER / Tools and Datasets / Journal First / Artifact Evaluation / Doctoral Symposium / SRC / Workshops 各軌截止日,
+       note: 全部未公布。}
+  deadline_timezone_note: >-
+    2027 時區未公布。2026 各軌頁寫 “AoE (UTC-12h)”；2027 是否沿用要等官方公布。
+
+  fees: {status: not_published, checked: 2026-11-15}
+
+  next_edition:
+    status: not_published
+    checked: 2026-11-15
+    note: 本檔的 cycle 已是 2027；2028 屆官方也沒有任何公布。
+
+warnings:
+  - >-
+    【版次】本檔的 cycle 是 ASE 2027，但官方 ASE 2027 的任何資訊 2026-11-15 都未公開
+    （researchr 的 ase-2027 頁面是登入牆、ase-conferences.org 與 series 頁只列到 2026）。
+    因此沒有任何 2027 的截稿日、時區、地點、費用可查；請勿用 2026 的日期推算。
+  - >-
+    【requirements 來自 ASE 2026】頁數、範本、審查方式、主題清單、DAS、AI 揭露、APC 等規定全部取自已舉行的
+    ASE 2026 徵稿頁，不是 2027。ASE 2026 比 2025 新增了 Early Rejection 階段與強制 Data Availability
+    Statement，顯示規定每年會改；2027 的規定出來後要重新核對。
+  - >-
+    ASE 2026（已舉行）的日期、地點、費用只放在 requirements.previous_edition_reference，
+    僅供估算節奏（2026 研究軌論文截止在 3 月底、屆會在 10 月中）。不得當成 2027 的日期。
+  - >-
+    【預印本】研究軌徵稿頁只有一句相關規定：建議投稿題目與 arXiv 等處 preprint 的題目不同，審查期間
+    不得公開使用投稿題目。該頁沒有明文禁止先貼 arXiv，也沒有說明帶作者姓名的 preprint 是否違反雙匿名。
+    要先貼 arXiv 的話，建議先寄信問 PC chairs，並避免與投稿同題。
+  - >-
+    【雙匿名】研究軌與 NIER 雙匿名（違反者 NIER 會 desk-reject；研究軌要求匿名並以第三人稱引用自己先前的工作），
+    但 Industry Showcase 與 Tools and Datasets 不匿名。補充材料（程式、資料）也必須匿名上傳。
+  - >-
+    【頁數】研究軌投稿 10 頁正文（含圖表與附錄）+ 最多 2 頁只放 references；超過或違反格式會 desk-reject。
+    Data Availability Statement 必須放在投稿版的 10 頁之內（錄取後的版本才不計頁）。徵稿頁 tl;dr 寫
+    "10 pages (excl. references)"，內文寫 "including all figures, tables, appendices, etc."——附錄算在 10 頁內。
+  - >-
+    【強制 DAS】所有 ASE 論文需要 Data Availability Statement；資料要放有 DOI 的長期存檔庫（Zenodo、Figshare），
+    不能公開須在該節解釋。出版方會檢查，未達要求的 camera-ready 不收。
+  - >-
+    【AI 使用揭露】生成式 AI 不得列為作者；用 AI 產生的文字、程式、圖表、資料、引用都必須在
+    Acknowledgements 或專節揭露（官方：「err on the side of caution」）。共通規定頁另建議在參考文獻附 DOI，
+    以降低被當成「幻覺引用」的風險。
+  - >-
+    【註冊與出版】每篇錄取論文至少要有一位作者以非學生的正式註冊來覆蓋，否則論文會被撤出 proceedings；
+    研究軌另寫「at least one author ... is required to register for ASE 2026 and present the paper」。
+  - >-
+    【費用】ACM 自 2026-01-01 全面 Open Access；機構未加入 ACM Open 的作者需付 APC（2026 年過渡補貼價：
+    會員 US$250、非會員 US$350；是否延續到 2027 官方未公布）。
+  - >-
+    【專利】官方出版日 = 論文在 ACM Digital Library 公開的日期，可能比會議第一天早最多兩週，會影響專利申請。
+  - >-
+    【作者名單】錄取後作者名單不得變更（reviewer 的利益衝突分配以投稿時名單為準）；題目更改需 Track Chairs 許可。
+  - >-
+    【每人投稿數】研究軌徵稿頁與共通規定頁沒有載明每位作者的投稿篇數上限（not_found，非「無上限」的保證）。
+  - >-
+    【錄取率】ASE 2026 官網沒有公布錄取率或投稿數；第三方統計不屬於本語料庫的來源。
+  - >-
+    【未收的軌】Workshops（各自子站有各自的投稿規定）與 Posters 沒有收進細節；Industry、NIER、Tools、
+    Journal First、AE、DS、SRC 的 2026 規定都在 requirements.tracks。
