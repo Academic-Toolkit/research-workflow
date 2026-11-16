@@ -109,7 +109,7 @@ def is_conference(rec):
 def wos(rec):
     ind = get(rec, "identity", "indexing")
     alt = get(rec, "identity", "metrics", "indexing")
-    if ind is None or (ind == {} and alt):     # 沒寫，或空的而 metrics.indexing 有內容：改讀後者（改動前就如此）
+    if ind is None or (not ind and alt):       # 沒寫，或是空值（{}、[]、''）而 metrics.indexing 有內容：改讀後者，同改動前的 or
         ind = alt
     if ind is None and is_conference(rec):     # 研討會沒有期刊收錄；有寫就照寫的印
         return STATUS_LABEL["not_applicable"]
@@ -316,21 +316,16 @@ def apc(rec):
     alias = False                          # 金額是否來自 currency_rates 或 list_price_usd
     if amt is None and isinstance(a.get("currency_rates"), list):      # 多幣別定價：取 USD
         usd = [x for x in a["currency_rates"] if isinstance(x, dict) and x.get("currency") == "USD"]
-        if usd:
-            if not is_price(usd[0].get("value")):
-                return UNKNOWN
+        if usd and is_price(usd[0].get("value")):                      # 取第一筆 USD；讀不出價格就往下讀
             cur, amt, alias = "USD", usd[0]["value"], True
     if amt is None and isinstance(a.get("list_price_usd"), dict) and a["list_price_usd"]:
         tiers = list(a["list_price_usd"].values())                     # 分級定價：取最高的一級（未折扣的定價）
-        if not all(is_price(x) for x in tiers):
-            return UNKNOWN
-        cur, amt, alias = "USD", max(tiers), True
+        if all(is_price(x) for x in tiers):                            # 有一級讀不出價格就不採用，往下讀改動前的寫法
+            cur, amt, alias = "USD", max(tiers), True
     if is_status_only(amt):                # 有 OA 選項但金額沒公布（例：只指向出版社的 APC 查詢頁）
-        # 金額沒公布時只標得出「選付」：明寫 mandatory: false 或 status: optional，
-        # 或有條件才收（applies_when）且沒寫 mandatory: true。
-        # 這裡不看 identity.open_access：它常寫成 hybrid（有值但不是必付），改動前的輸出也不看它。
-        optional = (a.get("mandatory") is False or a.get("status") == "optional"
-                    or (a.get("mandatory") is not True and bool(a.get("applies_when"))))
+        # 金額沒公布時只標得出「選付」，判斷順序同金額已知時（apc_kind），但不看 identity.open_access：
+        # 它常寫成 hybrid（有值但不是必付），改動前的輸出也不看它。
+        optional = apc_kind(rec, a, use_open_access=False) == "選付"
         return f"{status_label(amt)}（選付）" if optional else status_label(amt)
     if isinstance(amt, bool):              # 型別檢查要在零元判斷之前：False == 0
         return UNKNOWN
@@ -424,11 +419,11 @@ def publisher(rec):
     else:
         p = raw if isinstance(raw, str) else ""
     low = p.lower()
-    if re.search(r"\bacm\b", low):
-        return "ACM"
     for k, v in PUBLISHER_SHORT:
         if k in low:
             return v
+    if re.search(r"\bacm\b", low):        # 已知名稱都沒對到才認整字的 ACM（例：「Springer on behalf of ACM」是 Springer）
+        return "ACM"
     if structured:
         return UNKNOWN
     return p.split("（")[0].strip() or UNKNOWN

@@ -200,6 +200,12 @@ The script SHALL read the shapes below in addition to the shapes it read before 
 | {currency_rates: [{currency: USD, value: "x"}]} | ? |
 | {currency_rates: [{currency: USD, value: 3390}, {currency: USD, value: 3000}], mandatory: false} | USD 3,390（選付） |
 
+##### Example: every value of list price tiers is read as a tier
+
+- **GIVEN** `requirements.fees.apc` is `{mandatory: true, list_price_usd: {member: 1300, non_member: 1800, year: 2026}}`
+- **WHEN** the row is built
+- **THEN** the APC cell is `USD 2,026（必付）`, because the script cannot tell a tier from another number; the add-venue skill keeps such facts outside `list_price_usd`
+
 ##### Example: quartile list with one unreadable entry
 
 - **GIVEN** `identity.metrics.quartiles` is `[{system: JCR, category: A, quartile: {status: not_found}}, {system: SJR, category: B, quartile: Q1, year: 2025}]`

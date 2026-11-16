@@ -410,6 +410,11 @@ class FixRound3(unittest.TestCase):
             with self.subTest(apc=apc):
                 self.assertEqual(build(requirements={"fees": {"apc": apc}})["apc"], expected)
 
+    def test_every_value_of_list_price_tiers_is_read_as_a_tier(self):
+        # spec-example: venue-table / every value of list price tiers is read as a tier
+        apc = {"mandatory": True, "list_price_usd": {"member": 1300, "non_member": 1800, "year": 2026}}
+        self.assertEqual(build(requirements={"fees": {"apc": apc}})["apc"], "USD 2,026（必付）")
+
     def test_skill_text_on_price_tiers_and_unpublished_amounts(self):
         # spec-example: venue-table / skill text on price tiers and unpublished amounts
         text = (PLUGIN / "skills" / "add-venue" / "SKILL.md").read_text(encoding="utf-8")
