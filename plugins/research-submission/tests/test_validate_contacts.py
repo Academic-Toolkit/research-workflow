@@ -85,6 +85,7 @@ class Classification(unittest.TestCase):
             ("@aeditor", False),
             ("帳號@aeditor，網站 example.org", False),
             ("a.editor@localhost", False),
+            ("a.editor@example.org2", False),
         ]
         for text, expected in rows:
             with self.subTest(text=text):
@@ -122,6 +123,15 @@ class WarningW3(unittest.TestCase):
         self.assertNotIn("a.editor@example.org", text)
         self.assertNotIn("office@example.org", text)
         self.assertNotIn("@", text)
+
+    def test_personal_paths_follow_the_order_of_the_record(self):
+        # spec-example: venue-contacts / personal paths follow the order of the record
+        rec = {"cycle": {"chairs": [{"name": "C. Chair", "email": "c.chair@example.org"}]},
+               "requirements": {"submission": {"contact": "office@example.org"}},
+               "identity": {"editor": dict(EDITOR)}}
+        found = w3(rec)
+        self.assertEqual(len(found), 1)
+        self.assertLess(found[0].index("cycle.chairs[0].email"), found[0].index("identity.editor.email"))
 
     def test_one_kind_only_gives_no_warning(self):
         # spec-example: venue-contacts / one kind only gives no warning
@@ -191,7 +201,9 @@ class Corpus(unittest.TestCase):
 
     def test_bundled_records_hold_no_personal_address(self):
         # spec-example: venue-contacts / bundled records hold no personal address
-        for f in sorted((PLUGIN / "venues").rglob("*.yaml")):
+        files = sorted((PLUGIN / "venues").rglob("*.yaml"))
+        self.assertTrue(files)
+        for f in files:
             rid = str(f.relative_to(PLUGIN / "venues"))[:-5]
             if rid in self.PERSONAL_ADDRESS_EXCEPTIONS:
                 continue

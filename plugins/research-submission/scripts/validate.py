@@ -47,9 +47,10 @@ def contact_addresses(rec):
     """
     personal, office = [], []
 
-    def walk(node, path, in_person):
+    def walk(node, path, in_person, is_identity=False):
         if isinstance(node, dict):
-            person = in_person or isinstance(node.get("name"), str)
+            # identity 本身不是具名人物：它的 name 是 venue 的名稱
+            person = in_person or (not is_identity and isinstance(node.get("name"), str))
             for k, v in node.items():
                 if isinstance(k, str) and ADDRESS.search(k):
                     sub = f"{path}.{ADDRESS_KEY}"
@@ -64,19 +65,13 @@ def contact_addresses(rec):
             (personal if in_person else office).append(path)
 
     if isinstance(rec, dict):
-        identity = rec.get("identity")
-        if isinstance(identity, dict):  # identity 本身不是具名人物：逐鍵走，不看它的 name
-            for k, v in identity.items():
-                if isinstance(k, str) and ADDRESS.search(k):
-                    office.append(f"identity.{ADDRESS_KEY}")
-                    walk(v, f"identity.{ADDRESS_KEY}", False)
-                else:
-                    walk(v, f"identity.{k}", False)
-        else:
-            walk(identity, "identity", False)
-        req = rec.get("requirements")
-        walk(req.get("submission") if isinstance(req, dict) else None, "requirements.submission", False)
-        walk(rec.get("cycle"), "cycle", False)
+        for key, value in rec.items():  # 照記錄本身的順序走，路徑才是文件順序
+            if key == "identity":
+                walk(value, "identity", False, is_identity=True)
+            elif key == "requirements" and isinstance(value, dict):
+                walk(value.get("submission"), "requirements.submission", False)
+            elif key == "cycle":
+                walk(value, "cycle", False)
     return personal, office
 
 

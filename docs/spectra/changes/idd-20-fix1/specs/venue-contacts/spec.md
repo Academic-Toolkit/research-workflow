@@ -4,7 +4,7 @@
 
 The record validator SHALL classify every address in the contact scope of a record as personal or office, by where it sits and never by its domain.
 
-- An address is a substring made of a local part, `@`, and a domain. The local part is one or more ASCII letters, digits or the characters `.`, `_`, `%`, `+`, `-`, and is not directly preceded by one of those characters or by `/`. The domain is one or more labels of ASCII letters, digits and hyphens joined by dots, and its last label is at least two ASCII letters. A handle such as `@name`, and a URL whose path holds `/@name`, are therefore not addresses.
+- An address is a substring made of a local part, `@`, and a domain. The local part is one or more ASCII letters, digits or the characters `.`, `_`, `%`, `+`, `-`, and is not directly preceded by one of those characters or by `/`. The domain is two or more labels of ASCII letters, digits and hyphens joined by dots, its last label is at least two ASCII letters, and it is not directly followed by an ASCII letter, digit or hyphen. A handle such as `@name`, and a URL whose path holds `/@name`, are therefore not addresses.
 - The contact scope is everything under `identity`, everything under `requirements.submission`, and everything under `cycle`, including a section whose value is itself a string or a list. Strings elsewhere in the record (for example `warnings`, `sources`, `requirements.standards`) are outside the scope and SHALL NOT be classified.
 - A named-person mapping is any mapping inside the contact scope that has a `name` key whose value is a string, except the `identity` mapping itself, whose `name` is the name of the venue. The rule reads position only and cannot tell a person from an organisation: a mapping that names an organisation and has a string `name` is a named-person mapping too.
 - A string value that contains an address, at any depth inside a named-person mapping, is a personal address. Every other string value in the contact scope that contains an address is an office address.
@@ -53,6 +53,7 @@ The field path of a value is its keys joined by dots, with a list position writt
 | `@aeditor` | no |
 | `帳號@aeditor，網站 example.org` | no |
 | `a.editor@localhost` | no |
+| `a.editor@example.org2` | no |
 
 ##### Example: an address used as a key
 
@@ -70,7 +71,7 @@ The field path of a value is its keys joined by dots, with a list position writt
 
 ### Requirement: A record that holds both kinds of address gets warning W3
 
-When a record holds at least one personal address and at least one office address, the record validator SHALL print exactly one warning for that record whose text starts with `[W3]` and lists the field path of every personal address in the record, in document order. The warning text SHALL NOT contain any address, including when a key of the record is an address. A record that holds only personal addresses, only office addresses, or none SHALL NOT get W3. W3 is a warning: it SHALL NOT change the exit status of the validator and SHALL be counted in the warning total the validator prints.
+When a record holds at least one personal address and at least one office address, the record validator SHALL print exactly one warning for that record whose text starts with `[W3]` and lists the field path of every personal address in the record, in the order they appear in the record (the three sections of the contact scope are read in the order the record writes them). The warning text SHALL NOT contain any address, including when a key of the record is an address. A record that holds only personal addresses, only office addresses, or none SHALL NOT get W3. W3 is a warning: it SHALL NOT change the exit status of the validator and SHALL be counted in the warning total the validator prints.
 
 #### Scenario: Both kinds present
 
@@ -82,6 +83,12 @@ When a record holds at least one personal address and at least one office addres
 - **GIVEN** a record that is otherwise valid, with `identity.editor: {name: "A. Editor", email: "a.editor@example.org", note: "also a.editor@example.org"}` and `identity.editorial_office: {email: "office@example.org"}`
 - **WHEN** the warnings of the record are computed
 - **THEN** exactly one warning starts with `[W3]`, it contains `identity.editor.email` and `identity.editor.note`, and it contains neither `a.editor@example.org` nor `office@example.org` nor the character `@`
+
+##### Example: personal paths follow the order of the record
+
+- **GIVEN** a record that writes `cycle` first with `cycle.chairs: [{name: "C. Chair", email: "c.chair@example.org"}]`, then `requirements.submission.contact: "office@example.org"`, then `identity.editor: {name: "A. Editor", email: "a.editor@example.org"}`
+- **WHEN** the warnings of the record are computed
+- **THEN** exactly one warning starts with `[W3]` and `cycle.chairs[0].email` appears in it before `identity.editor.email`
 
 ##### Example: one kind only gives no warning
 

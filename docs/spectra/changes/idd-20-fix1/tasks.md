@@ -16,3 +16,7 @@
 - [x] 3.3 The editor note of `acm/tosem` keeps the quoted words of the author guidelines without the address and no longer suggests writing to the journal administrator; verified by reading the note and by a search of the file for `@` returning only the office address [after: 3.2]
 - [x] 3.4 The editor note of `apa/psychological-methods` gives the reason under the ownership rule: the link the page labels editorial office points to one person's own mailbox, the page gives no office address, and submissions go through the portal, so no address is recorded; verified by reading the note and by the record having no address in the contact scope [after: 3.3]
 - [x] 3.5 The whole suite and the record validator pass together: `python3 plugins/research-submission/scripts/validate.py && python3 -m unittest discover -s plugins/research-submission/tests` exits 0 [after: 3.4]
+
+## 4. Findings from the change verification
+
+- [x] 4.1 W3 lists the personal field paths in the order the record writes its sections, the address rule says two or more labels and no letter, digit or hyphen directly after the domain, the corpus test fails on an empty record folder, and the classifier handles the identity mapping in one code path; verified by the tests with markers `spec-example: venue-contacts / personal paths follow the order of the record` and `spec-example: venue-contacts / what counts as an address` passing and by `python3 plugins/research-submission/scripts/validate.py && python3 -m unittest discover -s plugins/research-submission/tests` exiting 0
