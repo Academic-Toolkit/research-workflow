@@ -4,7 +4,7 @@
 用法:  python3 scripts/validate.py [venues/**/*.yaml]
        不給參數則掃 venues/ 底下全部 .yaml
 """
-import sys, glob, json, hashlib, datetime
+import sys, glob, json, hashlib, datetime, re
 from pathlib import Path
 
 import yaml
@@ -27,6 +27,42 @@ def normalize_dates(node):
     if isinstance(node, (datetime.date, datetime.datetime)):
         return node.isoformat()
     return node
+
+
+ADDRESS = re.compile(r"[^\s@<>()\[\],;:\"']+@[^\s@<>()\[\],;:\"']+\.[^\s@<>()\[\],;:\"'.]+")
+
+
+def contact_addresses(rec):
+    """聯絡信箱依位置分成兩種，回傳 (個人信箱的欄位路徑, 公務信箱的欄位路徑)。
+
+    只看 identity、requirements.submission、cycle。identity 底下（不含 identity 本身，
+    它的 name 是 venue 的名稱）有字串 name 的 mapping 是具名人物，它底下任何深度含位址的
+    字串都算個人信箱；範圍內其他含位址的字串算公務信箱。不看網域。
+    """
+    personal, office = [], []
+
+    def walk(node, path, in_person, may_name):
+        if isinstance(node, dict):
+            person = in_person or (may_name and isinstance(node.get("name"), str))
+            for k, v in node.items():
+                walk(v, f"{path}.{k}", person, may_name)
+        elif isinstance(node, list):
+            for i, v in enumerate(node):
+                walk(v, f"{path}[{i}]", in_person, may_name)
+        elif isinstance(node, str) and ADDRESS.search(node):
+            (personal if in_person else office).append(path)
+
+    def section(node, path, may_name):
+        if isinstance(node, dict):
+            for k, v in node.items():
+                walk(v, f"{path}.{k}", False, may_name)
+
+    if isinstance(rec, dict):
+        section(rec.get("identity"), "identity", True)
+        req = rec.get("requirements")
+        section(req.get("submission") if isinstance(req, dict) else None, "requirements.submission", False)
+        section(rec.get("cycle"), "cycle", False)
+    return personal, office
 
 
 def lint(rec, path):
@@ -96,6 +132,15 @@ def lint_warnings(rec):
         age = (today - datetime.date.fromisoformat(str(v))).days
         if age > 365:
             warns.append(f"[W2] source '{s['id']}' 已 {age} 天未驗證（last_verified_at {v}）")
+
+    # W3 — 同一筆記錄同時有個人信箱與公務信箱。訊息只列欄位路徑，不印位址：
+    # 驗證輸出常被貼到 issue 或對話裡。
+    personal, office = contact_addresses(rec)
+    if personal and office:
+        warns.append(
+            "[W3] 同時記了個人信箱與公務信箱；有公務信箱時只記公務信箱。"
+            f"個人信箱的位置：{'、'.join(personal)}"
+        )
 
     return warns
 
