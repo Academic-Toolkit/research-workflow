@@ -69,7 +69,11 @@ class Classification(unittest.TestCase):
             ({"identity": {"owner": {"name": "Example Trust", "email": "trust@example.org"}}},
              ["identity.owner.email"], []),
             ({"identity": {"editor": {"name": {"en": "A. Editor"}, "email": "a.editor@example.org"}}},
-             [], ["identity.editor.email"]),
+             [], ["identity.editor.email"]),  # a limit of the position rule, tracked in issue 22
+            ({"cycle": {"name": "Meeting 2026", "portal": {"email": "meeting2026@example.org"}}},
+             [], ["cycle.portal.email"]),
+            ({"requirements": {"submission": {"name": "Online system", "contact": "office@example.org"}}},
+             [], ["requirements.submission.contact"]),
         ]
         for rec, personal, office in rows:
             with self.subTest(rec=rec):
@@ -86,6 +90,9 @@ class Classification(unittest.TestCase):
             ("帳號@aeditor，網站 example.org", False),
             ("a.editor@localhost", False),
             ("a.editor@example.org2", False),
+            ("https://example.org/people/a.editor@example.org", True),
+            ("@aeditor@social.example", False),
+            ("https://social.example/@aeditor@other.example", False),
         ]
         for text, expected in rows:
             with self.subTest(text=text):
@@ -98,6 +105,15 @@ class Classification(unittest.TestCase):
                             "desk": {"office@example.org": {"hours": "9-5"}}}}
         self.assertEqual(va.contact_addresses(rec),
                          (["identity.editor.contacts.<address>"], ["identity.desk.<address>"]))
+
+    def test_keys_that_would_join_into_an_address(self):
+        # spec-example: venue-contacts / keys that would join into an address
+        rec = {"identity": {"editor": {"name": "A. Editor",
+                                       "a.editor@example": {"org": "see a.editor@example.org"}}}}
+        personal, office = va.contact_addresses(rec)
+        self.assertEqual((personal, office), (["identity.editor.a.editor@example.<key>"], []))
+        for path in personal + office:
+            self.assertIsNone(va.ADDRESS.search(path))
 
     def test_a_section_written_as_a_string_or_a_list(self):
         # spec-example: venue-contacts / a section written as a string or a list
@@ -155,6 +171,13 @@ class WarningW3(unittest.TestCase):
         self.assertIn("identity.editor.contacts.<address>", found[0])
         self.assertNotIn("@", found[0])
 
+    def test_a_conference_record_whose_cycle_is_a_list(self):
+        # spec-example: venue-contacts / a conference record whose cycle is a list
+        rec = {"kind": "conference",
+               "identity": {"chair": {"name": "C. Chair", "email": "c.chair@example.org"}},
+               "cycle": ["meeting2026@example.org"]}
+        self.assertEqual(len(w3(rec)), 1)
+
     def test_validator_run_exits_zero_with_w3(self):
         # spec-example: venue-contacts / validator run exits zero with W3
         rec = yaml.safe_load((PLUGIN / "venues" / "ams" / "bulletin-of-the-ams.yaml").read_text(encoding="utf-8"))
@@ -180,7 +203,8 @@ class Guidance(unittest.TestCase):
         text = SKILL.read_text(encoding="utf-8")
         self.assertTrue(any(line.startswith("| W3 |") for line in text.splitlines()))
         for phrase in ("公務信箱", "個人信箱", "看信箱屬於誰，不看網域", "即使官網把它列為聯絡方式",
-                       "不寫在具名人物底下", "備註與警告", "機構的信箱", "#21"):
+                       "不寫在具名人物底下", "備註與警告", "機構的信箱", "PERSONAL_ADDRESS_EXCEPTIONS",
+                       "unittest discover", "#21"):
             self.assertIn(phrase, text)
         self.assertNotIn("公務信箱寫在 `identity.editorial_office.email`", text)
 
