@@ -92,6 +92,18 @@ ls ${CLAUDE_PLUGIN_ROOT}/venues/*/          # apa/psychological-methods.yaml（�
 - 審稿型態各軌不同時，寫 `requirements.review.model_by_track: {research: ..., ...}`，表上取 `research`；只有一種時寫 `requirements.review.type`。
 - APC 沒有預設值，要明寫：有金額就照上表寫 `requirements.fees.apc`；官方沒公布就寫 `requirements.fees.apc: {status: not_published, checked}`。只寫報名費而沒寫 `apc`，表上會印「?」。
 
+### 聯絡信箱：有公務信箱時只記公務信箱
+
+記錄裡的聯絡信箱分兩種。**公務信箱**是 venue 用來收信的窗口：編輯部、期刊行政、會議的聯絡信箱。**個人信箱**是某一個人自己的信箱，例如主編的學校信箱。
+
+- 判斷**看用途，不看網域**。官網把一個信箱列為這本期刊或這場會議的聯絡窗口，它就是公務信箱；學會用免費信箱開的年會聯絡信箱也算。
+- 官網有公務信箱時，只記公務信箱。主編、編輯、主席只記姓名與職稱，不記他們自己的信箱：人會換，信箱跟著過期。
+- 個人信箱只在兩個條件都成立時才記：官網沒有公務信箱，而且官網寫明投稿的事要寄到那個信箱。記的時候附上來源（`src`）。
+- 公務信箱**不寫在具名人物底下**。`identity` 裡有 `name` 的 mapping 代表一個人，它底下的信箱一律被當成個人信箱。公務信箱寫在 `identity.editorial_office.email`（附 `src`），或 `requirements.submission` 底下。承辦人的姓名可以留在人物那一欄，信箱移到編輯部那一欄。
+- 備註與警告的文字裡也不要寫出個人信箱；要提到時指向來源頁。
+
+`validate.py` 的 W3 檢查前四點裡看得出位置的部分：同一筆記錄同時有個人信箱與公務信箱時警告。它只看 `identity`、`requirements.submission` 與 `cycle`，而且只看位置；把個人信箱寫進編輯部欄位，它看不出來。
+
 ### 官方沒有公布審稿速度時：自行抽樣估計（只當估計，不當官方事實）
 
 官方未公布「投稿到接受」時，先寫 `not_published`（官方欄位照舊，不動）。若該刊的**文章頁標有 Received／Accepted／Published 日期**，可以用 `scripts/sample_review_times.py` 抽樣估計，結果放在 `identity.metrics.estimates`，**與官方欄位分開**：
@@ -143,6 +155,7 @@ python3 ${CLAUDE_PLUGIN_ROOT}/scripts/verify.py <venue-id>   # 建 hash 基準
 | L4 | authoritative 來源缺 `fetch.validity` |
 | W1 | 研討會 cycle 已過期（警告，非錯誤——辦完了是合法狀態） |
 | W2 | 快照超過一年未驗證 |
+| W3 | 同一筆記錄同時有個人信箱與公務信箱（見 Step 4「聯絡信箱」）。訊息只列欄位路徑 |
 
 **錯誤要修到零；警告要讀懂再決定。**
 

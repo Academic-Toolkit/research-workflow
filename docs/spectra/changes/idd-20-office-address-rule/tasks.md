@@ -1,18 +1,18 @@
 ## 1. Tests, written first
 
-- [ ] 1.1 Contact addresses are classified by position: a test in plugins/research-submission/tests/test_validate_contacts.py with marker `spec-example: venue-contacts / classification by position` asserts the kind and field path of each of the twelve rows; verified by the test failing before task 2.1
-- [ ] 1.2 A record that holds both kinds of address gets warning W3: tests with markers `spec-example: venue-contacts / one warning naming the personal paths`, `spec-example: venue-contacts / one kind only gives no warning` and `spec-example: venue-contacts / validator run exits zero with W3` assert the warning text, the four no-warning rows, and the exit status and summary line of a validator run on a temporary record file; verified by the tests failing before task 2.2
-- [ ] 1.3 The add-venue skill states the recording rule: a test with marker `spec-example: venue-contacts / skill text on contact addresses` reads the skill text and asserts the W3 row and the four phrases; verified by the test failing before task 3.1
-- [ ] 1.4 The bundled corpus produces no W3: a test with marker `spec-example: venue-contacts / bundled records have no W3` computes the warnings of every bundled record; verified by the test failing before tasks 4.1 and 4.2 (two records hold both kinds today)
+- [x] 1.1 Contact addresses are classified by position: a test in plugins/research-submission/tests/test_validate_contacts.py with marker `spec-example: venue-contacts / classification by position` asserts the kind and field path of each of the twelve rows; verified by the test failing before task 2.1
+- [x] 1.2 A record that holds both kinds of address gets warning W3: tests with markers `spec-example: venue-contacts / one warning naming the personal paths`, `spec-example: venue-contacts / one kind only gives no warning` and `spec-example: venue-contacts / validator run exits zero with W3` assert the warning text, the four no-warning rows, and the exit status and summary line of a validator run on a temporary record file; verified by the tests failing before task 2.2
+- [x] 1.3 The add-venue skill states the recording rule: a test with marker `spec-example: venue-contacts / skill text on contact addresses` reads the skill text and asserts the W3 row and the four phrases; verified by the test failing before task 3.1
+- [x] 1.4 The bundled corpus produces no W3: a test with marker `spec-example: venue-contacts / bundled records have no W3` computes the warnings of every bundled record; verified by the test failing before tasks 4.1 and 4.2 (two records hold both kinds today)
 
 ## 2. Validator
 
-- [ ] 2.1 The validator module exposes a function that returns the personal and office field paths of a record under the position rule of the spec (scope `identity`, `requirements.submission`, `cycle`; named-person mappings only under `identity` and never `identity` itself; list positions written as `[i]`); verified by test 1.1 passing [after: 1.4]
-- [ ] 2.2 `lint_warnings` returns one `[W3]` warning for a record with both kinds, listing the personal field paths in document order and no address; verified by the three tests of 1.2 passing [after: 2.1]
+- [x] 2.1 The validator module exposes a function that returns the personal and office field paths of a record under the position rule of the spec (scope `identity`, `requirements.submission`, `cycle`; named-person mappings only under `identity` and never `identity` itself; list positions written as `[i]`); verified by test 1.1 passing [after: 1.4]
+- [x] 2.2 `lint_warnings` returns one `[W3]` warning for a record with both kinds, listing the personal field paths in document order and no address; verified by the three tests of 1.2 passing [after: 2.1]
 
 ## 3. Guidance
 
-- [ ] 3.1 The add-venue skill has a section on contact addresses that states the four parts of the rule in Traditional Chinese, and its warning table has a W3 row; verified by test 1.3 passing [after: 2.2]
+- [x] 3.1 The add-venue skill has a section on contact addresses that states the four parts of the rule in Traditional Chinese, and its warning table has a W3 row; verified by test 1.3 passing [after: 2.2]
 
 ## 4. Records
 
