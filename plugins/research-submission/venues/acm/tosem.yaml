@@ -422,9 +422,8 @@ identity:
   editor:
     name: Abhik Roychoudhury
     title: Editor-in-Chief
-    email: abhik@nus.edu.sg
     src: [journal_home, author_guidelines]
-    note: 作者須知頁寫「Correspondence on editorial matters should be addressed to abhik@nus.edu.sg」；首頁只列名字。
+    note: 作者須知頁（author_guidelines）寫編務通信寄給主編，並列出主編自己的信箱；首頁只列名字。這裡不記個人信箱，要寄信時看來源頁，或寄 journal_administrator。
   journal_administrator: {email: tosem-admin@acm.org, src: author_guidelines}
   frequency: >-
     每年一卷、每卷 12 期月刊（"12 monthly issues per year beginning with the 2026 volume"）。首頁顯示 Volume 35, Issue 11, November 2026。
@@ -968,7 +967,7 @@ warnings:
   - >-
     ORCID：投稿的主要作者在投稿時必須提供；全部作者在進入 production 前都要有有效 ORCID。
   - >-
-    頁面內容可能過時：charter 署名是前任主編 Mauro Pezze，SCImago 頁仍列 mauro.pezze@usi.ch；首頁與作者須知現任是 Abhik Roychoudhury。
+    頁面內容可能過時：charter 署名是前任主編 Mauro Pezze，SCImago 頁仍列前任主編的信箱；首頁與作者須知現任是 Abhik Roychoudhury。
     Continuous Special Sections 頁的 Sustainable SE 段落內文錯寫成 quantum；Agentic AI 特刊時程有 2025／2026 年份筆誤。
   - >-
     Human AI Collaboration 特刊的截稿日（2026-10-01，已延長一次）與 Agentic AI 特刊（2025-11-01）都已過。

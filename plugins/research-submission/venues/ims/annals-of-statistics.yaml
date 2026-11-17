@@ -290,7 +290,7 @@ identity:
     - {name: Hans-Georg Müller, term: "2025-2027", src: journal_home}
     - {name: Harrison Zhou, term: "2025-2027", src: journal_home}
   managing_editor: {name: Dan Nordman, src: journal_home}
-  production_editor: {name: Patrick Kelly, email: pkelly@wharton.upenn.edu, src: contacts}
+  production_editor: {name: Patrick Kelly, note: 管刊出前的製作，不收投稿詢問；聯絡方式見來源頁, src: contacts}
   frequency: bimonthly
   coverage: "1973-current"
   external_ids:

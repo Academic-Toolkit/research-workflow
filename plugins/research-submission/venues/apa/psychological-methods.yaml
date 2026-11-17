@@ -57,7 +57,13 @@ identity:
   publisher: American Psychological Association
   issn: {print: "1082-989X", electronic: "1939-1463"}
   homepage: https://www.apa.org/pubs/journals/met
-  editor: {name: Fred Oswald, email: foswald@gmail.com, src: submit}
+  editor:
+    name: Fred Oswald
+    src: submit
+    note: >-
+      投稿頁（2026-11-17 讀）：投稿走 Manuscript Submission Portal。頁面寫一般通信寄 editorial office，
+      但那個連結指向另一個人的個人信箱，不是現任主編，看起來是沒更新的舊連結；主編自己的信箱只是掛在姓名上的連結，
+      頁面沒有說它是聯絡方式。所以這裡不記信箱，要寄信時先看來源頁。
   frequency: bimonthly
   external_ids:                     # 機讀層 — 這些欄位可以真的 live 查
     crossref: "1082-989X"
