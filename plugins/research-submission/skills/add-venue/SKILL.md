@@ -98,12 +98,12 @@ ls ${CLAUDE_PLUGIN_ROOT}/venues/*/          # apa/psychological-methods.yaml（�
 
 - 判斷**看信箱屬於誰，不看網域**。學會用免費信箱開的年會聯絡信箱是公務信箱。某個人自己的信箱，**即使官網把它列為聯絡方式**，仍然是個人信箱。
 - 官網有公務信箱時，只記公務信箱。主編、編輯、主席只記姓名與職稱，不記他們自己的信箱：人會換，信箱跟著過期。
-- 個人信箱只在兩個條件都成立時才記：官網沒有公務信箱，而且官網寫明投稿的事要寄到那個信箱。記的時候附上來源（`src`）。
+- 個人信箱只在兩個條件都成立時才記：官網沒有公務信箱，而且官網寫明投稿的事要寄到那個信箱。記的時候附上來源（`src`），並把這筆記錄的 id 與那個來源加進 `tests/test_validate_contacts.py` 的 `PERSONAL_ADDRESS_EXCEPTIONS`；沒有加，測試會失敗。
 - 公務信箱**不寫在具名人物底下**。承辦人的姓名可以留在人物那一欄，信箱移到不屬於任何人物的欄位。該用哪個鍵還沒有標準寫法（#21），先沿用語料庫裡已有的寫法之一。
 - **備註與警告**的文字裡不寫出個人信箱；要提到時指向來源頁。
-- `validate.py` 只看位置：`identity`、`requirements.submission`、`cycle` 底下，有字串 `name` 的 mapping 一律被當成具名人物（`identity` 本身除外），它底下的信箱都算個人信箱。它分不出人與機構，所以**機構的信箱**也不要寫在有 `name` 的 mapping 裡。
+- `validate.py` 只看位置：`identity`、`requirements.submission`、`cycle` 底下，有字串 `name` 的 mapping 一律被當成具名人物（這三段本身除外），它底下的信箱都算個人信箱。它分不出人與機構，所以**機構的信箱**也不要寫在有 `name` 的 mapping 裡。
 
-`validate.py` 的 W3 在同一筆記錄同時有個人信箱與公務信箱時警告。它不看 `warnings` 與 `requirements` 的其他部分；把個人信箱寫進編輯部欄位，它也看不出來。
+`validate.py` 的 W3 在同一筆記錄同時有個人信箱與公務信箱時警告。它不看 `warnings`、`sources`、`requirements` 的其他部分與 YAML 註解；把個人信箱寫進編輯部欄位，它也看不出來。只有個人信箱、沒有公務信箱的記錄，`validate.py` 什麼都不印，要靠測試擋（見 Step 5）。
 
 ### 官方沒有公布審稿速度時：自行抽樣估計（只當估計，不當官方事實）
 
@@ -139,12 +139,15 @@ estimates:
 2. **`requirements`（慢）與 `cycle`（快）分開放。** 期刊多為 `cycle.applies_to: null`；研討會反過來——requirements 薄、cycle 厚。放錯格會導致「須知是對的但截稿日是去年」。
 3. **`extracted_sha256` 留 `null`**，交給 `verify.py` 建基準。不要手算——hash 必須由同一個 extractor 產生才可比。
 
-## Step 5 — 驗證（兩支都要跑）
+## Step 5 — 驗證（三支都要跑）
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py    # schema + 5 條 lint
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py    # schema + 4 條錯誤、3 條警告的 lint
 python3 ${CLAUDE_PLUGIN_ROOT}/scripts/verify.py <venue-id>   # 建 hash 基準
+python3 -m unittest discover -s ${CLAUDE_PLUGIN_ROOT}/tests   # 語料庫測試：例如沒有登記的個人信箱會在這裡失敗
 ```
+
+三支都要跑。`validate.py` 對只有個人信箱的記錄不會印任何東西，那一種只有測試擋得住。
 
 `validate.py` 的錯誤代碼：
 
