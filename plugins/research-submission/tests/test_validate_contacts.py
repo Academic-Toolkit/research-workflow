@@ -60,6 +60,15 @@ class Classification(unittest.TestCase):
                 self.assertEqual(va.contact_addresses(rec), (personal, office))
 
 
+    def test_a_section_written_as_a_string_or_list_is_in_scope(self):
+        # the spec scope is "everything under" the three sections; the section value itself counts
+        self.assertEqual(va.contact_addresses({"requirements": {"submission": "write to office@example.org"}}),
+                         ([], ["requirements.submission"]))
+        self.assertEqual(va.contact_addresses({"cycle": ["meeting2026@example.org"]}), ([], ["cycle[0]"]))
+        self.assertEqual(va.contact_addresses({"identity": None, "requirements": None, "cycle": None}), ([], []))
+        self.assertEqual(va.contact_addresses(None), ([], []))
+
+
 class WarningW3(unittest.TestCase):
     def test_one_warning_naming_the_personal_paths(self):
         # spec-example: venue-contacts / one warning naming the personal paths

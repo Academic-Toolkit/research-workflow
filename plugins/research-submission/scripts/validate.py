@@ -56,6 +56,8 @@ def contact_addresses(rec):
         if isinstance(node, dict):
             for k, v in node.items():
                 walk(v, f"{path}.{k}", False, may_name)
+        else:  # 整段寫成字串或 list 時照樣在範圍內
+            walk(node, path, False, may_name)
 
     if isinstance(rec, dict):
         section(rec.get("identity"), "identity", True)
