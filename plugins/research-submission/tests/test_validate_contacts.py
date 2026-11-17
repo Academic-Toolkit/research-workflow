@@ -3,6 +3,7 @@
 Each test carries a `spec-example:` marker naming the Example it checks.
 Every address in this file is invented and sits under example.org.
 """
+import datetime
 import importlib.util
 import subprocess
 import sys
@@ -49,8 +50,6 @@ class Classification(unittest.TestCase):
              [], ["identity.contact"]),
             ({"requirements": {"submission": {"contact": "office@example.org"}}},
              [], ["requirements.submission.contact"]),
-            ({"requirements": {"submission": {"helper": {"name": "Help desk", "email": "help@example.org"}}}},
-             [], ["requirements.submission.helper.email"]),
             ({"cycle": {"portal": {"email": "meeting2026@example.org"}}}, [], ["cycle.portal.email"]),
             ({"warnings": ["report fakes to abuse@example.org"]}, [], []),
             ({"identity": {"editor": {"name": "A. Editor", "twitter": "@aeditor"}}}, [], []),
@@ -60,8 +59,47 @@ class Classification(unittest.TestCase):
                 self.assertEqual(va.contact_addresses(rec), (personal, office))
 
 
-    def test_a_section_written_as_a_string_or_list_is_in_scope(self):
-        # the spec scope is "everything under" the three sections; the section value itself counts
+    def test_named_persons_in_every_section_of_the_scope(self):
+        # spec-example: venue-contacts / named persons in every section of the scope
+        rows = [
+            ({"cycle": {"chairs": [{"name": "C. Chair", "email": "c.chair@example.org"}]}},
+             ["cycle.chairs[0].email"], []),
+            ({"requirements": {"submission": {"helper": {"name": "H. Helper", "email": "h.helper@example.org"}}}},
+             ["requirements.submission.helper.email"], []),
+            ({"identity": {"owner": {"name": "Example Trust", "email": "trust@example.org"}}},
+             ["identity.owner.email"], []),
+            ({"identity": {"editor": {"name": {"en": "A. Editor"}, "email": "a.editor@example.org"}}},
+             [], ["identity.editor.email"]),
+        ]
+        for rec, personal, office in rows:
+            with self.subTest(rec=rec):
+                self.assertEqual(va.contact_addresses(rec), (personal, office))
+
+    def test_what_counts_as_an_address(self):
+        # spec-example: venue-contacts / what counts as an address
+        rows = [
+            ("a.editor@example.org", True),
+            ("write to <a.editor@example.org>.", True),
+            ("主編信箱a.editor@example.org。", True),
+            ("https://social.example/@aeditor/intro.html", False),
+            ("@aeditor", False),
+            ("帳號@aeditor，網站 example.org", False),
+            ("a.editor@localhost", False),
+        ]
+        for text, expected in rows:
+            with self.subTest(text=text):
+                found = va.contact_addresses({"identity": {"contact": text}})
+                self.assertEqual(found, ([], ["identity.contact"] if expected else []))
+
+    def test_an_address_used_as_a_key(self):
+        # spec-example: venue-contacts / an address used as a key
+        rec = {"identity": {"editor": {"name": "A. Editor", "contacts": {"a.editor@example.org": "primary"}},
+                            "desk": {"office@example.org": {"hours": "9-5"}}}}
+        self.assertEqual(va.contact_addresses(rec),
+                         (["identity.editor.contacts.<address>"], ["identity.desk.<address>"]))
+
+    def test_a_section_written_as_a_string_or_a_list(self):
+        # spec-example: venue-contacts / a section written as a string or a list
         self.assertEqual(va.contact_addresses({"requirements": {"submission": "write to office@example.org"}}),
                          ([], ["requirements.submission"]))
         self.assertEqual(va.contact_addresses({"cycle": ["meeting2026@example.org"]}), ([], ["cycle[0]"]))
@@ -98,10 +136,22 @@ class WarningW3(unittest.TestCase):
             with self.subTest(rec=rec):
                 self.assertEqual(w3(rec), [])
 
+    def test_warning_text_when_a_key_is_an_address(self):
+        # spec-example: venue-contacts / warning text when a key is an address
+        rec = {"identity": {"editor": {"name": "A. Editor", "contacts": {"a.editor@example.org": "primary"}},
+                            "editorial_office": dict(OFFICE)}}
+        found = w3(rec)
+        self.assertEqual(len(found), 1)
+        self.assertIn("identity.editor.contacts.<address>", found[0])
+        self.assertNotIn("@", found[0])
+
     def test_validator_run_exits_zero_with_w3(self):
         # spec-example: venue-contacts / validator run exits zero with W3
         rec = yaml.safe_load((PLUGIN / "venues" / "ams" / "bulletin-of-the-ams.yaml").read_text(encoding="utf-8"))
         rec["warnings"] = []
+        today = datetime.date.today().isoformat()
+        for source in rec["sources"]:  # W2 counts days since last_verified_at; the fixture must not age
+            source["snapshot"]["last_verified_at"] = today
         rec["requirements"]["submission"] = {}
         rec["identity"]["editor"] = dict(EDITOR)
         rec["identity"]["editorial_office"] = dict(OFFICE)
@@ -119,8 +169,10 @@ class Guidance(unittest.TestCase):
         # spec-example: venue-contacts / skill text on contact addresses
         text = SKILL.read_text(encoding="utf-8")
         self.assertTrue(any(line.startswith("| W3 |") for line in text.splitlines()))
-        for phrase in ("公務信箱", "個人信箱", "看用途，不看網域", "不寫在具名人物底下"):
+        for phrase in ("公務信箱", "個人信箱", "看信箱屬於誰，不看網域", "即使官網把它列為聯絡方式",
+                       "不寫在具名人物底下", "備註與警告", "機構的信箱", "#21"):
             self.assertIn(phrase, text)
+        self.assertNotIn("公務信箱寫在 `identity.editorial_office.email`", text)
 
 
 class Corpus(unittest.TestCase):
@@ -132,6 +184,20 @@ class Corpus(unittest.TestCase):
             with self.subTest(record=str(f.relative_to(PLUGIN))):
                 rec = va.normalize_dates(yaml.safe_load(f.read_text(encoding="utf-8")))
                 self.assertEqual(w3(rec), [])
+
+    # Records that use the exception of the recording rule: record id -> the source that names the
+    # address as the submission contact. Empty when this test was written.
+    PERSONAL_ADDRESS_EXCEPTIONS = {}
+
+    def test_bundled_records_hold_no_personal_address(self):
+        # spec-example: venue-contacts / bundled records hold no personal address
+        for f in sorted((PLUGIN / "venues").rglob("*.yaml")):
+            rid = str(f.relative_to(PLUGIN / "venues"))[:-5]
+            if rid in self.PERSONAL_ADDRESS_EXCEPTIONS:
+                continue
+            with self.subTest(record=rid):
+                rec = va.normalize_dates(yaml.safe_load(f.read_text(encoding="utf-8")))
+                self.assertEqual(va.contact_addresses(rec)[0], [])
 
 
 if __name__ == "__main__":
