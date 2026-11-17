@@ -316,10 +316,11 @@ identity:
       - {name: Yuguo Chen, affiliation: University of Illinois Urbana-Champaign}
       - {name: Rebecca Killick, affiliation: Clemson University}
       - {name: Laura M. Sangalli, affiliation: Politecnico di Milano}
-    editorial_coordinator: {name: Janet Wallace, email: jcgs.office@gmail.com}
+    editorial_coordinator: {name: Janet Wallace}
     journals_manager: Eric Sampson
     src: tf_about
     note: 編輯部名單取自 about-this-journal 頁（公開 masthead），頁面沒有標示各人任期。頁面名單沒有列「Associate Editor for Reproducibility」這類可重現性專責編輯。
+  editorial_office: {email: jcgs.office@gmail.com, note: 期刊辦公室信箱，由 Editorial Coordinator 收信, src: tf_about}
   external_ids:
     crossref: "1061-8600"
     openalex: issn:1061-8600

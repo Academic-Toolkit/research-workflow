@@ -162,7 +162,7 @@ identity:
   homepage: https://academic.oup.com/biomet
   society_site: https://www.biometrikatrust.org/
   founded: {value: 1901, src: trust_journal}
-  editor: {name: Paul Fearnhead, email: editor@biometrikatrust.org, note: 編務與投稿詢問寄這個信箱, src: instructions}
+  editor: {name: Paul Fearnhead, note: 編務與投稿詢問寄 Editor 的公務信箱（見 requirements.submission.queries）, src: instructions}
   editorial_office: {email: editorial@biometrika.org.uk, note: 審查中、即將刊出或已刊文章的查詢, src: trust_journal}
   frequency: {status: not_found, checked: 2026-10-08, note: instructions 與 About 頁都沒寫}
   metrics:
