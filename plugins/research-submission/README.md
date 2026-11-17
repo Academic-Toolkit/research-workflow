@@ -15,7 +15,7 @@
 ## Scripts
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py            # schema + 4 錯誤 / 2 警告 lint
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py            # schema + 4 錯誤 / 3 警告 lint
 python3 ${CLAUDE_PLUGIN_ROOT}/scripts/verify.py <venue-id>   # 重抓、斷言、比對 hash
 python3 ${CLAUDE_PLUGIN_ROOT}/scripts/venue_topic_scan.py --venue <venue-id> --term "<主題>"   # 期刊實際刊了什麼（OpenAlex 標題掃描）
 python3 ${CLAUDE_PLUGIN_ROOT}/scripts/sample_review_times.py --issn <ISSN> --preset frontiers --journal-path journals/psychology --year 2025   # 自行估計投稿到接受（非官方）

@@ -29,41 +29,54 @@ def normalize_dates(node):
     return node
 
 
-ADDRESS = re.compile(r"[^\s@<>()\[\],;:\"']+@[^\s@<>()\[\],;:\"']+\.[^\s@<>()\[\],;:\"'.]+")
+# 位址：本地部分（ASCII 英數與 . _ % + -，前面不能緊接同類字元或 /），@，網域（以點分隔的
+# 英數與連字號，最後一段至少兩個英文字母）。所以「@帳號」與路徑裡帶「/@帳號」的網址都不算。
+ADDRESS = re.compile(
+    r"(?<![A-Za-z0-9._%+/-])[A-Za-z0-9._%+-]+@(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,}(?![A-Za-z0-9-])"
+)
+ADDRESS_KEY = "<address>"  # 鍵本身是位址時，在欄位路徑裡的寫法；欄位路徑永遠不含位址
 
 
 def contact_addresses(rec):
     """聯絡信箱依位置分成兩種，回傳 (個人信箱的欄位路徑, 公務信箱的欄位路徑)。
 
-    只看 identity、requirements.submission、cycle。identity 底下（不含 identity 本身，
-    它的 name 是 venue 的名稱）有字串 name 的 mapping 是具名人物，它底下任何深度含位址的
-    字串都算個人信箱；範圍內其他含位址的字串算公務信箱。不看網域。
+    只看 identity、requirements.submission、cycle。範圍內有字串 name 的 mapping 是具名人物
+    （identity 本身除外，它的 name 是 venue 的名稱），它底下任何深度的位址都算個人信箱；
+    範圍內其他位址算公務信箱。只看位置，不看網域，也分不出人與機構：機構的 mapping 有字串
+    name 時同樣被當成具名人物。
     """
     personal, office = [], []
 
-    def walk(node, path, in_person, may_name):
+    def walk(node, path, in_person):
         if isinstance(node, dict):
-            person = in_person or (may_name and isinstance(node.get("name"), str))
+            person = in_person or isinstance(node.get("name"), str)
             for k, v in node.items():
-                walk(v, f"{path}.{k}", person, may_name)
+                if isinstance(k, str) and ADDRESS.search(k):
+                    sub = f"{path}.{ADDRESS_KEY}"
+                    (personal if person else office).append(sub)
+                else:
+                    sub = f"{path}.{k}"
+                walk(v, sub, person)
         elif isinstance(node, list):
             for i, v in enumerate(node):
-                walk(v, f"{path}[{i}]", in_person, may_name)
+                walk(v, f"{path}[{i}]", in_person)
         elif isinstance(node, str) and ADDRESS.search(node):
             (personal if in_person else office).append(path)
 
-    def section(node, path, may_name):
-        if isinstance(node, dict):
-            for k, v in node.items():
-                walk(v, f"{path}.{k}", False, may_name)
-        else:  # 整段寫成字串或 list 時照樣在範圍內
-            walk(node, path, False, may_name)
-
     if isinstance(rec, dict):
-        section(rec.get("identity"), "identity", True)
+        identity = rec.get("identity")
+        if isinstance(identity, dict):  # identity 本身不是具名人物：逐鍵走，不看它的 name
+            for k, v in identity.items():
+                if isinstance(k, str) and ADDRESS.search(k):
+                    office.append(f"identity.{ADDRESS_KEY}")
+                    walk(v, f"identity.{ADDRESS_KEY}", False)
+                else:
+                    walk(v, f"identity.{k}", False)
+        else:
+            walk(identity, "identity", False)
         req = rec.get("requirements")
-        section(req.get("submission") if isinstance(req, dict) else None, "requirements.submission", False)
-        section(rec.get("cycle"), "cycle", False)
+        walk(req.get("submission") if isinstance(req, dict) else None, "requirements.submission", False)
+        walk(rec.get("cycle"), "cycle", False)
     return personal, office
 
 
