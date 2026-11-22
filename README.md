@@ -88,7 +88,7 @@ livedocs 不能存，因為存了就過時；本專案必須存，因為底層�
 | `ims/annals-of-statistics` | journal | 17 來源，2026-10-08 |
 | `psychometric-society/psychometrika` | journal | 25 來源，2026-10-08 |
 
-需求驅動 —— 有人要投才加。收錄新場次用 `add-venue` skill。
+需求驅動 —— 有人要投才加。收錄新場次用 `add-venue` skill；更新已收錄的記錄用 `update-venue` skill。
 
 ### 開發
 

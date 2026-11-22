@@ -1,11 +1,13 @@
 ---
 name: add-venue
-description: Use when a journal or conference is NOT yet in the research-submission corpus and needs to be added, or when an existing record must be re-fetched because verify.py reported CHANGED. Triggers on "把 <期刊> 加進來", "add <venue> to the corpus", "這個期刊還沒收錄", "收錄 <conference>", "來源變了要更新". Fetches the venue's primary sources, asserts fetch validity, and writes a schema-valid YAML record with full provenance.
+description: Use when a journal or conference is NOT yet in the research-submission corpus and needs to be added. Triggers on "把 <期刊> 加進來", "add <venue> to the corpus", "這個期刊還沒收錄", "收錄 <conference>". Fetches the venue's primary sources, asserts fetch validity, and writes a schema-valid YAML record with full provenance. Not for changing a record the corpus already has (a source changed, something is missing or wrong, re-verification, yearly refresh) — that is update-venue.
 ---
 
 # add-venue
 
 把一個新場次收進語料庫。**這個 skill 的產出會被別人當成權威來用**，所以寧可標「查過，沒有」也不要憑印象填。
+
+**先確認真的還沒收錄。** 已安裝的版本裡沒有，不代表沒有記錄：外掛的原始 repo 可能有一個還沒合併的分支已經建好了。查法見 `update-venue` 的 Step 2；找到就改用 `update-venue` 接著那一份做，不要重新建檔。
 
 ## Step 1 — 找到一手來源（不要只找一頁）
 
@@ -163,11 +165,7 @@ python3 -m unittest discover -s ${CLAUDE_PLUGIN_ROOT}/tests   # 語料庫測試�
 
 **錯誤要修到零；警告要讀懂再決定。**
 
-## Step 6 — 更新既有記錄（`verify.py` 回報 CHANGED 時）
+## Step 6 — 更新既有記錄：改用 `update-venue`
 
-1. 重新擷取該來源
-2. **人工覆核差異**——找出哪些欄位真的變了。不要整份覆蓋，那會弄丟先前查證過的 `not_published` 標記
-3. 更新變動欄位 + `fetched_at`
-4. 重跑 `verify.py` 建新基準
-
-改版通常只動少數欄位。整份重寫比逐欄比對更容易出錯，也丟掉累積的查證成果。
+記錄已經在語料庫裡、需要更動時（`verify.py` 回報 `CHANGED`、記錄有缺口或寫錯、重新驗證、每年的指標與研討會換屆），用 `update-venue`。
+那裡規定了哪些欄位可以動、日期怎麼改、查證過的 `not_published` 標記怎麼保留。不要回到這份 skill 把記錄整份重寫。
