@@ -75,12 +75,14 @@ python3 ${CLAUDE_PLUGIN_ROOT}/scripts/verify.py <venue-id>
 | 狀態 | 意義 | 該怎麼辦 |
 |------|------|----------|
 | `UNCHANGED` | 來源未變，快照有效 | 可以放心用 |
-| `CHANGED` | **來源已變動** | **停下來**。重新擷取該頁，人工覆核差異後才繼續 |
+| `CHANGED` | **來源已變動** | **停下來**。用 `update-venue` 重新擷取該頁、人工覆核差異、更新記錄後才繼續 |
 | `NEEDS_AGENT` | 該來源擋一般 HTTP（如 APA 的 Incapsula） | 你自己用 WebFetch 或 safari-browser 抓，比對關鍵欄位 |
 | `BASELINE` | 記錄還沒有 hash 基準，這次只是第一次建立 | **不等於未變動**。自己打開被引用的頁面，確認原文仍在並報出確認日期 |
 | `EXTRACTOR_MISMATCH` | 記錄的 hash 是別版抽取器算的 | hash 不可比；照 `BASELINE` 處理並重建基準 |
 | `INVALID` | 抓到了但內容不對（缺必含字串/過短） | 視為抓取失敗，**不可**當成「沒變動」 |
 | `FETCH_FAILED` | 抓不到 | 明確告知使用者「無法驗證」，並報出快照已幾天未驗證 |
+
+要把這次的確認寫回記錄（`last_verified_at`），或讀的時候發現記錄少了東西、寫錯了，用 `update-venue`。本 skill 只讀記錄，不改記錄。
 
 **`NEEDS_AGENT` 不等於通過。** 那表示驗證責任落到你身上——去抓、去比對，不要略過。
 
